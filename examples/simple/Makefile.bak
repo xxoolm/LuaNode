@@ -1,0 +1,4 @@
+# Simple makefile for simple example
+PROGRAM=simple
+EXTRA_COMPONENTS = extras/dhcpserver
+include ../../common.mk
