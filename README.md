@@ -1,5 +1,5 @@
 # esp-lua-sdk
-A esp8266 lua sdk, which based on esp-open-rtos-sdk.
+A esp8266 lua rtos sdk, which based on esp-open-rtos-sdk.
 
 ======================================
 HOW TO BUILD:
@@ -18,4 +18,5 @@ QQ: 535873968
 Reference:
 
 NodeMCU: https://github.com/nodemcu/nodemcu-firmware
+
 esp-open-rtos: https://github.com/SuperHouse/esp-open-rtos
