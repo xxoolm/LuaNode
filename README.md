@@ -6,3 +6,6 @@ HOW TO BUILD:
 
 USE LUA:
 Build the simple project in the examples directory.
+
+
+Contact me: nicholas3388@gmail.com
