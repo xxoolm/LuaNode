@@ -16,7 +16,7 @@
 #include "common_macros.h"
 #include "xtensa_ops.h"
 #include "esp/rom.h"
-#include "esp/uart.h"
+#include "uart.h"
 #include "esp/iomux_regs.h"
 #include "esp/spi_regs.h"
 #include "esp/dport_regs.h"
@@ -165,7 +165,7 @@ void IRAM sdk_user_fatal_exception_handler(void) {
 
 
 static void IRAM default_putc(char c) {
-    uart_putc(0, c);
+    uart_tx_one_char(0, c);
 }
 
 // .text+0x258
@@ -278,8 +278,8 @@ static void init_networking(uint8_t *phy_info, uint8_t *mac_addr) {
         printf("FATAL: sdk_register_chipv6_phy failed");
         halt();
     }
-    uart_set_baud(0, 74906);
-    uart_set_baud(1, 74906);
+    UART_SetBaudrate(0, 74906);
+    UART_SetBaudrate(1, 74906);
     sdk_phy_disable_agc();
     sdk_ieee80211_phy_init(sdk_g_ic.s.phy_mode);
     sdk_lmacInit();
@@ -380,7 +380,7 @@ void sdk_user_init_task(void *params) {
     int phy_ver, pp_ver;
 
     sdk_ets_timer_init();
-    printf("\nESP-Open-SDK ver: %s compiled @ %s %s\n", OS_VERSION_STR, __DATE__, __TIME__);
+    printf("\nESP-LUA-SDK ver: %s compiled @ %s %s\n", OS_VERSION_STR, __DATE__, __TIME__);
     phy_ver = RTCMEM_BACKUP[RTCMEM_BACKUP_PHY_VER] >> 16;
     printf("phy ver: %d, ", phy_ver);
     pp_ver = RTCMEM_SYSTEM[RTCMEM_SYSTEM_PP_VER];

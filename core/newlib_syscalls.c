@@ -9,7 +9,7 @@
 #include <sys/errno.h>
 #include <espressif/sdk_private.h>
 #include <common_macros.h>
-#include <esp/uart.h>
+#include <uart.h>
 #include <stdlib.h>
 
 IRAM caddr_t _sbrk_r (struct _reent *r, int incr)
@@ -45,8 +45,8 @@ long _write_r(struct _reent *r, int fd, const char *ptr, int len )
         if(ptr[i] == '\r')
             continue;
         if(ptr[i] == '\n')
-            uart_putc(0, '\r');
-        uart_putc(0, ptr[i]);
+            uart_tx_one_char(0, '\r');
+        uart_tx_one_char(0, ptr[i]);
     }
     return len;
 }

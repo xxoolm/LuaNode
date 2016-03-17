@@ -12,7 +12,7 @@
 
 #include <sys/cdefs.h>
 
-#define UNUSED __attributed((unused))
+//#define UNUSED __attributed((unused))
 
 #ifndef BIT
 #define BIT(X) (1<<(X))

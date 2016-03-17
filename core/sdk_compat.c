@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <common_macros.h>
 
-#include <esp/uart.h>
+#include <uart.h>
 
 void IRAM *zalloc(size_t nbytes)
 {

@@ -64,7 +64,7 @@ OTA ?= 0
 ifeq ($(OTA),1)
 # for OTA, we build a "SDK v1.2 bootloader" compatible image where everything is in
 # one file (should work with the v1.2 binary bootloader, and the FOSS rBoot bootloader).
-IMGTOOL ?= esptool2
+IMGTOOL ?= /root/wangwei/test2/esp-open-rtos-master/esptool2
 
 # Tell C preprocessor that we're building for OTA
 CPPFLAGS = -DOTA
@@ -93,7 +93,7 @@ COMPONENTS     ?= $(EXTRA_COMPONENTS) FreeRTOS lwip core
 SDK_LIBS		?= main net80211 phy pp wpa
 
 # open source libraries linked in
-LIBS ?= hal gcc c
+LIBS ?= hal gcc c m
 
 # set to 0 if you want to use the toolchain libc instead of esp-open-rtos newlib
 OWN_LIBC ?= 1
@@ -109,14 +109,14 @@ SPLIT_SECTIONS ?= 1
 # Common flags for both C & C++_
 C_CXX_FLAGS     ?= -Wpointer-arith -Werror -Wl,-EL -nostdlib $(EXTRA_C_CXX_FLAGS)
 # Flags for C only
-CFLAGS		?= $(C_CXX_FLAGS) -std=gnu99 $(EXTRA_CFLAGS)
+CFLAGS		?= $(C_CXX_FLAGS) -std=gnu99 $(EXTRA_CFLAGS) -DLUA_OPTMIZE_MEMORY=2 -DMIN_OPT_LEVEL=2
 # Flags for C++ only
 CXXFLAGS	?= $(C_CXX_FLAGS) -fno-exceptions -fno-rtti $(EXTRA_CXXFLAGS)
 
 # these aren't technically preprocesor args, but used by all 3 of C, C++, assembler
 CPPFLAGS	+= -mlongcalls -mtext-section-literals
 
-LDFLAGS		= -nostdlib -Wl,--no-check-sections -L$(BUILD_DIR)sdklib -L$(ROOT)lib -u $(ENTRY_SYMBOL) -Wl,-static -Wl,-Map=$(BUILD_DIR)$(PROGRAM).map $(EXTRA_LDFLAGS)
+LDFLAGS		= -nostdlib -Wl,--no-check-sections -L$(BUILD_DIR)sdklib -L$(ROOT)lib -u $(ENTRY_SYMBOL) -Wl,-static -Wl,-Map=$(BUILD_DIR)$(PROGRAM).map $(EXTRA_LDFLAGS) -DLUA_OPTIMIZE_MEMORY=2 -DMIN_OPT_LEVEL=2
 
 ifeq ($(SPLIT_SECTIONS),1)
   C_CXX_FLAGS += -ffunction-sections -fdata-sections
