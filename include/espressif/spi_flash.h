@@ -6,15 +6,18 @@
 #ifndef __SPI_FLASH_H__
 #define __SPI_FLASH_H__
 
+#include "c_types.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    SPI_FLASH_RESULT_OK,
-    SPI_FLASH_RESULT_ERR,
-    SPI_FLASH_RESULT_TIMEOUT
+    sdk_SPI_FLASH_RESULT_OK,
+    sdk_SPI_FLASH_RESULT_ERR,
+    sdk_SPI_FLASH_RESULT_TIMEOUT
 } sdk_SpiFlashOpResult;
+
 
 #define SPI_FLASH_SEC_SIZE      4096
 

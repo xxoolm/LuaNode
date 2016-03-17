@@ -63,6 +63,10 @@ typedef uint64_t u64;
 typedef float    real32;
 typedef double   real64;
 
+
+#define BIT(nr) (1UL << (nr))
+
+
 #define __le16      u16
 
 #define LOCAL       static

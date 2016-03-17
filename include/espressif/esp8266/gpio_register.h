@@ -66,7 +66,7 @@
 
 #define GPIO_PIN_CONFIG_MSB                 12
 #define GPIO_PIN_CONFIG_LSB                 11
-#define GPIO_PIN_CONFIG_MASK                (0x00000003<<GPIO_PIN_CONFIG_LSB)
+//#define GPIO_PIN_CONFIG_MASK                (0x00000003<<GPIO_PIN_CONFIG_LSB)
 #define GPIO_PIN_CONFIG_GET(x)              (((x) & GPIO_PIN_CONFIG_MASK) >> GPIO_PIN_CONFIG_LSB)
 #define GPIO_PIN_CONFIG_SET(x)              (((x) << GPIO_PIN_CONFIG_LSB) & GPIO_PIN_CONFIG_MASK)
 
@@ -74,13 +74,13 @@
 #define GPIO_WAKEUP_DISABLE                 (~GPIO_WAKEUP_ENABLE)
 #define GPIO_PIN_WAKEUP_ENABLE_MSB          10
 #define GPIO_PIN_WAKEUP_ENABLE_LSB          10
-#define GPIO_PIN_WAKEUP_ENABLE_MASK         (0x00000001<<GPIO_PIN_WAKEUP_ENABLE_LSB)
-#define GPIO_PIN_WAKEUP_ENABLE_GET(x)       (((x) & GPIO_PIN_CONFIG_MASK) >> GPIO_PIN_CONFIG_LSB)
+//#define GPIO_PIN_WAKEUP_ENABLE_MASK         (0x00000001<<GPIO_PIN_WAKEUP_ENABLE_LSB)
+//#define GPIO_PIN_WAKEUP_ENABLE_GET(x)       (((x) & GPIO_PIN_CONFIG_MASK) >> GPIO_PIN_CONFIG_LSB)
 #define GPIO_PIN_WAKEUP_ENABLE_SET(x)       (((x) << GPIO_PIN_WAKEUP_ENABLE_LSB) & GPIO_PIN_WAKEUP_ENABLE_MASK)
 
 #define GPIO_PIN_INT_TYPE_MSB               9
 #define GPIO_PIN_INT_TYPE_LSB               7
-#define GPIO_PIN_INT_TYPE_MASK              (0x00000007<<GPIO_PIN_INT_TYPE_LSB)
+//#define GPIO_PIN_INT_TYPE_MASK              (0x00000007<<GPIO_PIN_INT_TYPE_LSB)
 #define GPIO_PIN_INT_TYPE_GET(x)            (((x) & GPIO_PIN_INT_TYPE_MASK) >> GPIO_PIN_INT_TYPE_LSB)
 #define GPIO_PIN_INT_TYPE_SET(x)            (((x) << GPIO_PIN_INT_TYPE_LSB) & GPIO_PIN_INT_TYPE_MASK)
 
@@ -90,12 +90,12 @@
 #define GPIO_PIN_DRIVER_LSB                 2
 #define GPIO_PIN_DRIVER_MASK                (0x00000001<<GPIO_PIN_DRIVER_LSB)
 #define GPIO_PIN_DRIVER_GET(x)              (((x) & GPIO_PIN_INT_TYPE_MASK) >> GPIO_PIN_INT_TYPE_LSB)
-#define GPIO_PIN_PAD_DRIVER_SET(x)          (((x) << GPIO_PIN_DRIVER_LSB) & GPIO_PIN_DRIVER_MASK)
+//#define GPIO_PIN_PAD_DRIVER_SET(x)          (((x) << GPIO_PIN_DRIVER_LSB) & GPIO_PIN_DRIVER_MASK)
 
 #define GPIO_PIN_SOURCE_MSB                 0
 #define GPIO_PIN_SOURCE_LSB                 0
-#define GPIO_PIN_SOURCE_MASK                (0x00000001<<GPIO_PIN_SOURCE_LSB)
-#define GPIO_PIN_SOURCE_GET(x)   `          (((x) & GPIO_PIN_INT_TYPE_MASK) >> GPIO_PIN_INT_TYPE_LSB)
+//#define GPIO_PIN_SOURCE_MASK                (0x00000001<<GPIO_PIN_SOURCE_LSB)
+//#define GPIO_PIN_SOURCE_GET(x)   `          (((x) & GPIO_PIN_INT_TYPE_MASK) >> GPIO_PIN_INT_TYPE_LSB)
 #define GPIO_PIN_SOURCE_SET(x)              (((x) << GPIO_PIN_SOURCE_LSB) & GPIO_PIN_SOURCE_MASK)
 //end of region1
 
