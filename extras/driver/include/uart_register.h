@@ -22,6 +22,10 @@
 #ifndef UART_REGISTER_H_
 #define UART_REGISTER_H_
 
+
+#include "c_types.h"
+
+
 #define REG_UART_BASE(i)                (0x60000000 + (i)*0xf00)
 //version value:32'h062000
 

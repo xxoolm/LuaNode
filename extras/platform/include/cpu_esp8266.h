@@ -2,7 +2,7 @@
 #define __CPU_ESP8266_H__
 
 //#include "os_type.h"
-#include "spi_flash.h"
+#include "espressif/spi_flash.h"
 #include "pin_map.h"
 #include "user_config.h"
 #include "flash_api.h"

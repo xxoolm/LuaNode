@@ -24,12 +24,11 @@
 
 #define FLASH_SAFEMODE_ENTER() \
 do { \
-    extern SpiFlashChip * flashchip; \
-    flashchip->chip_size = FLASH_SIZE_16MBYTE
+    sdk_flashchip.chip_size = FLASH_SIZE_16MBYTE
 
 
 #define FLASH_SAFEMODE_LEAVE() \
-    flashchip->chip_size = flash_rom_get_size_byte(); \
+    sdk_flashchip.chip_size = flash_rom_get_size_byte(); \
 } while(0)
 
 /******************************************************************************
@@ -91,9 +90,9 @@ typedef struct
 uint32_t flash_detect_size_byte(void);
 uint32_t flash_safe_get_size_byte(void);
 uint16_t flash_safe_get_sec_num(void);
-SpiFlashOpResult flash_safe_read(uint32 src_addr, uint32 *des_addr, uint32 size);
-SpiFlashOpResult flash_safe_write(uint32 des_addr, uint32 *src_addr, uint32 size);
-SpiFlashOpResult flash_safe_erase_sector(uint16 sec);
+sdk_SpiFlashOpResult flash_safe_read(uint32 src_addr, uint32 *des_addr, uint32 size);
+sdk_SpiFlashOpResult flash_safe_write(uint32 des_addr, uint32 *src_addr, uint32 size);
+sdk_SpiFlashOpResult flash_safe_erase_sector(uint16 sec);
 SPIFlashInfo flash_rom_getinfo(void);
 uint8_t flash_rom_get_size_type(void);
 uint32_t flash_rom_get_size_byte(void);

@@ -6,4 +6,5 @@ INC_DIRS += $(lua_ROOT)include
 lua_INC_DIR =  $(lua_ROOT)
 lua_SRC_DIR =  $(lua_ROOT)
 
+
 $(eval $(call component_compile_rules,lua))

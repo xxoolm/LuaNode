@@ -678,13 +678,15 @@ UART_SetParity(uint8 uart_no, UartParityMode Parity_mode)
     }
 }
 
-#if 0
+
 void ICACHE_FLASH_ATTR
 UART_SetBaudrate(uint8 uart_no,uint32 baud_rate)
 {
-    uart_div_modify(uart_no, UART_CLK_FREQ /baud_rate);
+    //uart_div_modify(uart_no, UART_CLK_FREQ /baud_rate);
+    uint32_t divider = APB_CLK_FREQ / baud_rate;
+    UART(uart_no).CLOCK_DIVIDER = divider;
 }
-#endif
+
 
 void ICACHE_FLASH_ATTR
 UART_SetFlowCtrl(uint8 uart_no,UART_HwFlowCtrl flow_ctrl,uint8 rx_thresh)

@@ -21,6 +21,8 @@
 #include "eagle_soc.h"
 #include "c_types.h"
 
+#include "esp/uart_regs.h"
+
 #define RX_BUFF_SIZE	0x100
 
 #define UART_TX_BUFFER_SIZE 256  //Ring buffer length of tx buffer
@@ -220,6 +222,25 @@ bool UART_CheckOutputFinished(uint8 uart_no, uint32 time_out_us);
 //==============================================
 
 void uart0_alt(uint8 on);
+
+static inline void uart_flush_txfifo(int uart_num) {
+    while(FIELD2VAL(UART_STATUS_TXFIFO_COUNT, UART(uart_num).STATUS) != 0) {}
+}
+
+static inline int uart_getc_nowait(int uart_num) {
+    if(FIELD2VAL(UART_STATUS_RXFIFO_COUNT, UART(uart_num).STATUS)) {
+        return UART(uart_num).FIFO;
+    }
+    return -1;
+}
+
+static inline int uart_rxfifo_wait(int uart_num, int min_count) {
+    int count;
+    do {
+        count = FIELD2VAL(UART_STATUS_RXFIFO_COUNT, UART(uart_num).STATUS);
+    } while (count < min_count);
+    return count;
+}
 
 #endif
 

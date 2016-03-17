@@ -3,6 +3,8 @@
 #include "lua.h"
 #include "lauxlib.h"
 
+#include "espressif/esp_system.h"
+
 #include "ldebug.h"
 #include "ldo.h"
 #include "lfunc.h"
@@ -34,7 +36,7 @@
 // Lua: restart()
 static int node_restart( lua_State* L )
 {
-  system_restart();
+  sdk_system_restart();
   return 0;
 }
 
@@ -86,8 +88,8 @@ static int node_info( lua_State* L )
   lua_pushinteger(L, NODE_VERSION_MAJOR);
   lua_pushinteger(L, NODE_VERSION_MINOR);
   lua_pushinteger(L, NODE_VERSION_REVISION);
-  lua_pushinteger(L, system_get_chip_id());   // chip id
-  lua_pushinteger(L, spi_flash_get_id());     // flash id
+  lua_pushinteger(L, sdk_system_get_chip_id());   // chip id
+  lua_pushinteger(L, sdk_spi_flash_get_id());     // flash id
 #if defined(FLASH_SAFE_API)
   lua_pushinteger(L, flash_safe_get_size_byte() / 1024);  // flash size in KB
 #else
@@ -101,7 +103,7 @@ static int node_info( lua_State* L )
 // Lua: chipid()
 static int node_chipid( lua_State* L )
 {
-  uint32_t id = system_get_chip_id();
+  uint32_t id = sdk_system_get_chip_id();
   lua_pushinteger(L, id);
   return 1;
 }
@@ -118,7 +120,7 @@ static int node_chipid( lua_State* L )
 // Lua: flashid()
 static int node_flashid( lua_State* L )
 {
-  uint32_t id = spi_flash_get_id();
+  uint32_t id = sdk_spi_flash_get_id();
   lua_pushinteger( L, id );
   return 1;
 }
@@ -142,7 +144,7 @@ static int node_flashsize( lua_State* L )
 // Lua: heap()
 static int node_heap( lua_State* L )
 {
-  uint32_t sz = system_get_free_heap_size();
+  uint32_t sz = sdk_system_get_free_heap_size();
   lua_pushinteger(L, sz);
   return 1;
 }
@@ -172,7 +174,7 @@ static void default_long_press(void *arg) {
 }
 
 static void default_short_press(void *arg) {
-  system_restart();
+  sdk_system_restart();
 }
 
 static void key_long_press(void *arg) {
@@ -578,7 +580,7 @@ const LUA_REG_TYPE node_map[] =
   { LSTRKEY( "CPU160MHZ" ), LNUMVAL( CPU160MHZ ) },
 //  { LSTRKEY( "setcpufreq" ), LFUNCVAL( node_setcpufreq) },
 //  { LSTRKEY( "bootreason" ), LFUNCVAL( node_bootreason) },
-  { LSTRKEY( "restore" ), LFUNCVAL( node_restore) },
+//  { LSTRKEY( "restore" ), LFUNCVAL( node_restore) },
 #ifdef LUA_OPTIMIZE_DEBUG
   { LSTRKEY( "stripdebug" ), LFUNCVAL( node_stripdebug ) },
 #endif

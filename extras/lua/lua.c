@@ -398,8 +398,8 @@ int lua_main (int argc, char **argv) {
   }
   printf("lua create ok!\n");
   
-  //luaL_openlibs(lua_crtstate);
-  //printf(" open libs ok?");
+  luaL_openlibs(lua_crtstate);
+  printf(" open libs ok?\n");
 
   return 0;
 }

@@ -37,11 +37,11 @@ uint32_t flash_detect_size_byte(void)
     uint32_t dummy_size = FLASH_SIZE_256KBYTE;
     uint8_t data_orig[FLASH_BUFFER_SIZE_DETECT] ICACHE_STORE_ATTR = {0};
     uint8_t data_new[FLASH_BUFFER_SIZE_DETECT] ICACHE_STORE_ATTR = {0};
-    if (SPI_FLASH_RESULT_OK == flash_safe_read(0, (uint32 *)data_orig, FLASH_BUFFER_SIZE_DETECT))
+    if (sdk_SPI_FLASH_RESULT_OK == flash_safe_read(0, (uint32 *)data_orig, FLASH_BUFFER_SIZE_DETECT))
     {
         dummy_size = FLASH_SIZE_256KBYTE;
         while ((dummy_size < FLASH_SIZE_16MBYTE) &&
-                (SPI_FLASH_RESULT_OK == flash_safe_read(dummy_size, (uint32 *)data_new, FLASH_BUFFER_SIZE_DETECT)) &&
+                (sdk_SPI_FLASH_RESULT_OK == flash_safe_read(dummy_size, (uint32 *)data_new, FLASH_BUFFER_SIZE_DETECT)) &&
                 (0 != memcmp(data_orig, data_new, FLASH_BUFFER_SIZE_DETECT))
               )
         {
@@ -67,29 +67,29 @@ uint16_t flash_safe_get_sec_num(void)
     return (flash_safe_get_size_byte() / (SPI_FLASH_SEC_SIZE));
 }
 
-SpiFlashOpResult flash_safe_read(uint32 src_addr, uint32 *des_addr, uint32 size)
+sdk_SpiFlashOpResult flash_safe_read(uint32 src_addr, uint32 *des_addr, uint32 size)
 {
-    SpiFlashOpResult result = SPI_FLASH_RESULT_ERR;
+    sdk_SpiFlashOpResult result = sdk_SPI_FLASH_RESULT_ERR;
     FLASH_SAFEMODE_ENTER();
-    result = spi_flash_read(src_addr, (uint32 *) des_addr, size);
+    result = sdk_spi_flash_read(src_addr, (uint32 *) des_addr, size);
     FLASH_SAFEMODE_LEAVE();
     return result;
 }
 
-SpiFlashOpResult flash_safe_write(uint32 des_addr, uint32 *src_addr, uint32 size)
+sdk_SpiFlashOpResult flash_safe_write(uint32 des_addr, uint32 *src_addr, uint32 size)
 {
-    SpiFlashOpResult result = SPI_FLASH_RESULT_ERR;
+    sdk_SpiFlashOpResult result = sdk_SPI_FLASH_RESULT_ERR;
     FLASH_SAFEMODE_ENTER();
-    result = spi_flash_write(des_addr, src_addr, size);
+    result = sdk_spi_flash_write(des_addr, src_addr, size);
     FLASH_SAFEMODE_LEAVE();
     return result;
 }
 
-SpiFlashOpResult flash_safe_erase_sector(uint16 sec)
+sdk_SpiFlashOpResult flash_safe_erase_sector(uint16 sec)
 {
-    SpiFlashOpResult result = SPI_FLASH_RESULT_ERR;
+    sdk_SpiFlashOpResult result = sdk_SPI_FLASH_RESULT_ERR;
     FLASH_SAFEMODE_ENTER();
-    result = spi_flash_erase_sector(sec);
+    result = sdk_spi_flash_erase_sector(sec);
     FLASH_SAFEMODE_LEAVE();
     return result;
 }
@@ -102,7 +102,7 @@ SPIFlashInfo flash_rom_getinfo(void)
     // spi_flash_info = *((SPIFlashInfo *)(FLASH_ADDRESS_START_MAP));
     // FLASH_ENABLE_CACHE();
     // Needn't safe mode.
-    spi_flash_read(0, (uint32 *)(& spi_flash_info), sizeof(spi_flash_info));
+    sdk_spi_flash_read(0, (uint32 *)(& spi_flash_info), sizeof(spi_flash_info));
     return spi_flash_info;
 }
 
@@ -114,6 +114,7 @@ uint8_t flash_rom_get_size_type(void)
 uint32_t flash_rom_get_size_byte(void)
 {
     static uint32_t flash_size = 0;
+    flash_size = 4*1024*1024;
     if (flash_size == 0)
     {
         switch (flash_rom_getinfo().size)
@@ -162,14 +163,14 @@ bool flash_rom_set_size_type(uint8_t size)
     // If you don't know what you're doing, your nodemcu may turn into stone ...
     NODE_DBG("\nBEGIN SET FLASH HEADER\n");
     uint8_t data[SPI_FLASH_SEC_SIZE] ICACHE_STORE_ATTR;
-    if (SPI_FLASH_RESULT_OK == spi_flash_read(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
+    if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_read(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
     {
         ((SPIFlashInfo *)(&data[0]))->size = size;
-        if (SPI_FLASH_RESULT_OK == spi_flash_erase_sector(0 * SPI_FLASH_SEC_SIZE))
+        if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_erase_sector(0 * SPI_FLASH_SEC_SIZE))
         {
             NODE_DBG("\nERASE SUCCESS\n");
         }
-        if (SPI_FLASH_RESULT_OK == spi_flash_write(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
+        if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_write(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
         {
             NODE_DBG("\nWRITE SUCCESS, %u\n", size);
         }
@@ -311,14 +312,14 @@ bool flash_rom_set_speed(uint32_t speed)
     {
         speed_type = SPEED_80MHZ;
     }
-    if (SPI_FLASH_RESULT_OK == spi_flash_read(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
+    if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_read(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
     {
         ((SPIFlashInfo *)(&data[0]))->speed = speed_type;
-        if (SPI_FLASH_RESULT_OK == spi_flash_erase_sector(0 * SPI_FLASH_SEC_SIZE))
+        if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_erase_sector(0 * SPI_FLASH_SEC_SIZE))
         {
             NODE_DBG("\nERASE SUCCESS\n");
         }
-        if (SPI_FLASH_RESULT_OK == spi_flash_write(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
+        if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_write(0, (uint32 *)data, SPI_FLASH_SEC_SIZE))
         {
             NODE_DBG("\nWRITE SUCCESS, %u\n", speed_type);
         }
@@ -340,17 +341,17 @@ bool flash_init_data_default(void)
     // It will init system data to default!
     bool result = false;
 #if defined(FLASH_SAFE_API)
-    if (SPI_FLASH_RESULT_OK == flash_safe_erase_sector((flash_safe_get_sec_num() - 4)))
+    if (sdk_SPI_FLASH_RESULT_OK == flash_safe_erase_sector((flash_safe_get_sec_num() - 4)))
     {
-        if (SPI_FLASH_RESULT_OK == flash_safe_write((flash_safe_get_sec_num() - 4) * SPI_FLASH_SEC_SIZE, (uint32 *)init_data, 128))
+        if (sdk_SPI_FLASH_RESULT_OK == flash_safe_write((flash_safe_get_sec_num() - 4) * SPI_FLASH_SEC_SIZE, (uint32 *)init_data, 128))
         {
             result = true;
         }
     }
 #else
-    if (SPI_FLASH_RESULT_OK == spi_flash_erase_sector((flash_rom_get_sec_num() - 4)))
+    if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_erase_sector((flash_rom_get_sec_num() - 4)))
     {
-        if (SPI_FLASH_RESULT_OK == spi_flash_write((flash_rom_get_sec_num() - 4) * SPI_FLASH_SEC_SIZE, (uint32 *)init_data, 128))
+        if (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_write((flash_rom_get_sec_num() - 4) * SPI_FLASH_SEC_SIZE, (uint32 *)init_data, 128))
         {
             result = true;
         }
@@ -367,11 +368,11 @@ bool flash_init_data_blank(void)
     // It will init system config to blank!
     bool result = false;
 #if defined(FLASH_SAFE_API)
-    if ((SPI_FLASH_RESULT_OK == flash_safe_erase_sector((flash_safe_get_sec_num() - 2))) &&
-            (SPI_FLASH_RESULT_OK == flash_safe_erase_sector((flash_safe_get_sec_num() - 1))))
+    if ((sdk_SPI_FLASH_RESULT_OK == flash_safe_erase_sector((flash_safe_get_sec_num() - 2))) &&
+            (sdk_SPI_FLASH_RESULT_OK == flash_safe_erase_sector((flash_safe_get_sec_num() - 1))))
 #else
-    if ((SPI_FLASH_RESULT_OK == spi_flash_erase_sector((flash_rom_get_sec_num() - 2))) &&
-            (SPI_FLASH_RESULT_OK == spi_flash_erase_sector((flash_rom_get_sec_num() - 1))))
+    if ((sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_erase_sector((flash_rom_get_sec_num() - 2))) &&
+            (sdk_SPI_FLASH_RESULT_OK == sdk_spi_flash_erase_sector((flash_rom_get_sec_num() - 1))))
 #endif // defined(FLASH_SAFE_API)
     {
         result = true;
