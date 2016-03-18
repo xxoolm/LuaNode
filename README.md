@@ -1,4 +1,4 @@
-## esp-lua-sdk
+## ESP-LUA-RTOS-SDK
 
 A esp8266 lua rtos sdk, which based on esp-open-rtos-sdk.
 
