@@ -1,6 +1,6 @@
 ## ESP-LUA-RTOS-SDK
 
-A esp8266 lua rtos sdk, which based on esp-open-rtos-sdk.
+A esp8266 'lua' 'rtos' sdk, which based on esp-open-rtos-sdk.
 
 =====================================
 ## BUILD ENVIRONTMENT:
