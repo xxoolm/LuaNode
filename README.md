@@ -18,7 +18,9 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 ======================================
 ## EXAMPLES:
 
-Build the simple project in the examples directory.
+* simple: This is a sample to show how to create an os task. Build the example by type `make` or `make rebuild` in the example directory.
+
+* lua_test: A lua sample. 
 
 ======================================
 ## CONTACT ME: 
