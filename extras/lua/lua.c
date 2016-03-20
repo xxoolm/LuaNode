@@ -28,7 +28,7 @@ extern uint8 *pRcvMsgBuff;
 extern uint8 *pWritePos;
 extern uint8 *pReadPos;
 
-static lua_State *lua_crtstate = NULL;
+lua_State *lua_crtstate;
 
 
 
@@ -386,6 +386,12 @@ static int pmain (lua_State *L) {
 }
 #endif
 
+int add(lua_State *L) {
+  int a = lua_tointeger(L, 1);
+  int b = lua_tointeger(L, 2);
+  lua_pushinteger(L, a+b);
+  return 1;
+}
 
 int lua_main (int argc, char **argv) {
   //printf(">>");
@@ -398,8 +404,28 @@ int lua_main (int argc, char **argv) {
   }
   printf("lua create ok!\n");
   
+  luaopen_base(lua_crtstate);
+
   luaL_openlibs(lua_crtstate);
-  printf(" open libs ok?\n");
+
+  const char *buff = "local str=222; print(str)";
+  luaL_dostring(lua_crtstate, buff);
+
+  /*const char *buff = "tbl = 25";
+  luaL_dostring(lua_crtstate, buff);
+  lua_getglobal(lua_crtstate, "tbl");
+  int tbl = lua_tointeger(lua_crtstate, -1);
+  printf("tbl=%d\n", tbl);*/
+
+  /*const char *buff2 = "function lua_add(a,b) return add(a,b); end";
+  lua_register(lua_crtstate, "add", add);
+  luaL_dostring(lua_crtstate, buff2);
+  lua_getglobal(lua_crtstate, "lua_add");
+  lua_pushinteger(lua_crtstate, 6);
+  lua_pushinteger(lua_crtstate, 5);
+  lua_pcall(lua_crtstate, 2, 1, 0);
+  int res = lua_tointeger(lua_crtstate, -1);
+  printf("result=%d\n", res);*/
 
   return 0;
 }
