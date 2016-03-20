@@ -1,35 +1,41 @@
 ## ESP-LUA-RTOS-SDK
 
-A esp8266 `lua` `rtos` sdk, which based on esp-open-rtos-sdk.
+A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
-=====================================
-## BUILD ENVIRONTMENT:
-
-* 1. 
 
 ======================================
 ## HOW TO BUILD:
 
-* 1. Replace the esptool.py in esp-open-sdk/xtensa-elf and esp-open-sdk/bin with the new esptool.py from esptool-master directory.
+* Use Virtual Box:
+  - 1. System requiement: RAM>1G; Hard Disk>10G
+  - 2. Virtual Box
+  - 3. OS: Ubuntu-15.10-desktop-amd64.iso
+
+* Setup Build Environtment:
+  - 1. Replace the esptool.py in esp-open-sdk/xtensa-elf and esp-open-sdk/bin with the new esptool.py from esptool-master directory.
+  - 2. 
 
 ======================================
-## USE LUA:
+## EXAMPLES:
 
 Build the simple project in the examples directory.
 
 ======================================
-## WHO IS THIS GUY: 
-* Who is he: 
-* Website: 
-* Contact Me:
+## CONTACT ME: 
   - Email: nicholas3388@gmail.com
   - QQ: 535873968
 
 ======================================
 ## REFERENCE:
 
-NodeMCU: https://github.com/nodemcu/nodemcu-firmware
+* NodeMCU: https://github.com/nodemcu/nodemcu-firmware
 
-esp-open-rtos: https://github.com/SuperHouse/esp-open-rtos
+* esp-open-rtos: https://github.com/SuperHouse/esp-open-rtos
 
-WifiMCU: www.wifimcu.com/en.html
+* esptool: https://github.com/themadinventor/esptool
+
+* lua: www.lua.org
+
+* elua: www.eluaproject.net
+
+* WifiMCU: www.wifimcu.com/en.html
