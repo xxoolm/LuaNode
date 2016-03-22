@@ -42,6 +42,8 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
 * esptool: https://github.com/themadinventor/esptool
 
+* GDBSTUB: https://github.com/espressif/esp-gdbstub
+
 * lua: www.lua.org
 
 * elua: www.eluaproject.net
