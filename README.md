@@ -28,6 +28,8 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
 * lua_test: A lua sample. 
 
+* terminal: A uart sample.
+
 ======================================
 ## CONTACT ME: 
   - Email: nicholas3388@gmail.com
