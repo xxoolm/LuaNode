@@ -51,7 +51,7 @@ extern int c_stderr;
 // #define c_zalloc os_zalloc
 // #define c_free os_free
 
-extern void output_redirect(unsigned char *str);
+extern void output_redirect(const char *str);
 #define c_puts output_redirect
 
 // #define c_printf os_printf

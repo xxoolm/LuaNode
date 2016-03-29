@@ -219,58 +219,56 @@ void at_port_print(const char *str) __attribute__((alias("uart0_sendStr")));
  * Parameters   : void *para - point to ETS_UART_INTR_ATTACH's arg
  * Returns      : NONE
 *******************************************************************************/
-#if 0
 LOCAL void
 uart0_rx_intr_handler(void *para)
 {
     /* uart0 and uart1 intr combine togther, when interrupt occur, see reg 0x3ff20020, bit2, bit0 represents
-    * uart1 and uart0 respectively
-    */
+     * uart1 and uart0 respectively
+     */
+    RcvMsgBuff *pRxBuff = (RcvMsgBuff *)para;
     uint8 RcvChar;
-    uint8 uart_no = UART0;//UartDev.buff_uart_no;
-    uint8 fifo_len = 0;
-    uint8 buf_idx = 0;
-    uint8 temp,cnt;
-    //RcvMsgBuff *pRxBuff = (RcvMsgBuff *)para;
-    
-    	/*ATTENTION:*/
-	/*IN NON-OS VERSION SDK, DO NOT USE "ICACHE_FLASH_ATTR" FUNCTIONS IN THE WHOLE HANDLER PROCESS*/
-	/*ALL THE FUNCTIONS CALLED IN INTERRUPT HANDLER MUST BE DECLARED IN RAM */
-	/*IF NOT , POST AN EVENT AND PROCESS IN SYSTEM TASK */
-    if(UART_FRM_ERR_INT_ST == (READ_PERI_REG(UART_INT_ST(uart_no)) & UART_FRM_ERR_INT_ST)){
-        DBG1("FRM_ERR\r\n");
-        WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_FRM_ERR_INT_CLR);
-    }else if(UART_RXFIFO_FULL_INT_ST == (READ_PERI_REG(UART_INT_ST(uart_no)) & UART_RXFIFO_FULL_INT_ST)){
-        DBG("f");
-        uart_rx_intr_disable(UART0);
-        WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_FULL_INT_CLR);
-        system_os_post(uart_recvTaskPrio, 0, 0);
-    }else if(UART_RXFIFO_TOUT_INT_ST == (READ_PERI_REG(UART_INT_ST(uart_no)) & UART_RXFIFO_TOUT_INT_ST)){
-        DBG("t");
-        uart_rx_intr_disable(UART0);
-        WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_TOUT_INT_CLR);
-        system_os_post(uart_recvTaskPrio, 0, 0);
-    }else if(UART_TXFIFO_EMPTY_INT_ST == (READ_PERI_REG(UART_INT_ST(uart_no)) & UART_TXFIFO_EMPTY_INT_ST)){
-        DBG("e");
-	/* to output uart data from uart buffer directly in empty interrupt handler*/
-	/*instead of processing in system event, in order not to wait for current task/function to quit */
-	/*ATTENTION:*/
-	/*IN NON-OS VERSION SDK, DO NOT USE "ICACHE_FLASH_ATTR" FUNCTIONS IN THE WHOLE HANDLER PROCESS*/
-	/*ALL THE FUNCTIONS CALLED IN INTERRUPT HANDLER MUST BE DECLARED IN RAM */
-	CLEAR_PERI_REG_MASK(UART_INT_ENA(UART0), UART_TXFIFO_EMPTY_INT_ENA);
-	#if UART_BUFF_EN
-		tx_start_uart_buffer(UART0);
-	#endif
-        //system_os_post(uart_recvTaskPrio, 1, 0);
-        WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_TXFIFO_EMPTY_INT_CLR);
-        
-    }else if(UART_RXFIFO_OVF_INT_ST  == (READ_PERI_REG(UART_INT_ST(uart_no)) & UART_RXFIFO_OVF_INT_ST)){
-        WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_RXFIFO_OVF_INT_CLR);
-        DBG1("RX OVF!!\r\n");
+    bool got_input = false;
+
+    if (UART_RXFIFO_FULL_INT_ST != (READ_PERI_REG(UART_INT_ST(UART0)) & UART_RXFIFO_FULL_INT_ST)) {
+        return;
     }
 
+    WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_FULL_INT_CLR);
+
+    while (READ_PERI_REG(UART_STATUS(UART0)) & (UART_RXFIFO_CNT << UART_RXFIFO_CNT_S)) {
+        RcvChar = READ_PERI_REG(UART_FIFO(UART0)) & 0xFF;
+
+        /* you can add your handle code below.*/
+
+        *(pRxBuff->pWritePos) = RcvChar;
+
+        // insert here for get one command line from uart
+        if (RcvChar == '\r' || RcvChar == '\n' ) {
+            pRxBuff->BuffState = WRITE_OVER;
+        }
+        
+        if (pRxBuff->pWritePos == (pRxBuff->pRcvMsgBuff + RX_BUFF_SIZE)) {
+            // overflow ...we may need more error handle here.
+            pRxBuff->pWritePos = pRxBuff->pRcvMsgBuff ;
+        } else {
+            pRxBuff->pWritePos++;
+        }
+
+        if (pRxBuff->pWritePos == pRxBuff->pReadPos){   // overflow one byte, need push pReadPos one byte ahead
+            if (pRxBuff->pReadPos == (pRxBuff->pRcvMsgBuff + RX_BUFF_SIZE)) {
+                pRxBuff->pReadPos = pRxBuff->pRcvMsgBuff ; 
+            } else {
+                pRxBuff->pReadPos++;
+            }
+        }
+
+        got_input = true;
+    }
+
+    if (got_input) {
+      //system_os_post (task, sig, UART0);
+    }
 }
-#endif
 
 /******************************************************************************
  * FunctionName : uart_init
@@ -318,44 +316,13 @@ uart_recvTask(os_event_t *events)
     }
 }
 
-#if 0
 void ICACHE_FLASH_ATTR
 uart_init(UartBautRate uart0_br, UartBautRate uart1_br)
 {
-    /*this is a example to process uart data from task,please change the priority to fit your application task if exists*/
-    system_os_task(uart_recvTask, uart_recvTaskPrio, uart_recvTaskQueue, uart_recvTaskQueueLen);  //demo with a task to process the uart data
-    
-    UartDev.baut_rate = uart0_br;
-    uart_config(UART0);
-    UartDev.baut_rate = uart1_br;
-    uart_config(UART1);
-    ETS_UART_INTR_ENABLE();
-    
-    #if UART_BUFF_EN
-    pTxBuffer = Uart_Buf_Init(UART_TX_BUFFER_SIZE);
-    pRxBuffer = Uart_Buf_Init(UART_RX_BUFFER_SIZE);
-    #endif
+    UART_SetBaudrate(0, uart0_br);    
+    //ETS_UART_INTR_ATTACH(uart0_rx_intr_handler, &(UartDev.rcv_buff));
 
-
-    /*option 1: use default print, output from uart0 , will wait some time if fifo is full */
-    //do nothing...
-
-    /*option 2: output from uart1,uart1 output will not wait , just for output debug info */
-    /*os_printf output uart data via uart1(GPIO2)*/
-    //os_install_putc1((void *)uart1_write_char);    //use this one to output debug information via uart1 //
-
-    /*option 3: output from uart0 will skip current byte if fifo is full now... */
-    /*see uart0_write_char_no_wait:you can output via a buffer or output directly */
-    /*os_printf output uart data via uart0 or uart buffer*/
-    //os_install_putc1((void *)uart0_write_char_no_wait);  //use this to print via uart0
-    
-    #if UART_SELFTEST&UART_BUFF_EN
-    os_timer_disarm(&buff_timer_t);
-    os_timer_setfn(&buff_timer_t, uart_test_rx , NULL);   //a demo to process the data in uart rx buffer
-    os_timer_arm(&buff_timer_t,10,1);
-    #endif
 }
-#endif
 
 void ICACHE_FLASH_ATTR
 uart_reattach()

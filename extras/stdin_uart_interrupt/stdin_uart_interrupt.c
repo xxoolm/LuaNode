@@ -115,4 +115,6 @@ static void uart0_rx_init(void)
     UART(UART0).INT_ENABLE = UART_INT_ENABLE_RXFIFO_FULL;
 
     inited = true;
+
+    printf("uart init completed\n");
 }

@@ -333,7 +333,7 @@ static int node_input( lua_State* L )
 
 static int output_redir_ref = LUA_NOREF;
 static int serial_debug = 1;
-void output_redirect(unsigned char *str) {
+void output_redirect(const char *str) {
   // if(c_strlen(str)>=TX_BUFF_SIZE){
   //   NODE_ERR("output too long.\n");
   //   return;

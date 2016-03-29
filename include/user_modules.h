@@ -47,6 +47,9 @@
 //#define LUA_USE_MODULES_WS2801
 #define LUA_USE_MODULES_WS2812
 
+
+#define LUA_USE_MODULES_TESTLIB
+
 #endif /* LUA_USE_MODULES */
 #endif
 
