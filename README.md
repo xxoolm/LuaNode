@@ -40,6 +40,8 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
 * esp-open-rtos: https://github.com/SuperHouse/esp-open-rtos
 
+* ESP8266-RTOS-SDK: https://github.com/espressif/ESP8266_RTOS_SDK
+
 * esptool: https://github.com/themadinventor/esptool
 
 * GDBSTUB: https://github.com/espressif/esp-gdbstub
