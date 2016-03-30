@@ -15,7 +15,7 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
 * Setup Build Environtment:
   - 1. Replace the esptool.py in esp-open-sdk/xtensa-elf and esp-open-sdk/bin with the new esptool.py from esptool-master directory.
-  - 2. 
+  - 2. Secondly, 
 
 2. Windows:
 
