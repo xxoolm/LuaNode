@@ -9,7 +9,7 @@ HOW TO BUILD:
 
 #### Requirements:
 
-The following tools are required when we build in Linux.
+The following tools are required, use `apt-get` to install them.
 
 * GNU autoconf, libtool, libtool-bin
 * GNU flex, bison, gawk,
@@ -47,7 +47,12 @@ Note: if your machine is not enough memory, the error such as `Build failed in s
 ```sh
 export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ```
-  
+
+
+If you prefer `Eclipse`, you can also use Eclipse to build the firmware.
+
+
+
 #### Linux:
 
 * System requiement: RAM>1G; Hard Disk>10G
