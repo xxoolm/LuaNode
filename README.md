@@ -7,7 +7,7 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 HOW TO BUILD:
 --------------------------------------
 
-## Requirements:
+### Requirements:
 
 The following tools are required when we build in Linux.
 
@@ -16,7 +16,7 @@ The following tools are required when we build in Linux.
 * libexpat1-dev
 
 
-Windows:
+### Windows:
 
 * We utilize VirtualBox (VB) with Ubuntu installed as build environment. If your OS is Linux, you can also setup the build environment according the following steps:
   - 1. Install VirtualBox-5.0.16-105871-Win (You'd better install the latest version, since I found that the older version such as 4.x cannot install the VBox Guest Additions)
@@ -38,18 +38,19 @@ git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-
   - 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. 
   
   
-Linux:
+### Linux:
 
 * Use Virtual Box:
   - 1. System requiement: RAM>1G; Hard Disk>10G
   - 2. Setup build environment as that on Windows:)
 
-Mac OS:
+### Mac OS:
 
 * The build environment setup as that on Linux
 
-======================================
-## EXAMPLES:
+
+EXAMPLES:
+--------------------------------------
 
 * simple: This is a sample to show how to create an os task. Build the example by typing `make` or `make rebuild` in the example directory.
 
@@ -57,13 +58,16 @@ Mac OS:
 
 * terminal: An uart sample.
 
-======================================
-## CONTACT ME: 
+
+CONTACT ME:
+--------------------------------------
+
   - Email: nicholas3388@gmail.com
   - QQ: 535873968
 
-======================================
-## REFERENCE:
+
+REFERENCE:
+--------------------------------------
 
 * NodeMCU: https://github.com/nodemcu/nodemcu-firmware
 
