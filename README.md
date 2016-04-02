@@ -41,6 +41,11 @@ Note: if your machine is not enough memory, the error such as `Build failed in s
 
 ![github](http://ww2.sinaimg.cn/mw690/999babe3gw1f2iq57ya69j20hq09ajw3.jpg "github")
   
+  - 6. After installing the esp-open-sdk, export the bin path by the following commond, then you can build your source on your machine!
+  
+```sh
+export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
+```
   
 ### Linux:
 
@@ -72,6 +77,8 @@ CONTACT ME:
 
 REFERENCE:
 --------------------------------------
+
+* esp-open-sdk: https://github.com/pfalcon/esp-open-sdk
 
 * NodeMCU: https://github.com/nodemcu/nodemcu-firmware
 
