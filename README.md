@@ -1,10 +1,10 @@
-## ESP-LUA-RTOS-SDK
+== ESP-LUA-RTOS-SDK
 
 A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
 
 ======================================
-## HOW TO BUILD:
+-- HOW TO BUILD:
 
 Requirements:
 
