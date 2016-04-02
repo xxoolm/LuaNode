@@ -27,7 +27,7 @@ The following tools are required when we build in Linux.
 sudo mount -t vboxsf share /mnt/share 
 ```
 
-Note: if you mount failed, check whether the module `vboxsf` is exist by execute commond `lsmod | grep vboxsf`. If nothing found, maybe the `Guest Additions` are not installed correctly. Try to install that again or upgrade your VirtualBox to the latest version.
+Note: if you mount failed, check whether the module `vboxsf` is exist by executing commond `lsmod | grep vboxsf`. If nothing found, maybe the `Guest Additions` are not installed correctly. Try to install that again or upgrade your VirtualBox to the latest version.
 
   - 4. Download tool chain: esp-open-sdk; Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/esp-open-sdk` and then install to sdk to it; Execute the following commond to download sdk:
   
@@ -49,13 +49,20 @@ export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
   
 #### Linux:
 
-* Use Virtual Box:
-  - 1. System requiement: RAM>1G; Hard Disk>10G
-  - 2. Setup build environment as that on Windows:)
+* System requiement: RAM>1G; Hard Disk>10G
+* Setup build environment as that on Windows:)
 
 #### Mac OS:
 
 * The build environment setup as that on Linux
+
+
+HOW TO FLASH THE FIRMWARE:
+--------------------------------------
+
+#### Flash tool for Windows:
+
+You can download the windows flash tool [HERE](http://www.baidu.com).
 
 
 EXAMPLES:
