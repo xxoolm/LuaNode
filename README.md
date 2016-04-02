@@ -29,19 +29,19 @@ sudo mount -t vboxsf share /mnt/share
 
 Note: if you mount failed, check whether the module `vboxsf` is exist by executing commond `lsmod | grep vboxsf`. If nothing found, maybe the `Guest Additions` are not installed correctly. Try to install that again or upgrade your VirtualBox to the latest version.
 
-  - 4. Download tool chain: esp-open-sdk; Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/esp-open-sdk` and then install to sdk to it; Execute the following commond to download sdk:
+    - 4. Download tool chain: esp-open-sdk; Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/esp-open-sdk` and then install to sdk to it; Execute the following commond to download sdk:
   
 ```sh
 git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-sdk
 ```
   
-  - 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. Type `make STANDALONE=y` to build the tool chain.
+    - 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. Type `make STANDALONE=y` to build the tool chain.
   
 Note: if your machine is not enough memory, the error such as `Build failed in step: 'installing pass-2 core C compiler'` may occur. The following screenshot show the error:
 
 ![github](http://ww2.sinaimg.cn/mw690/999babe3gw1f2iq57ya69j20hq09ajw3.jpg "github")
   
-  - 6. After installing the esp-open-sdk, export the bin path by the following commond, then you can build your source on your machine!
+    - 6. After installing the esp-open-sdk, export the bin path by the following commond, then you can build your source on your machine!
   
 ```sh
 export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
