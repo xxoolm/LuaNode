@@ -6,6 +6,15 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 ======================================
 ## HOW TO BUILD:
 
+Requirements:
+
+The following tools are required when we build in Linux.
+
+* GNU autoconf, libtool, libtool-bin
+* GNU flex, bison, gawk,
+* libexpat1-dev
+
+
 Windows:
 
 * We utilize VirtualBox (VB) with Ubuntu installed as build environment. If your OS is Linux, you can also setup the build environment according the following steps:
@@ -17,9 +26,17 @@ Windows:
 sudo mount -t vboxsf share /mnt/share 
 ```
 
-Note: if you mount failed, check that is `vboxsf` exist. Type common ```sh lsmod | grep vboxsf ``` in the terminal. If nothing found, maybe the `Guest Additions` are not installed correctly.
+Note: if you mount failed, check that is `vboxsf` exist. Type common `lsmod | grep vboxsf` in the terminal. If nothing found, maybe the `Guest Additions` are not installed correctly.
 
-
+  - 4. Download tool chain: esp-open-sdk; Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/esp-open-sdk` and then install to sdk to it; Execute the following commond to download sdk:
+  
+```sh
+git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-sdk
+```
+  
+  - 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. 
+  
+  
 Linux:
 
 * Use Virtual Box:
@@ -37,7 +54,7 @@ Mac OS:
 
 * lua_test: A lua sample. 
 
-* terminal: A uart sample.
+* terminal: An uart sample.
 
 ======================================
 ## CONTACT ME: 
