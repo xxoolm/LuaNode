@@ -35,7 +35,11 @@ Note: if you mount failed, check that is `vboxsf` exist. Type common `lsmod | gr
 git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-sdk
 ```
   
-  - 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. 
+  - 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. Type `make STANDALONE=y` to build the tool chain.
+  
+Note: if your machine is not enough memory, the error such as `Build failed in step: 'installing pass-2 core C compiler'` may occur. The following screenshot show the error:
+
+![github](http://ww2.sinaimg.cn/mw690/999babe3gw1f2iq57ya69j20hq09ajw3.jpg "github")
   
   
 ### Linux:
