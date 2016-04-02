@@ -6,22 +6,24 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 ======================================
 ## HOW TO BUILD:
 
-1. Linux:
+## Windows:
+
+* We utilize VirtualBox (VB) with Ubuntu installed as build environment. If your OS is Linux, you can also setup the build environment according the following steps:
+  - 1. Install VirtualBox-5.0.16-105871-Win (You'd better install the latest version, since I found that the older version such as 4.x cannot install the VBox Guest Additions)
+  - 2. Download ubuntu-15.10-desktop-amd64.iso and the install it on VB. Make sure that asign more than 1G RAM and 12G Hard Disk for this virtual machine. The tool chain build process require much memory!
+  - 3. Setup share file folder: 
+
+## Linux:
 
 * Use Virtual Box:
   - 1. System requiement: RAM>1G; Hard Disk>10G
-  - 2. Virtual Box
-  - 3. OS: Ubuntu-14.04.1-desktop-i386.iso
-  - 4. setup VM: install git by the following instructions:
-
+  - 2. Setup build environment as that on Windows:)
 
 * Setup Build Environtment:
   - 1. Replace the esptool.py in esp-open-sdk/xtensa-elf and esp-open-sdk/bin with the new esptool.py from esptool-master directory.
   - 2. Secondly, 
 
-2. Windows:
-
-3. Mac OS:
+## Mac OS:
 
 ======================================
 ## EXAMPLES:
