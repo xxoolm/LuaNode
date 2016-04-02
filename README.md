@@ -7,7 +7,7 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 HOW TO BUILD:
 --------------------------------------
 
-### Requirements:
+#### Requirements:
 
 The following tools are required when we build in Linux.
 
@@ -16,7 +16,7 @@ The following tools are required when we build in Linux.
 * libexpat1-dev
 
 
-### Windows:
+#### Windows:
 
 * We utilize VirtualBox (VB) with Ubuntu installed as build environment. If your OS is Linux, you can also setup the build environment according the following steps:
   - 1. Install VirtualBox-5.0.16-105871-Win (You'd better install the latest version, since I found that the older version such as 4.x cannot install the VBox Guest Additions)
@@ -27,7 +27,7 @@ The following tools are required when we build in Linux.
 sudo mount -t vboxsf share /mnt/share 
 ```
 
-Note: if you mount failed, check that is `vboxsf` exist. Type common `lsmod | grep vboxsf` in the terminal. If nothing found, maybe the `Guest Additions` are not installed correctly.
+Note: if you mount failed, check whether the module `vboxsf` is exist by execute commond `lsmod | grep vboxsf`. If nothing found, maybe the `Guest Additions` are not installed correctly. Try to install that again or upgrade your VirtualBox to the latest version.
 
   - 4. Download tool chain: esp-open-sdk; Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/esp-open-sdk` and then install to sdk to it; Execute the following commond to download sdk:
   
@@ -47,13 +47,13 @@ Note: if your machine is not enough memory, the error such as `Build failed in s
 export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ```
   
-### Linux:
+#### Linux:
 
 * Use Virtual Box:
   - 1. System requiement: RAM>1G; Hard Disk>10G
   - 2. Setup build environment as that on Windows:)
 
-### Mac OS:
+#### Mac OS:
 
 * The build environment setup as that on Linux
 
