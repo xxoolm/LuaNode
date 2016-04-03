@@ -62,8 +62,8 @@ The following tools are required, use `apt-get` to install them.
 
 We utilize VirtualBox (VB) with Ubuntu installed as build environment. If your OS is Linux, you can also setup the build environment according the following steps:
 
-* 1. Install VirtualBox-5.0.16-105871-Win (You'd better install the latest version, since I found that the older version such as 4.x cannot install the VBox Guest Additions)
-* 2. Download ubuntu-15.10-desktop-amd64.iso and the install it on VB. Make sure that asign more than 1G RAM and 12G Hard Disk for this virtual machine. The tool chain build process require much memory!
+* 1. Download and install [VirtualBox-5.0.16-105871-Win](https://www.virtualbox.org/ "VirtualBox") (You'd better install the latest version, since I found that the older version such as 4.x cannot install the VB Guest Additions)
+* 2. Download [ubuntu-15.10-desktop-amd64.iso](http://www.ubuntu.com/download/ "Ubuntu") and install it on VB. Make sure that asign more than 1G RAM and 12G Hard Disk for this virtual machine. The tool chain build process require much memory!
 * 3. Setup share file folder: Settings->Share Folders->Add new shared folder, input your share folder path and the select `Make Permanent`, Note that `do not` select Auto Mount. Launch Ubuntu and then create a folder to mount the share folder, I create a folder, named `share`, in the path /mnt. Type the commond in the terminal to mount share folder:
 
 ```sh
@@ -149,6 +149,9 @@ I use SecureCRT to monitor the output from UART0. When you try to utilize this t
 ```
 Note: In the serial settings, you must uncheck XON/XOFF, otherwise, you won't be able to input via serial!
 ```
+
+To set break points and debug code, maybe you can use GDBSTUB.
+
 
 EXAMPLES:
 --------------------------------------
