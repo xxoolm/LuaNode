@@ -49,26 +49,29 @@ Note: if your machine is not enough memory, the error such as `Build failed in s
 export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ```
 
+--------------------------------------
 
 If you prefer `Eclipse`, you can also use Eclipse to build the firmware. To setup Eclipse, follow the steps below:
 
-1. Download and install the [Unofficial Development Kit for Espressif ESP8266](http://programs74.ru/udkew-en.html "Unofficial Development Kit for Espressif ESP8266")
+* 1. Download and install the [Unofficial Development Kit for Espressif ESP8266](http://programs74.ru/udkew-en.html "Unofficial Development Kit for Espressif ESP8266")
 
-2. Download and install the [Java Runtime x86 (jre-7uXX-windows-i586.exe)](http://www.oracle.com/technetwork/java/javase/downloads/index.html "Java Runtime x86")
+* 2. Download and install the [Java Runtime x86 (jre-7uXX-windows-i586.exe)](http://www.oracle.com/technetwork/java/javase/downloads/index.html "Java Runtime x86")
 
-3. Download and install [Eclipse Mars x86 to develop](http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/R/eclipse-cpp-mars-R-win32.zip "Eclipse") in C++ (eclipse-cpp-mars-R-win32.zip). Unpack the archive to the root of drive C.
+* 3. Download and install [Eclipse Mars x86 to develop](http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/R/eclipse-cpp-mars-R-win32.zip "Eclipse") in C++ (eclipse-cpp-mars-R-win32.zip). Unpack the archive to the root of drive C.
 
 ```
-Note: You should place the Eclipse under the path C:, since the install-mingw-package.bat run in step 5 will search the path. If install-mingw-package.bat run failed, it may probably you didn't place Eclipse in C:
+Note: You should place the Eclipse under the path C:, since the install-mingw-package.bat</br>
+run in step 5 will search the path. If install-mingw-package.bat run failed, it may</br>
+probably you didn't place Eclipse in C:
 ```
 
-4. Download and install [MinGW](https://sourceforge.net/projects/mingw/files/Installer/ "MinGW"). Run the downloader mingw-get-setup.exe, `the installation process to select without GUI, ie uncheck "... also install support for the graphical user interface"`.
+* 4. Download and install [MinGW](https://sourceforge.net/projects/mingw/files/Installer/ "MinGW"). Run the downloader mingw-get-setup.exe, `the installation process to select without GUI, ie uncheck "... also install support for the graphical user interface"`.
 
-5. Run from the file `install-mingw-package.bat`. He will establish the basic modules for MinGW, installation should proceed without error.
+* 5. Run from the file `install-mingw-package.bat`. He will establish the basic modules for MinGW, installation should proceed without error.
 
-6. Start the Eclipse Luna from the directory c:\eclipse\eclipse.exe
+* 6. Start the Eclipse Luna from the directory c:\eclipse\eclipse.exe
 
-7. In Eclipse, select File -> Import -> General -> Existing Project into Workspace, in the line Select root directory, select the directory C:\Espressif\examples and import work projects.
+* 7. In Eclipse, select File -> Import -> General -> Existing Project into Workspace, in the line Select root directory, select the directory C:\Espressif\examples and import work projects.
 Further, the right to select the Make Target project, such as hello-world and run the target All the assembly, while in the console window should display the progress of the build. To select the target firmware flash.
 
 Now that you can build firmware using Eclipse, if you have any questions, go to `ESP8266 Community Forum`, read this [post](http://www.esp8266.com/viewtopic.php?f=9&t=820) for details.
