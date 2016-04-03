@@ -5,6 +5,23 @@ A `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
 
 ![github](http://bbs.doit.am/data/attachment/common/19/common_36_banner.jpg "esp8266")
 
+PROJECT STRUCTRUE:
+--------------------------------------
+```
+core  
+examples  
+extras  
+FreeRTOS  
+include
+ld
+lib
+libc  
+lwip
+utils
+common.mk
+```
+
+
 HOW TO BUILD:
 --------------------------------------
 
