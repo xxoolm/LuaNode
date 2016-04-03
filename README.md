@@ -77,6 +77,18 @@ EXAMPLES:
 
 * simple: This is a sample to show how to create an os task. Build the example by typing `make` or `make rebuild` in the example directory.
 
+How to create a task:
+
+```c
+void task1(void *pvParameters) {
+    // do something
+}
+
+void user_init(void) {
+    xTaskCreate(task1, (signed char *)"tsk1", 256, &mainqueue, 2, NULL);
+}
+```
+
 * lua_test: A lua sample. 
 
 * terminal: An uart sample.
