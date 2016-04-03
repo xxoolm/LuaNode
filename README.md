@@ -50,8 +50,24 @@ export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ```
 
 
-If you prefer `Eclipse`, you can also use Eclipse to build the firmware.
+If you prefer `Eclipse`, you can also use Eclipse to build the firmware. To setup Eclipse, follow the steps below:
 
+* Download and install the [Unofficial Development Kit for Espressif ESP8266](http://programs74.ru/udkew-en.html "Unofficial Development Kit for Espressif ESP8266")
+
+* Download and install the [Java Runtime x86 (jre-7uXX-windows-i586.exe)](http://www.oracle.com/technetwork/java/javase/downloads/index.html "Java Runtime x86")
+
+* Download and install [Eclipse Mars x86 to develop](http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/R/eclipse-cpp-mars-R-win32.zip "Eclipse") in C ++ (eclipse-cpp-mars-R-win32.zip). Unpack the archive to the root of drive C.
+
+* Download and install [MinGW](https://sourceforge.net/projects/mingw/files/Installer/). Run the downloader mingw-get-setup.exe, `the installation process to select without GUI, ie uncheck "... also install support for the graphical user interface"`.
+
+* Run from the file `install-mingw-package.bat`. He will establish the basic modules for MinGW, installation should proceed without error.
+
+* Start the Eclipse Luna from the directory c:\eclipse\eclipse.exe
+
+* In Eclipse, select File -> Import -> General -> Existing Project into Workspace, in the line Select root directory, select the directory C:\Espressif\examples and import work projects.
+Further, the right to select the Make Target project, such as hello-world and run the target All the assembly, while in the console window should display the progress of the build. To select the target firmware flash.
+
+For more details about Eclipse setup, go to `ESP8266 Community Forum`, check out this [`post`](http://www.esp8266.com/viewtopic.php?f=9&t=820)
 
 
 #### Linux:
@@ -75,7 +91,7 @@ You can download the windows flash tool [HERE](http://www.baidu.com).
 EXAMPLES:
 --------------------------------------
 
-* simple: This is a sample to show how to create an os task. Build the example by typing `make` or `make rebuild` in the example directory.
+* `simple`: This is a sample to show how to create an os task. Build the example by typing `make` or `make rebuild` in the example directory.
 
 How to create a task:
 
@@ -89,9 +105,9 @@ void user_init(void) {
 }
 ```
 
-* lua_test: A lua sample. 
+* `lua_test`: A lua sample. 
 
-* terminal: An uart sample.
+* `terminal`: An uart sample.
 
 
 CONTACT ME:
@@ -115,6 +131,8 @@ REFERENCE:
 * esptool: https://github.com/themadinventor/esptool
 
 * GDBSTUB: https://github.com/espressif/esp-gdbstub
+
+* Unofficial Development Kit for Espressif ESP8266: http://programs74.ru/udkew-en.html
 
 * lua: www.lua.org
 
