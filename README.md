@@ -111,8 +111,9 @@ HOW TO FLASH THE FIRMWARE:
 
 #### Flash tool for Windows:
 
-You can download the windows flash tool [HERE](http://www.baidu.com).
+You can download the windows flash tool [HERE](http://www.baidu.com). This tool is official Espressif flash tool.
 
+![github](http://ww3.sinaimg.cn/mw690/999babe3gw1f2je4e2012j20u80hs7b2.jpg "Flash Tool")
 
 EXAMPLES:
 --------------------------------------
