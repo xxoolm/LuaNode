@@ -13,7 +13,10 @@ PROJECT STRUCTRUE:
 ```
 esp-lua-sdk-master
 -->core  
--->examples  
+-->examples
+        -->simple
+        -->lua_test
+        -->terminal
 -->extras  
 -->FreeRTOS  
 -->include
@@ -60,7 +63,7 @@ git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-
   
 * 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. Type `make STANDALONE=y` to build the tool chain.
   
-Note: if your machine is not enough memory, the error such as `Build failed in step: 'installing pass-2 core C compiler'` may occur. The following screenshot show the error:
+Note: if your machine is not enough memory, the error such as `Build failed in step: 'installing pass-2 core C compiler'` may occur. The following screenshot shows the error:
 
 ![github](http://ww2.sinaimg.cn/mw690/999babe3gw1f2iq57ya69j20hq09ajw3.jpg "github")
   
@@ -72,7 +75,7 @@ export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 
 --------------------------------------
 
-If you prefer `Eclipse`, you can also use Eclipse to build the firmware. To setup Eclipse, follow the steps below:
+If you prefer IDE, such as `Eclipse`, you can also build the firmware with Eclipse. To setup Eclipse, follow the steps list below:
 
 * 1. Download and install the [Unofficial Development Kit for Espressif ESP8266](http://programs74.ru/udkew-en.html "Unofficial Development Kit for Espressif ESP8266")
 * 2. Download and install the [Java Runtime x86 (jre-7uXX-windows-i586.exe)](http://www.oracle.com/technetwork/java/javase/downloads/index.html "Java Runtime x86")
@@ -134,13 +137,12 @@ void user_init(void) {
 
 
 
-
 CONTACT ME:
 --------------------------------------
 
-  - Email: nicholas3388@gmail.com
-  - QQ: 535873968
-
+  - `Email`: nicholas3388@gmail.com
+  - `QQ`: 535873968
+  - `Homepage`: www.apparduino.com
 
 REFERENCE:
 --------------------------------------
