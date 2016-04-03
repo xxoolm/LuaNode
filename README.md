@@ -58,7 +58,9 @@ If you prefer `Eclipse`, you can also use Eclipse to build the firmware. To setu
 
 3. Download and install [Eclipse Mars x86 to develop](http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/R/eclipse-cpp-mars-R-win32.zip "Eclipse") in C++ (eclipse-cpp-mars-R-win32.zip). Unpack the archive to the root of drive C.
 
-`Note: You should place the Eclipse under the path C:, since the install-mingw-package.bat run in step 5 will search the path. If install-mingw-package.bat run failed, it may probably you didn't place Eclipse in C:`
+```
+Note: You should place the Eclipse under the path C:, since the install-mingw-package.bat run in step 5 will search the path. If install-mingw-package.bat run failed, it may probably you didn't place Eclipse in C:
+```
 
 4. Download and install [MinGW](https://sourceforge.net/projects/mingw/files/Installer/ "MinGW"). Run the downloader mingw-get-setup.exe, `the installation process to select without GUI, ie uncheck "... also install support for the graphical user interface"`.
 
