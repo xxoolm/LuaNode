@@ -140,6 +140,16 @@ You can download the windows flash tool [HERE](http://www.baidu.com). This tool 
 You can also use `esptool` to flash the bin files on Linux, instead of Espressif flash tool.
 
 
+HOW TO DEBUG:
+--------------------------------------
+I use SecureCRT to monitor the output from UART0. When you try to utilize this tool, you should setup serial as bellow:
+
+![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f2jvwv34spj20y80j444u.jpg "SecureCRT")
+
+```
+Note: In the serial settings, you must uncheck XON/XOFF, otherwise, you won't be able to input via serial!
+```
+
 EXAMPLES:
 --------------------------------------
 
