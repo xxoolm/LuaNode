@@ -12,20 +12,20 @@ PROJECT STRUCTRUE:
 --------------------------------------
 ```
 esp-lua-sdk-master
--->core  
--->examples
+    -->core  
+    -->examples
         -->simple
         -->lua_test
         -->terminal
--->extras  
--->FreeRTOS  
--->include
--->ld
--->lib
--->libc  
--->lwip
--->utils
-common.mk
+    -->extras  
+    -->FreeRTOS  
+    -->include
+    -->ld
+    -->lib
+    -->libc  
+    -->lwip
+    -->utils
+    common.mk
 ```
 
 
