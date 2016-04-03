@@ -1,10 +1,8 @@
 ESP-LUA-RTOS-SDK
 ======================================
 
-OVERVIEW:
---------------------------------------
-
 This project is a `lua` `rtos` sdk, based on esp-open-rtos-sdk, for esp8266/esp32.
+The hardware is provided by www.doit.am.
 
 ![github](http://bbs.doit.am/data/attachment/common/19/common_36_banner.jpg "esp8266")
 
@@ -17,8 +15,27 @@ esp-lua-sdk-master
         -->simple
         -->lua_test
         -->terminal
-    -->extras  
-    -->FreeRTOS  
+    -->extras
+        -->bmp180
+        -->cpp_support
+        -->dhcpserver
+        -->driver
+        -->ds18b20
+        -->i2c
+        -->lua
+        -->mbedtls
+        -->modules
+        -->mylibc
+        -->onewire
+        -->platform
+        -->pwm
+        -->rboot-ota
+        -->spiffs
+        -->stdin_uart_interrupt
+        -->ws2812
+    -->FreeRTOS
+        -->Source
+        -->component.mk
     -->include
     -->ld
     -->lib
@@ -73,6 +90,9 @@ Note: if your machine is not enough memory, the error such as `Build failed in s
 export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ```
 
+Now that you can place your source in the share folder, build it with your virtual machine.
+
+
 --------------------------------------
 
 If you prefer IDE, such as `Eclipse`, you can also build the firmware with Eclipse. To setup Eclipse, follow the steps list below:
@@ -99,11 +119,13 @@ Now that you can build firmware using Eclipse, if you have any questions, go to 
 #### Linux:
 
 * System requiement: RAM>1G; Hard Disk>10G
-* Setup build environment as that on Windows:)
+* Setup the build environment as that on Windows:)
 
 #### Mac OS:
 
-* The build environment setup as that on Linux
+* Download and install VirtualBox for Mac
+* Assign memory > 1G and hard disk > 12G for the virtual machine
+* Setup the build environment as that on Windows:)
 
 
 HOW TO FLASH THE FIRMWARE:
@@ -114,6 +136,9 @@ HOW TO FLASH THE FIRMWARE:
 You can download the windows flash tool [HERE](http://www.baidu.com). This tool is official Espressif flash tool.
 
 ![github](http://ww3.sinaimg.cn/mw690/999babe3gw1f2je4e2012j20u80hs7b2.jpg "Flash Tool")
+
+You can also use `esptool` to flash the bin files on Linux, instead of Espressif flash tool.
+
 
 EXAMPLES:
 --------------------------------------
@@ -134,7 +159,7 @@ void user_init(void) {
 
 * `lua_test`: A lua sample. 
 
-* `terminal`: An uart sample. Set baud rate to 115200pbs, using UART0. Note that the extras/stdin_uart_interrupt must be added to the sample Makefile, when you want to enable uart device.
+* `terminal`: An uart sample. Set baud rate to 115200pbs, using UART0. Note that the extras/stdin_uart_interrupt must be included in the sample Makefile, when you want to enable uart device.
 
 
 
