@@ -175,9 +175,60 @@ void user_init(void) {
 * `terminal`: An uart sample. Set baud rate to 115200pbs, using UART0. Note that the extras/stdin_uart_interrupt must be included in the sample Makefile, when you want to enable uart device.
 
 
+FAQ:
+--------------------------------------
+
+When you are trying to compile esp-open-sdk or build your firmware, you may face some problems.
+
+* configure: error: missing required tool: makeinfo
+
+```sh
+sudo apt-get install texinfo
+```
+
+* cannot create autom4te.cache
+
+This is a permission problem, change the permission of directory esp-open-sdk/ to 777. Input the following commond on terminal:
+
+```sh
+chmod 777 -R /opt/esp-open-sdk
+```
+
+* configure: error: could not find GNU awk
+
+```sh
+sudo apt-get install gawk
+```
+
+* configure: error: could not find GNU libtool >= 1.5.26
+
+```sh
+sudo apt-get install libtool
+```
+
+If it dosen't work, install libtool-bin:
+
+```sh
+sudo apt-get install libtool-bin
+```
+
+* configure: error: could not find curses header, required for the kconfig frontends
+
+```sh
+sudo apt-get install libncurses5-dev
+```
+
+* configure: error: expat is missing or unusable
+
+```sh
+sudo apt-get install libexpat1-dev
+```
+
 
 CONTACT ME:
 --------------------------------------
+
+If you have any question, you can contact me via Email/QQ list below, Thanks:) 
 
   - `Email`: nicholas3388@gmail.com
   - `QQ`: 535873968
