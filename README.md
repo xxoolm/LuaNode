@@ -147,7 +147,7 @@ I use SecureCRT to monitor the output from UART0. When you try to utilize this t
 ![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f2jvwv34spj20y80j444u.jpg "SecureCRT")
 
 ```
-Note: In the serial settings, you must uncheck XON/XOFF, otherwise, you won't be able to input via serial!
+Note: In the Session Options, you must uncheck XON/XOFF, otherwise, you won't be able to input anything via serial!
 ```
 
 To set break points and debug code, maybe you can use GDBSTUB.
@@ -224,6 +224,12 @@ sudo apt-get install libncurses5-dev
 
 ```sh
 sudo apt-get install libexpat1-dev
+```
+
+* configure: error: could not find GNU automake >= 1.10
+
+```sh
+sudo apt-get install automake
 ```
 
 
