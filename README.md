@@ -178,9 +178,11 @@ void user_init(void) {
 FAQ:
 --------------------------------------
 
-When you are trying to compile esp-open-sdk or build your firmware, you may face some problems.
+When you are trying to compile esp-open-sdk or build your firmware, you may face some errors as below.
 
 * configure: error: missing required tool: makeinfo
+
+Install `texinfo` by running the following commond to fix it:
 
 ```sh
 sudo apt-get install texinfo
@@ -191,7 +193,7 @@ sudo apt-get install texinfo
 This is a permission problem, change the permission of directory esp-open-sdk/ to 777. Input the following commond on terminal:
 
 ```sh
-chmod 777 -R /opt/esp-open-sdk
+sudo chmod 777 -R /opt/esp-open-sdk
 ```
 
 * configure: error: could not find GNU awk
