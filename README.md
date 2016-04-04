@@ -232,6 +232,12 @@ sudo apt-get install libexpat1-dev
 sudo apt-get install automake
 ```
 
+* When you compile the esp-open-sdk, occurs some errors like the following screenshot:
+
+![github](http://ww3.sinaimg.cn/mw690/999babe3jw1f2kk2i7sedj20p20e176i.jpg "compile error")
+
+Just ignore it, execute `make STANDALONE=y` again, it will be ok then.
+
 
 CONTACT ME:
 --------------------------------------
