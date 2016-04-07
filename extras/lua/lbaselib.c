@@ -32,22 +32,12 @@ static int luaB_print (lua_State *L) {
   int i;
   lua_getglobal(L, "tostring");
   for (i=1; i<=n; i++) {
-    const char *s;
-    lua_pushvalue(L, -1);  /* function to be called */
-    lua_pushvalue(L, i);   /* value to print */
-    lua_call(L, 1, 1);
-    s = lua_tostring(L, -1);  /* get result */
-    if (s == NULL)
-      return luaL_error(L, LUA_QL("tostring") " must return a string to "
-                           LUA_QL("print"));
-#if defined(LUA_USE_STDIO)
-    if (i>1) c_fputs("\t", c_stdout);
-    c_fputs(s, c_stdout);
-#else
-    if (i>1)  luai_writestring("\t", 1);
-    luai_writestring(s, c_strlen(s));
-#endif
-    lua_pop(L, 1);  /* pop result */
+    if (lua_isstring(L, i)) {
+		printf("%s", lua_tostring(L, i));
+	}
+	else {
+		printf("input are not string\n");
+	}
   }
 #if defined(LUA_USE_STDIO)
   c_fputs("\n", c_stdout);
