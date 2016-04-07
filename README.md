@@ -248,6 +248,14 @@ If you have any question, you can contact me via Email/QQ list below, Thanks:)
   - `QQ`: 535873968
   - `Homepage`: www.apparduino.com
 
+
+CHANGE LOG:
+--------------------------------------
+2016.4.7 
+	Modified lbaselib.c
+	
+
+
 REFERENCE:
 --------------------------------------
 
