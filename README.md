@@ -64,7 +64,7 @@ esp-lua-sdk-master
 * `utils` contains some useful tools.
 
 
-HOW TO BUILD:
+HOW TO BUILD (For `ESP8266`):
 --------------------------------------
 
 #### Requirements:
@@ -144,6 +144,40 @@ Now that you can build firmware using Eclipse, if you have any questions, go to 
 * Download and install VirtualBox for Mac
 * Assign memory > 1G and hard disk > 12G for the virtual machine
 * Setup the build environment as that on Windows:)
+
+
+HOW TO BUILD (For `ESP32`):
+-------------------------------------
+
+Requirements:
+
+The required tools are the same as those list in the section `How To Build for ESP8266`.
+
+#### Windows:
+
+* Follow the Step 1~3 list in `How To Build for ESP8266`.
+
+* 4. Create a new directory for toolchain by executing the commond: `sudo mkdir /opt/Espressif`. Then make the current user the owner: `sudo chown $USER /opt/Espressif/`. Download the latest toolchain:
+
+```sh
+cd /opt/Espressif/
+git clone -b esp108-1.21.0 git://github.com/jcmvbkbc/crosstool-NG.git
+```
+
+* 5. Install the toolchain (If you are not in the toolchain directory now, change directory first `cd /opt/Espressif/`):
+
+```sh
+cd crosstool-NG
+./bootstrap && ./configure --prefix=\`pwd\` && make && make install
+./ct-ng xtensa-esp108-elf
+./ct-ng build
+```
+
+
+#### Linux:
+
+#### Mac OS:
+
 
 
 HOW TO FLASH THE FIRMWARE:
