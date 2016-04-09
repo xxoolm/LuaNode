@@ -45,6 +45,18 @@ esp-lua-sdk-master
     common.mk
 ```
 
+* `core` contains source & headers for ESP8266 functions & peripherals. `core/include/esp` contains useful headers for peripheral access, etc. Minimal to no FreeRTOS dependencies.
+
+* `examples` contains some examples projects (one per subdirectory). They show you how to utilize UART, Lua, and create a task.
+
+* `extras` is a directory that contains optional components that can be added to your project. Some components are included by example in the `examples` directory.
+
+* `FreeRTOS` contains FreeRTOS implementation, subdirectory structure is the standard FreeRTOS structure. `FreeRTOS/source/portable/esp8266/` contains the ESP8266 port.
+
+* `lwip` contains the lwIP TCP/IP library. See [Third Party Libraries](https://github.com/kadamski/esp-lwip) for details.
+
+* `libc` contains the [newlib libc](https://github.com/projectgus/newlib-xtensa).
+
 
 HOW TO BUILD:
 --------------------------------------
