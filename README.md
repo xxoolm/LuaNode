@@ -175,7 +175,8 @@ cd crosstool-NG
 * Setup PATH variable: `export PATH=/opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/bin:$PATH`
 
 ```
-Note: You have to export PATH again if you restart the shell. If you don't want to reqeat this step, you can place the toolchain directory to the .bashrc file.
+Note: You have to export PATH again if you restart the shell. If you don't want to reqeat this step, you 
+can place the toolchain directory to the .bashrc file.
 ```
 
 
