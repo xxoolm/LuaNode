@@ -157,27 +157,35 @@ The required tools are the same as those list in the section `How To Build for E
 
 * Follow the Step 1~3 list in `How To Build for ESP8266`.
 
-* 4. Create a new directory for toolchain by executing the commond: `sudo mkdir /opt/Espressif`. Then make the current user the owner: `sudo chown $USER /opt/Espressif/`. Download the latest toolchain:
+* Create a new directory for toolchain by executing the commond: `sudo mkdir /opt/Espressif`. Then make the current user the owner: `sudo chown $USER /opt/Espressif/`. Download the latest toolchain:
 
 ```sh
 cd /opt/Espressif/
 git clone -b esp108-1.21.0 git://github.com/jcmvbkbc/crosstool-NG.git
 ```
 
-* 5. Install the toolchain (If you are not in the toolchain directory now, change directory first `cd /opt/Espressif/`):
+* Install the toolchain (If you are not in the toolchain directory now, change directory first `cd /opt/Espressif/`):
 
 ```sh
 cd crosstool-NG
-./bootstrap && ./configure --prefix=\`pwd\` && make && make install
+./bootstrap && ./configure --prefix=`pwd` && make && make install
 ./ct-ng xtensa-esp108-elf
 ./ct-ng build
+```
+* Setup PATH variable: `export PATH=/opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/bin:$PATH`
+
+```
+Note: You have to export PATH again if you restart the shell. If you don't want to reqeat this step, you can place the toolchain directory to the .bashrc file.
 ```
 
 
 #### Linux:
 
+* Setup as that in Windows VirtualBox
+
 #### Mac OS:
 
+* Setup as in Windows
 
 
 HOW TO FLASH THE FIRMWARE:
