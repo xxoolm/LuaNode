@@ -57,6 +57,12 @@ esp-lua-sdk-master
 
 * `libc` contains the [newlib libc](https://github.com/projectgus/newlib-xtensa).
 
+* `ld` contains the link files.
+
+* `lib` contains some libraries to be linked when bin file generated.
+
+* `utils` contains some useful tools.
+
 
 HOW TO BUILD:
 --------------------------------------
