@@ -151,7 +151,7 @@ HOW TO BUILD (For `ESP32`):
 
 Requirements:
 
-The required tools are the same as those list in the section `How To Build for ESP8266`.
+The required tools are the same as those list in the section `How To Build for ESP8266`. But the firmware for ESP32 utilize different toolchain.
 
 #### Windows:
 
