@@ -328,7 +328,9 @@ REFERENCE:
 
 * esp-open-rtos: https://github.com/SuperHouse/esp-open-rtos
 
-* ESP8266-RTOS-SDK: https://github.com/espressif/ESP8266_RTOS_SDK
+* ESP8266_RTOS_SDK: https://github.com/espressif/ESP8266_RTOS_SDK
+
+* ESP32_RTOS_SDK https://github.com/espressif/ESP32_RTOS_SDK
 
 * FreeRTOS: http://www.freertos.org/
 
