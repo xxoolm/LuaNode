@@ -390,9 +390,9 @@ int lua_main (int argc, char **argv) {
   
   //luaopen_base(L);
 
-  //luaL_openlibs(L);
+  luaL_openlibs(L);
 
-  s.argc = argc;
+  /*s.argc = argc;
   s.argv = argv;
   status = lua_cpcall(L, &pmain, &s);
   report(L, status);
@@ -405,7 +405,7 @@ int lua_main (int argc, char **argv) {
   gLoad.line_position = 0;
   gLoad.prmt = get_prompt(L, 1);
 
-  dojob(&gLoad);
+  dojob(&gLoad);*/
 
   const char *buff = "local str=222; print(str)";
   luaL_dostring(L, buff);

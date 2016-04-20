@@ -90,7 +90,7 @@
  /mnt/Share/ESP32_RTOS_SDK-master/include/spi_flash.h spiffs.h \
  spiffs_config.h ../include/user_config.h ../libc/c_stdio.h \
  ../libc/c_stddef.h ../libc/c_stdarg.h ../libc/c_stdint.h \
- ../libc/c_string.h \
+ ../libc/c_string.h esp_spiffs.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/fcntl.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/sys/fcntl.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/sys/_default_fcntl.h \

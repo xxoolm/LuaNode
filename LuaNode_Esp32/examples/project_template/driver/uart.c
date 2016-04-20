@@ -154,7 +154,10 @@ void uart_task(void *pvParameters)
         if (xQueueReceive(xQueueUart, (void *)&e, (portTickType)portMAX_DELAY)) {
             switch (e.event) {
                 case UART_EVENT_RX_CHAR:
+				{
                     printf("%c", e.param);
+					printf("uart task receive input\n");
+				}
                     break;
 
                 default:
@@ -335,7 +338,7 @@ LOCAL void uart0_rx_intr_handler(void *para)
     uint8 uart_no = UART0;//UartDev.buff_uart_no;
     uint8 fifo_len = 0;
     uint8 buf_idx = 0;
-    //BaseType_t xHigherPriorityTaskWoken;
+    BaseType_t xHigherPriorityTaskWoken;
     uint32 uart_intr_status = READ_PERI_REG(UART_INT_ST(uart_no)) ;
 
     while (uart_intr_status != 0x0) {
@@ -357,7 +360,11 @@ LOCAL void uart0_rx_intr_handler(void *para)
             //xQueueSendFromISR(QueUart,(&fifo_len),&xHigherPriorityTaskWoken) ;
 	     // portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 		//os_printf_isr("uart interrupt\n");
-		 
+			os_event_t e;
+			e.event = UART_EVENT_RX_CHAR;
+			e.param = '~';
+			xQueueSendFromISR(xQueueUart, (void *)&e, &xHigherPriorityTaskWoken);
+			portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
         } else if (UART_RXFIFO_TOUT_INT_ST == (uart_intr_status & UART_RXFIFO_TOUT_INT_ST)) {
             os_printf_isr("tout\r\n");
             fifo_len = (READ_PERI_REG(UART_STATUS(UART0)) >> UART_RXFIFO_CNT_S)&UART_RXFIFO_CNT;
@@ -369,6 +376,10 @@ LOCAL void uart0_rx_intr_handler(void *para)
             }
 
             WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_TOUT_INT_CLR);
+			
+			os_event_t e;
+			e.param = '=';
+			xQueueSendFromISR(xQueueUart, (void *)&e, 0);
         } else if (UART_TXFIFO_EMPTY_INT_ST == (uart_intr_status & UART_TXFIFO_EMPTY_INT_ST)) {
             os_printf_isr("empty\n\r");
             WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_TXFIFO_EMPTY_INT_CLR);
@@ -418,4 +429,7 @@ void uart_init_new(void)
     UART_SetFlowCtrl(UART0,USART_HardwareFlowControl_None,0);
     */
 
+	xQueueUart = xQueueCreate(32, sizeof(os_event_t));
+    xTaskCreate(uart_task, (uint8 const *)"uTask", 512, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
 }
+

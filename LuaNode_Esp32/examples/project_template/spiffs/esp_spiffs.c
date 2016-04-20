@@ -1,5 +1,6 @@
 #include "esp_common.h"
 #include "spiffs.h"
+#include "esp_spiffs.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -57,17 +58,17 @@ static int32_t esp_spiffs_readwrite(u32_t addr, u32_t size, u8_t *p, int write)
     return SPIFFS_OK;
 }
 
-static int32_t esp_spiffs_read(u32_t addr, u32_t size, u8_t *dst)
+static s32_t esp_spiffs_read(u32_t addr, u32_t size, u8_t *dst)
 {
     return esp_spiffs_readwrite(addr, size, dst, 0);
 }
 
-static int32_t esp_spiffs_write(u32_t addr, u32_t size, u8_t *src)
+static s32_t esp_spiffs_write(u32_t addr, u32_t size, u8_t *src)
 {
     return esp_spiffs_readwrite(addr, size, src, 1);
 }
 
-static int32_t esp_spiffs_erase(u32_t addr, u32_t size)
+static s32_t esp_spiffs_erase(u32_t addr, u32_t size)
 {
     /*
      * With proper configurarion spiffs always
