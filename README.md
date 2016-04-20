@@ -314,7 +314,9 @@ CHANGE LOG:
 --------------------------------------
 2016.4.7 
 	Modified lbaselib.c
-	
+
+2016.4.19
+	Modified code structure	
 
 
 REFERENCE:
