@@ -9,59 +9,36 @@ The hardware is provided by www.doit.am.
 PROJECT STRUCTRUE:
 --------------------------------------
 ```
-esp-lua-sdk-master
-    -->core  
-    -->examples
-        -->simple
-        -->lua_test
-        -->terminal
-    -->extras
-        -->bmp180
-        -->cpp_support
-        -->dhcpserver
-        -->driver
-        -->ds18b20
-        -->i2c
-        -->lua
-        -->mbedtls
-        -->modules
-        -->mylibc
-        -->onewire
-        -->platform
-        -->pwm
-        -->rboot-ota
-        -->spiffs
-        -->stdin_uart_interrupt
-        -->ws2812
-    -->FreeRTOS
-        -->Source
-        -->component.mk
-    -->include
-    -->ld
-    -->lib
-    -->libc  
-    -->lwip
-    -->utils
-    common.mk
+LuaNode-master
+    -->LuaNode_Esp32
+        -->bin
+        -->examples
+            -->project_template: include lua, modules, drivers, etc
+        -->extra_include
+        -->include
+        -->ld
+        -->lib
+        -->third_party
+        -->tools
+    -->LuaNode_Esp8266
+        -->The structure is almost the same as that of esp32
 ```
 
-* `core` contains source & headers for ESP8266 functions & peripherals. `core/include/esp` contains useful headers for peripheral access, etc. Minimal to no FreeRTOS dependencies.
+* `bin` contains blank.bin, boot.bin.
 
-* `examples` contains some examples projects (one per subdirectory). They show you how to utilize UART, Lua, and create a task.
+* `examples` contains example projects. They show you how to utilize UART, Lua, and create a task.
 
-* `extras` is a directory that contains optional components that can be added to your project. Some components are included by example in the `examples` directory.
+* `extra_include` contains the extra head files for this project.
 
-* `FreeRTOS` contains FreeRTOS implementation, subdirectory structure is the standard FreeRTOS structure. `FreeRTOS/source/portable/esp8266/` contains the ESP8266 port.
+* `include` is a directory that contains head files for this project.
 
-* `lwip` contains the lwIP TCP/IP library. See [Third Party Libraries](https://github.com/kadamski/esp-lwip) for details.
-
-* `libc` contains the [newlib libc](https://github.com/projectgus/newlib-xtensa).
+* `third_party` contains head files for the libraries used, such as freertos, in this project.
 
 * `ld` contains the link files.
 
 * `lib` contains some libraries to be linked when bin file generated.
 
-* `utils` contains some useful tools.
+* `tools` contains some useful tools.
 
 
 HOW TO BUILD (For `ESP8266`):
@@ -194,7 +171,7 @@ HOW TO FLASH THE FIRMWARE:
 
 #### Flash tool for Windows:
 
-You can download the windows flash tool [HERE](http://www.baidu.com). This tool is official Espressif flash tool.
+You can download the windows flash tool [HERE](http://bbs.doit.am/forum.php?mod=viewthread&tid=196&extra=page%3D1). This tool is official Espressif flash tool.
 
 ![github](http://ww3.sinaimg.cn/mw690/999babe3gw1f2je4e2012j20u80hs7b2.jpg "Flash Tool")
 
