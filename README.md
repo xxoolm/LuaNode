@@ -41,7 +41,7 @@ LuaNode-master
 * `tools` contains some useful tools.
 
 
-HOW TO BUILD (For `ESP8266`):
+HOW TO BUILD (For `ESP32`):
 --------------------------------------
 
 #### Requirements:
@@ -67,26 +67,72 @@ sudo mount -t vboxsf share /mnt/share
 
 Note: if you mount failed, check whether the module `vboxsf` is exist by executing commond `lsmod | grep vboxsf`. If nothing found, maybe the `Guest Additions` are not installed correctly. Try to install that again or upgrade your VirtualBox to the latest version.
 
-* 4. Download tool chain: esp-open-sdk; Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/esp-open-sdk` and then install to sdk to it; Execute the following commond to download sdk:
+* 4. Download toolchain: Before downloading, make sure that the `git` has been installed, if not, install it by `sudo apt-get install git`. I create path `/opt/Espressif` and then install to sdk to it, then make the current user the owner: `sudo chown $USER /opt/Espressif/`; Execute the following commond to download toolchain:
   
 ```sh
-git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-sdk
+cd /opt/Espressif/
+git clone -b esp108-1.21.0 git://github.com/jcmvbkbc/crosstool-NG.git
 ```
   
-* 5. Install esp-open-sdk: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. Type `make STANDALONE=y` to build the tool chain.
+* 5. Install toolchain: Before installing, make sure that all the required tools list in `Requirements` are installed on your virtual machine. Type the following commands to build the toolchain.
+
+```sh
+cd crosstool-NG
+./bootstrap && ./configure --prefix=`pwd` && make && make install
+./ct-ng xtensa-esp108-elf
+./ct-ng build
+```
   
 Note: if your machine is not enough memory, the error such as `Build failed in step: 'installing pass-2 core C compiler'` may occur. The following screenshot shows the error:
 
 ![github](http://ww2.sinaimg.cn/mw690/999babe3gw1f2iq57ya69j20hq09ajw3.jpg "github")
   
-* 6. After installing the esp-open-sdk, export the bin path by the following commond, then you can build your source on your machine!
+* 6. After installing the toolchain, export the bin path by the following commond, then you can build your source on your machine!
   
 ```sh
-export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
+export PATH=/opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/bin:$PATH
 ```
 
 Now that you can place your source in the share folder, build it with your virtual machine.
 
+
+#### Linux:
+
+* System requiement: RAM>1G; Hard Disk>10G
+* Setup the build environment as that on Windows:)
+
+#### Mac OS:
+
+* Download and install VirtualBox for Mac
+* Assign memory > 1G and hard disk > 12G for the virtual machine
+* Setup the build environment as that on Windows:)
+
+
+HOW TO BUILD (For `ESP8266`):
+-------------------------------------
+
+Requirements:
+
+The required tools are the same as those list in the section `How To Build for ESP8266`. But the firmware for ESP32 utilize different toolchain.
+
+#### Windows:
+
+* Follow the Step 1~3 list in `How To Build for ESP32`.
+
+* Create a new directory for toolchain by executing the commond: `sudo mkdir /opt/esp-open-sdk`. Download the latest toolchain:
+
+```sh
+git clone --recursive https://github.com/pfalcon/esp-open-sdk.git /opt/esp-open-sdk
+```
+
+* Install the toolchain (If you are not in the toolchain directory now, change directory first `cd /opt/Espressif/`): 'make STANDALONE=y'
+
+* Setup PATH variable: `export PATH=/opt/esp-open-sdk/xtensa-lx106-elf/bin:$PATH`
+
+```
+Note: You have to export PATH again if you restart the shell. If you don't want to reqeat this step, you 
+can place the toolchain directory to the .bashrc file.
+```
 
 --------------------------------------
 
@@ -110,51 +156,6 @@ Further, the right to select the Make Target project, such as hello-world and ru
 
 Now that you can build firmware using Eclipse, if you have any questions, go to `ESP8266 Community Forum`, read this [post](http://www.esp8266.com/viewtopic.php?f=9&t=820) for details.
 
-
-#### Linux:
-
-* System requiement: RAM>1G; Hard Disk>10G
-* Setup the build environment as that on Windows:)
-
-#### Mac OS:
-
-* Download and install VirtualBox for Mac
-* Assign memory > 1G and hard disk > 12G for the virtual machine
-* Setup the build environment as that on Windows:)
-
-
-HOW TO BUILD (For `ESP32`):
--------------------------------------
-
-Requirements:
-
-The required tools are the same as those list in the section `How To Build for ESP8266`. But the firmware for ESP32 utilize different toolchain.
-
-#### Windows:
-
-* Follow the Step 1~3 list in `How To Build for ESP8266`.
-
-* Create a new directory for toolchain by executing the commond: `sudo mkdir /opt/Espressif`. Then make the current user the owner: `sudo chown $USER /opt/Espressif/`. Download the latest toolchain:
-
-```sh
-cd /opt/Espressif/
-git clone -b esp108-1.21.0 git://github.com/jcmvbkbc/crosstool-NG.git
-```
-
-* Install the toolchain (If you are not in the toolchain directory now, change directory first `cd /opt/Espressif/`):
-
-```sh
-cd crosstool-NG
-./bootstrap && ./configure --prefix=`pwd` && make && make install
-./ct-ng xtensa-esp108-elf
-./ct-ng build
-```
-* Setup PATH variable: `export PATH=/opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/bin:$PATH`
-
-```
-Note: You have to export PATH again if you restart the shell. If you don't want to reqeat this step, you 
-can place the toolchain directory to the .bashrc file.
-```
 
 
 #### Linux:
