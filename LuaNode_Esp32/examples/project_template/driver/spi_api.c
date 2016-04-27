@@ -488,7 +488,7 @@ void hspi_master_readwrite_repeat(void)
  * Parameters  : void *para- function parameter address, which has been registered in function spi_slave_init
 *******************************************************************************/
 #include "gpio.h"
-#include "user_interface.h"
+//#include "user_interface.h"
 #include "mem.h"
 static uint8 spi_data[32] = {0};
 static uint8 idx = 0;

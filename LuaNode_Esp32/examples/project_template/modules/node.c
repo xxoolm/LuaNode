@@ -25,10 +25,11 @@
 #include "c_string.h"
 #include "uart.h"
 //#include "spi_flash.h"
-#include "user_interface.h"
+//#include "user_interface.h"
 #include "flash_api.h"
 #include "flash_fs.h"
 #include "user_version.h"
+#include "esp_misc.h"
 
 #define CPU80MHZ 80
 #define CPU160MHZ 160
@@ -340,12 +341,14 @@ void output_redirect(const char *str) {
   // }
 
   if (output_redir_ref == LUA_NOREF || !gL) {
-    printf("%s", str);
+    //printf("%s", str);
+	os_printf(str);
     return;
   }
 
   if (serial_debug != 0) {
-    printf("%s", str);
+	os_printf(str);
+    //printf("%s", str);
   }
 
   lua_rawgeti(gL, LUA_REGISTRYINDEX, output_redir_ref);

@@ -5,7 +5,6 @@
 #include "c_string.h"
 #include "c_stdlib.h"
 #include "gpio.h"
-#include "user_interface.h"
 #include "user_config.h"
 #include "uart.h"
 // Platform specific includes

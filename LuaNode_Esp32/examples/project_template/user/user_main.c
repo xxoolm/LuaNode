@@ -27,6 +27,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "uart.h"
+#include "c_stdio.h"
 
 
 void my_task(void *pvParameters) {

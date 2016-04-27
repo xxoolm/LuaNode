@@ -51,7 +51,7 @@ extern void ets_isr_unmask (unsigned intr);
 
 // Cycle-counter
 extern unsigned int xthal_get_ccount (void);
-extern int xthal_set_ccompare (unsigned int timer_number, unsigned int compare_value);
+//extern int xthal_set_ccompare (unsigned int timer_number, unsigned int compare_value);
 
 // 2, 3 = reset (module dependent?), 4 = wdt
 int rtc_get_reset_reason (void);
@@ -106,6 +106,6 @@ typedef void (*exception_handler_fn) (struct exception_frame *ef, uint32_t cause
  *                If NULL, reverts to the XTOS default handler.
  * @returns The previous exception handler, or NULL if none existed prior.
  */
-exception_handler_fn _xtos_set_exception_handler (uint32_t cause, exception_handler_fn handler);
+//exception_handler_fn _xtos_set_exception_handler (uint32_t cause, exception_handler_fn handler);
 
 #endif

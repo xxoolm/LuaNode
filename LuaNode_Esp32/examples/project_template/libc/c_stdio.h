@@ -5,7 +5,7 @@
 
 #include "c_stddef.h"
 //#include "osapi.h"
-// #include "driver/uart.h"
+#include "../driver/uart.h"
 
 #include <stdio.h>
 
@@ -54,7 +54,7 @@ extern int c_stderr;
 // #define c_free os_free
 
 extern void output_redirect(const char *str);
-#define c_puts output_redirect
+#define c_puts uart0_sendStr;
 
 // #define c_printf os_printf
 // int	c_printf(const char *c, ...);

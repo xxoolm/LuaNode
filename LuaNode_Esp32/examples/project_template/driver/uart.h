@@ -32,10 +32,32 @@
 extern "C" {
 #endif
 
+
+#define RX_BUFF_SIZE	0x100	// the buffer size for uart receiving message
+
 #define ETS_UART_INTR_ENABLE()  xt_ints_on(1 << ETS_UART_INUM)
 #define ETS_UART_INTR_DISABLE() xt_ints_off(1 << ETS_UART_INUM)
 #define UART_INTR_MASK          0x1ff
 #define UART_LINE_INV_MASK      (0x3f << 19)
+
+
+typedef enum {
+    EMPTY,
+    UNDER_WRITE,
+    WRITE_OVER
+} RcvMsgBuffState;
+
+typedef struct {
+    uint32     RcvBuffSize;
+    uint8     *pRcvMsgBuff;
+    uint8     *pWritePos;
+    uint8     *pReadPos;
+    uint8      TrigLvl; //JLU: may need to pad
+    RcvMsgBuffState  BuffState;
+} RcvMsgBuff;
+
+extern RcvMsgBuff rcvMsgBuff;
+
 
 typedef enum {
     UART_WordLength_5b = 0x0,
@@ -294,6 +316,10 @@ void UART_SetLineInverse(UART_Port uart_no, UART_LineLevelInverse inverse_mask) 
   * @return  null
   */
 void uart_init_new(void);
+
+STATUS uart_tx_one_char(uint8 uart, uint8 TxChar);
+void uart0_sendStr(unsigned char *str);
+void uart0_putc(const char c);
 
 /**
   * @}

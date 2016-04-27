@@ -19,7 +19,8 @@
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/ctype.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/_ansi.h \
  ../lua/lualib.h ../lua/lua.h ../lua/lauxlib.h ../libc/c_stdio.h \
- ../libc/c_stddef.h \
+ ../libc/c_stddef.h ../libc/../driver/uart.h \
+ /mnt/Share/ESP32_RTOS_SDK-master/include/esp32/uart/uart_register.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/stdio.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/sys/reent.h \
  /opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/xtensa-esp108-elf/include/sys/_types.h \

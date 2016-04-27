@@ -19,8 +19,10 @@
 
 //#include "esp_common.h"
 #include "uart.h"
+#include "esp32/ets_sys.h"
+#include "esp_misc.h"
 
-int line_position;
+int line_position = 0;
 char line_buffer[LUA_MAXINPUT];
 
 //extern uint8 *RcvMsgBuff;
@@ -174,84 +176,6 @@ static int incomplete (lua_State *L, int status) {
   return 0;  /* else... */
 }
 
-#if 0
-static int pushline (lua_State *L, int firstline) {
-  char buffer[LUA_MAXINPUT];
-  char *b = buffer;
-  size_t l;
-  const char *prmt = get_prompt(L, firstline);
-  if (lua_readline(L, b, prmt) == 0)
-    return 0;  /* no input */
-  l = strlen(b);
-  if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
-    b[l-1] = '\0';  /* remove it */
-  if (firstline && b[0] == '=')  /* first line starts with `=' ? */
-    lua_pushfstring(L, "return %s", b+1);  /* change it to `return' */
-  else
-    lua_pushstring(L, b);
-  lua_freeline(L, b);
-  return 1;
-}
-
-static int loadline (lua_State *L) {
-  int status;
-  lua_settop(L, 0);
-  if (!pushline(L, 1))
-    return -1;  /* no input */
-  for (;;) {  /* repeat until gets a complete line */
-    status = luaL_loadbuffer(L, lua_tostring(L, 1), lua_strlen(L, 1), "=stdin");
-    if (!incomplete(L, status)) break;  /* cannot try to add lines? */
-    if (!pushline(L, 0))  /* no more input? */
-      return -1;
-    lua_pushliteral(L, "\n");  /* add a new line... */
-    lua_insert(L, -2);  /* ...between the two lines */
-    lua_concat(L, 3);  /* join them */
-  }
-  lua_saveline(L, 1);
-  lua_remove(L, 1);  /* remove line */
-  return status;
-}
-
-static void dotty (lua_State *L) {
-  int status;
-  const char *oldprogname = progname;
-  progname = NULL;
-  while ((status = loadline(L)) != -1) {
-    if (status == 0) status = docall(L, 0, 0);
-    report(L, status);
-    if (status == 0 && lua_gettop(L) > 0) {  /* any result to print? */
-      lua_getglobal(L, "print");
-      lua_insert(L, 1);
-      if (lua_pcall(L, lua_gettop(L)-1, 0, 0) != 0)
-        l_message(progname, lua_pushfstring(L,
-                               "error calling " LUA_QL("print") " (%s)",
-                               lua_tostring(L, -1)));
-    }
-  }
-  lua_settop(L, 0);  /* clear stack */
-  fputs("\n", stdout);
-  fflush(stdout);
-  progname = oldprogname;
-}
-
-static int handle_script (lua_State *L, char **argv, int n) {
-  int status;
-  const char *fname;
-  int narg = getargs(L, argv, n);  /* collect arguments */
-  lua_setglobal(L, "arg");
-  fname = argv[n];
-  if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0) 
-    fname = NULL;  /* stdin */
-  status = luaL_loadfile(L, fname);
-  lua_insert(L, -(narg+1));
-  if (status == 0)
-    status = docall(L, narg, 0);
-  else
-    lua_pop(L, narg);      
-  return report(L, status);
-}
-#endif
-
 
 /* check that argument has no extra characters at the end */
 #define notail(x)	{if ((x)[2] != '\0') return -1;}
@@ -376,6 +300,7 @@ int add(lua_State *L) {
 
 
 static void dojob(lua_Load *load);
+static bool readline(lua_Load *load);
 
 int lua_main (int argc, char **argv) {
   int status;
@@ -395,7 +320,7 @@ int lua_main (int argc, char **argv) {
   /*s.argc = argc;
   s.argv = argv;
   status = lua_cpcall(L, &pmain, &s);
-  report(L, status);
+  report(L, status);*/
 
   gLoad.L = L;
   gLoad.firstline = 1;
@@ -405,10 +330,10 @@ int lua_main (int argc, char **argv) {
   gLoad.line_position = 0;
   gLoad.prmt = get_prompt(L, 1);
 
-  dojob(&gLoad);*/
+  dojob(&gLoad);
 
-  const char *buff = "local str=222; print(str)";
-  luaL_dostring(L, buff);
+  //const char *buff = "local str=222; print(str)";
+  //luaL_dostring(L, buff);
 
   /*const char *buff = "tbl = 25";
   luaL_dostring(L, buff);
@@ -429,39 +354,31 @@ int lua_main (int argc, char **argv) {
   return 0;
 }
 
-
-/*LOCAL STATUS uart_tx_one_char(uint8 uart, uint8 TxChar)
+void lua_handle_input (bool force)
 {
-    while (true) {
-        uint32 fifo_cnt = READ_PERI_REG(UART_STATUS(uart)) & (UART_TXFIFO_CNT << UART_TXFIFO_CNT_S);
+  if (force || readline (&gLoad)) {
+    dojob (&gLoad);
+  }
+}
 
-        if ((fifo_cnt >> UART_TXFIFO_CNT_S & UART_TXFIFO_CNT) < 126) {
-            break;
-        }
-    }
 
-    WRITE_PERI_REG(UART_FIFO(uart) , TxChar);
-    return OK;
-}*/
-
-#if 0
 bool uart_getc(char *c){
-    if(pWritePos == pReadPos){   // empty
-      return false;
+    RcvMsgBuff *pRxBuff = &rcvMsgBuff;
+    if(pRxBuff->pWritePos == pRxBuff->pReadPos){   // empty
+        return false;
     }
     // ETS_UART_INTR_DISABLE();
     ETS_INTR_LOCK();
-    *c = (char)*(pReadPos);
-    if (pReadPos == (pRcvMsgBuff + RX_BUFF_SIZE)) {
-      pReadPos = pRcvMsgBuff ; 
+    *c = (char)*(pRxBuff->pReadPos);
+    if (pRxBuff->pReadPos == (pRxBuff->pRcvMsgBuff + RX_BUFF_SIZE)) {
+        pRxBuff->pReadPos = pRxBuff->pRcvMsgBuff ; 
     } else {
-      pReadPos++;
+        pRxBuff->pReadPos++;
     }
     // ETS_UART_INTR_ENABLE();
     ETS_INTR_UNLOCK();
     return true;
 }
-#endif
 
 static void dojob(lua_Load *load) {
   size_t l, rs;
@@ -523,13 +440,13 @@ static void dojob(lua_Load *load) {
   load->done = 0;
   load->line_position = 0;
   memset(load->line, 0, load->len);
-  c_puts(load->prmt);
+  os_printf(load->prmt);
 }
 
-#if 0
+
 static char last_nl_char = '\0';
-int readline(void){
-  int need_dojob = 0;
+static bool readline(lua_Load *load){
+  int need_dojob = false;
   char ch;
   while (uart_getc(&ch)) {
     char tmp_last_nl_char = last_nl_char;
@@ -559,14 +476,19 @@ int readline(void){
     if (ch == '\r' || ch == '\n') {
       last_nl_char = ch;
       line_buffer[line_position] = 0;
+	  uart0_putc('\n');
       if (line_position == 0){
         /* Get a empty line, then go to get a new line */
+		os_printf(load->prmt);
       } else {
-        need_dojob = 1;
+		load->done = 1;
+        need_dojob = true;
       }
       continue;
     }
     
+	uart0_putc(ch);
+
     /* it's a large line, discard it */
     if ( line_position + 1 >= LUA_MAXINPUT ){
       line_position = 0;
@@ -577,7 +499,7 @@ int readline(void){
   }
   return need_dojob;
 }
-#endif
+
 
 void donejob(lua_Load *load){
   lua_close(load->L);
@@ -593,3 +515,4 @@ void getline(char *src) {
   memcpy(line_buffer, src, len);
   dojob(&gLoad);
 }
+

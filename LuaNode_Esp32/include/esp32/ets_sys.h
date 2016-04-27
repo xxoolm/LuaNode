@@ -26,6 +26,8 @@
 #ifndef _ETS_SYS_H
 #define _ETS_SYS_H
 
+#include "portmacro.h"
+
 #define ETS_WMAC_SOURCE          0
 #define ETS_SLC_SOURCE           1
 #define ETS_UART_SOURCE         13
