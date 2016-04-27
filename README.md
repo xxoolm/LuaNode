@@ -213,6 +213,20 @@ void user_init(void) {
 * `terminal`: An uart sample. Set baud rate to 115200pbs, using UART0. Note that the extras/stdin_uart_interrupt must be included in the sample Makefile, when you want to enable uart device.
 
 
+APPLICATIONS:
+--------------------------------------
+
+A funny application is to utilize Luanode and Esp8266/Esp32 to create a Wifi tank.
+
+![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37i18lej20fe0duq7f.jpg "Appearance")
+
+The hardware contains: T300 Tank Chassis, Esp8266 Development Kit, 720p HD Camera, WR703N Wireless Router
+
+![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37iabgvj20kt0c6jv7.jpg "Hardware")
+
+
+
+
 FAQ:
 --------------------------------------
 
