@@ -219,7 +219,8 @@ void user_init(void) {
 APPLICATIONS:
 --------------------------------------
 
-A funny application is to utilize Luanode and Esp8266/Esp32 to create a Wifi tank.
+A funny application is to utilize Luanode and Esp32/Esp8266 to create a Wifi tank. You can control the tank via app installed on your phone.
+The Luanode run on Esp32/Esp8266 and wait for the commands sent from phone, and then drives the motor on tank to move it on.
 
 ![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37i18lej20fe0duq7f.jpg "Appearance")
 
