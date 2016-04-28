@@ -302,6 +302,18 @@ sudo apt-get install automake
 Just ignore it, execute `make STANDALONE=y` again, it will be ok then.
 
 
+WHO ARE THE PEOPLE BEHIND THIS PROJECT
+-------------------------------------
+
+`Wei Wang`: He got his master's degree from Guilin University of Electronic Technology in 2012. He has more than 4 years work experience on Embedded System.
+
+![github](https://ksr-ugc.imgix.net/assets/007/539/619/4b02fe2896172cf177b6558300cdfb45_original.jpg?w=680&fit=max&v=1461463286&auto=format&q=92&s=7d405bf015bc1b0036851755b03663dc)
+
+`DOIT`(www.doit.am): DOIT is a high-tech company, who focus on IoT technology and open source hardware. He supports this project and provides hardware for this project. Its successful products include WifiMCU, Doit Video Car, and Wifi sniffer, etc.
+
+![github](https://ksr-ugc.imgix.net/assets/010/012/333/2e153bf8a6f1cc5781643ad8d704f285_original.gif?w=680&fit=max&v=1461661228&q=92&s=c8f52001f353a41b455f2a55b3c11256)
+
+
 CONTACT ME:
 --------------------------------------
 
@@ -321,7 +333,7 @@ CHANGE LOG:
 	Modified code structure	
 
 
-REFERENCE:
+REFERENCES AND ACKNOWLEDGEMENTS:
 --------------------------------------
 
 * esp-open-sdk: https://github.com/pfalcon/esp-open-sdk
@@ -346,4 +358,4 @@ REFERENCE:
 
 * elua: www.eluaproject.net
 
-* WifiMCU: www.wifimcu.com/en.html
+* DOIT: www.doit.am
