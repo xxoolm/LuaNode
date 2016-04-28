@@ -221,13 +221,18 @@ A funny application is to utilize Luanode and Esp8266/Esp32 to create a Wifi tan
 
 ![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37i18lej20fe0duq7f.jpg "Appearance")
 
-The hardware contains: T300 Tank Chassis, Esp8266 Development Kit, 720p HD Camera, WR703N Wireless Router
+The hardware contains: T300 Tank Chassis, Esp8266 Development Kit, 720p HD Camera, WR703N Wireless Router.
 
 ![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37iabgvj20kt0c6jv7.jpg "Hardware")
 
-A video on Youtube to illustrate how to control the tank via phone
+A video on Youtube to illustrate how to control the tank via phone.
 
 [![WiFi video car](http://a1.qpic.cn/psb?/V14H7R7s11nbTN/CUnAapb.4U2AgDuGfsAWrztFuYKc2TE.tvJ**Kshk4c!/b/dKgAAAAAAAAA&bo=QAHwAAAAAAAFB5U!&rf=viewer_4)](https://www.youtube.com/watch?v=9SpL22obIMw&feature=youtu.be)
+
+Another video on Youku, a Chinese video website, to illustrate the features of the tank.
+
+[![WiFi video car](http://a1.qpic.cn/psb?/V14H7R7s11nbTN/CUnAapb.4U2AgDuGfsAWrztFuYKc2TE.tvJ**Kshk4c!/b/dKgAAAAAAAAA&bo=QAHwAAAAAAAFB5U!&rf=viewer_4)](http://v.youku.com/v_show/id_XMTI5NjUwOTYzMg==.html?from=s1.8-1-1.2)
+
 
 
 FAQ:
