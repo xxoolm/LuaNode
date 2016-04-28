@@ -44,6 +44,8 @@ LuaNode-master
 HOW TO BUILD (For `ESP32`):
 --------------------------------------
 
+![github](https://ksr-ugc.imgix.net/assets/005/953/410/b19b35fc8a5a47a601654af43ef9ed8f_original.jpg?w=680&fit=max&v=1461245398&auto=format&q=92&s=e3647335e019843923756c2c03338c5b "Esp32 prototype")
+
 #### Requirements:
 
 The following tools are required, use `apt-get` to install them.
