@@ -225,7 +225,9 @@ The hardware contains: T300 Tank Chassis, Esp8266 Development Kit, 720p HD Camer
 
 ![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37iabgvj20kt0c6jv7.jpg "Hardware")
 
+A video on Youtube to illustrate how to control the tank via phone
 
+![WiFi video car](https://youtu.be/9SpL22obIMw)
 
 
 FAQ:
