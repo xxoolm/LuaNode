@@ -14,12 +14,12 @@ LuaNode-master
         -->bin
         -->components
             -->apps
-	    -->driver
-	    -->include
-	    -->libc
-	    -->lua
-	    -->modules
-	    -->platform
+            -->driver
+            -->include
+            -->libc
+            -->lua
+            -->modules
+            -->platform
         -->extra_include
         -->include
         -->ld
