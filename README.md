@@ -12,8 +12,14 @@ PROJECT STRUCTRUE:
 LuaNode-master
     -->LuaNode_Esp32
         -->bin
-        -->examples
-            -->project_template: include lua, modules, drivers, etc
+        -->components
+            -->apps
+	    -->driver
+	    -->include
+	    -->libc
+	    -->lua
+	    -->modules
+	    -->platform
         -->extra_include
         -->include
         -->ld
@@ -26,7 +32,7 @@ LuaNode-master
 
 * `bin` contains blank.bin, boot.bin.
 
-* `examples` contains example projects. They show you how to utilize UART, Lua, and create a task.
+* `components` contains all components the project needed, including driver, modules, and lua source, etc.
 
 * `extra_include` contains the extra head files for this project.
 
@@ -96,6 +102,13 @@ export PATH=/opt/Espressif/crosstool-NG/builds/xtensa-esp108-elf/bin:$PATH
 ```
 
 Now that you can place your source in the share folder, build it with your virtual machine.
+
+`Build App`: 
+
+* Create a directory, say LuaNode, and then clone the LuaNode project to it: `git clone --recursive https://github.com/Nicholas3388/LuaNode.git`
+* Create a Bin folder for LuaNode, say LuaNode_Bin, you should place LuaNode_Bin and LuaNode_Esp32 at the same directory.
+* Modify the gen_misc.sh, setup the following three variables: SDK_PATH, BIN_PATH, and APP. SDK_PATH is the path of LuaNode_Esp32; BIN_PATH is the path of LuaNode_Bin; APP is the path of the application that you want to build. The apps you can build is in the apps folder.
+* Start to build by input `./gen_misc.sh` in your shell.
 
 
 #### Linux:
