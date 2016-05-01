@@ -209,10 +209,10 @@ Note: In the Session Options, you must uncheck XON/XOFF, otherwise, you won't be
 To set break points and debug code, maybe you can use GDBSTUB.
 
 
-EXAMPLES:
+APPS:
 --------------------------------------
 
-* `simple`: This is a sample to show how to create an os task. Build the example by typing `make` or `make rebuild` in the example directory.
+* `task`: This is a sample to show how to create an os task. Build the example by executing the gen_misc.sh.
 
 How to create a task:
 
@@ -226,9 +226,9 @@ void user_init(void) {
 }
 ```
 
-* `lua_test`: A lua sample. 
+* `luaapp`: A lua sample. 
 
-* `terminal`: An uart sample. Set baud rate to 115200pbs, using UART0. Note that the extras/stdin_uart_interrupt must be included in the sample Makefile, when you want to enable uart device.
+* `wifikiller`: An wifi sample. Set baud rate to 115200pbs, using UART0. It will disconnect WiFi connection.
 
 
 APPLICATIONS:
