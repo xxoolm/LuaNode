@@ -4,6 +4,8 @@ LuaNode
 This project is a `lua` `rtos` sdk, based on ESP32-RTOS-SDK/ESP8266_RTOS_SDK, for esp8266/esp32.
 The hardware is provided by www.doit.am.
 
+Our Kickstarter campaign is alive: https://www.kickstarter.com/projects/857552561/luanode-for-esp8266-and-esp32 . If you back for it, we will be very appreciated!
+
 ![github](http://bbs.doit.am/data/attachment/common/19/common_36_banner.jpg "esp8266")
 
 PROJECT STRUCTRUE:
