@@ -133,6 +133,8 @@ Now that you can place your source in the share folder, build it with your virtu
 HOW TO BUILD (For `ESP8266`):
 -------------------------------------
 
+![github](http://bbs.doit.am/data/attachment/common/19/common_36_banner.jpg "esp8266")
+
 Requirements:
 
 The required tools are the same as those list in the section `How To Build for ESP8266`. But the firmware for ESP32 utilize different toolchain.
