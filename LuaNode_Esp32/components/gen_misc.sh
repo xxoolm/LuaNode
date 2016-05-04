@@ -2,15 +2,15 @@
 
 :<<!
 ******NOTICE******
-MUST set SDK_PATH & BIN_PATH & APP firstly!!!
+MUST set SDK_PATH & BIN_PATH & APP_NAME firstly!!!
 example:
 export SDK_PATH=~/LuaNode_Esp32
-export BIN_PATH=~/LuaNode_BIN
+export BIN_PATH=~/LuaNode_Esp32_Bin
 !
 
-export SDK_PATH=
-export BIN_PATH=
-export APP=
+export SDK_PATH=/mnt/Share/LuaNode/LuaNode/LuaNode_Esp32
+export BIN_PATH=/mnt/Share/LuaNode/LuaNode/LuaNode_Esp32_Bin
+export APP_NAME=luaapp
 
 echo "gen_misc.sh version 20151105"
 echo ""

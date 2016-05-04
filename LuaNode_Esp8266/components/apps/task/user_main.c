@@ -7,6 +7,18 @@
 #include "c_stdio.h"
 
 
+void my_task(void *pvParameters) {
+    printf("task init\n");
+
+	while (1)
+	{
+		printf("repost\n");
+		vTaskDelay(1000);
+	}
+
+	//vTaskDelete(NULL);
+}
+
 /******************************************************************************
  * FunctionName : user_init
  * Description  : entry of user application, init user function here
@@ -19,8 +31,6 @@ void user_init(void)
 
 	uart_init_new();
 
-	char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
-    lua_main(2, lua_argv);
-
+	xTaskCreate(my_task, "my_task", 128, NULL, 4, NULL);
 }
 

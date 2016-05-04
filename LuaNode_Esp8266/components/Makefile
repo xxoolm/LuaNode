@@ -11,9 +11,6 @@
 #     subdir/lib to be extracted and rolled up into
 #     a generated lib/image xxx.a ()
 #
-
-sinclude esp.conf
-
 TARGET = eagle
 #FLAVOR = release
 FLAVOR = debug
@@ -24,9 +21,10 @@ ifndef APP_NAME
     $(error "Set the APP_NAME environment variable in your Makefile before including this Makefile")
 endif
 
+
 ifndef PDIR # {
-GEN_IMAGES= eagle.app.v7.out
-GEN_BINS= eagle.app.v7.bin
+GEN_IMAGES= eagle.app.v6.out
+GEN_BINS= eagle.app.v6.bin
 SPECIAL_MKTARGETS=$(APP_MKTARGETS)
 SUBDIRS=    \
     modules	\
@@ -39,23 +37,25 @@ SUBDIRS=    \
 
 endif # } PDIR
 
+LDDIR = $(SDK_PATH)/ld
+
 CCFLAGS += -Os
 
-TARGET_LDFLAGS =    \
-    -nostdlib       \
-    -Wl,-EL         \
-    --longcalls     \
-    --text-section-literals
+TARGET_LDFLAGS =		\
+	-nostdlib		\
+	-Wl,-EL \
+	--longcalls \
+	--text-section-literals
 
 ifeq ($(FLAVOR),debug)
-    TARGET_LDFLAGS += -g -O2
+    TARGET_LDFLAGS += -g -Os
 endif
 
 ifeq ($(FLAVOR),release)
     TARGET_LDFLAGS += -g -O0
 endif
 
-COMPONENTS_eagle.app.v7 =   \
+COMPONENTS_eagle.app.v6 = \
 	modules/libmodules.a	\
     apps/$(APP_NAME)/lib$(APP_NAME).a          \
     driver/libdriver.a	\
@@ -64,31 +64,33 @@ COMPONENTS_eagle.app.v7 =   \
     libc/liblibc.a	\
     lua/liblua.a
 
-LINKFLAGS_eagle.app.v7 =    \
-    -L$(SDK_PATH)/lib       \
-    -nostdlib               \
-    -T$(LD_FILE)            \
-    -Wl,--no-check-sections \
-    -u call_user_start      \
-    -Wl,-static             \
-    -Wl,--start-group       \
-    -lc                     \
-    -lgcc                   \
-    -lhal                   \
-    -lm                     \
-    -lcrypto                \
-    -lfreertos              \
-    -llwip                  \
-    -lmain                  \
-    -lnet80211              \
-    -lphy                   \
-    -lpp                    \
-    -lrtc                   \
-    -lwpa                   \
-    $(DEP_LIBS_eagle.app.v7)\
-    -Wl,--end-group
+LINKFLAGS_eagle.app.v6 = \
+	-L$(SDK_PATH)/lib        \
+	-Wl,--gc-sections   \
+	-nostdlib	\
+    -T$(LD_FILE)   \
+	-Wl,--no-check-sections	\
+    -u call_user_start	\
+	-Wl,-static						\
+	-Wl,--start-group					\
+	-lminic \
+	-lc	\
+	-lgcc					\
+	-lhal					\
+	-lphy	\
+	-lpp	\
+	-lnet80211	\
+	-lwpa	\
+	-lcrypto    \
+	-lmain	\
+	-lfreertos	\
+	-llwip	\
+	$(DEP_LIBS_eagle.app.v6)					\
+	-Wl,--end-group
 
-DEPENDS_eagle.app.v7 = $(LD_FILE)
+DEPENDS_eagle.app.v6 = \
+                $(LD_FILE) \
+                $(LDDIR)/eagle.rom.addr.v6.ld
 
 #############################################################
 # Configuration i.e. compile options etc.
@@ -98,23 +100,23 @@ DEPENDS_eagle.app.v7 = $(LD_FILE)
 #   for a subtree within the makefile rooted therein
 #
 
-#UNIVERSAL_TARGET_DEFINES =     \
+#UNIVERSAL_TARGET_DEFINES =		\
 
 # Other potential configuration flags include:
 #	-DTXRX_TXBUF_DEBUG
 #	-DTXRX_RXBUF_DEBUG
 #	-DWLAN_CONFIG_CCX
 CONFIGURATION_DEFINES =	-DICACHE_FLASH	\
-			-DLUA_OPTIMIZE_MEMORY=2	\
-			-DMIN_OPT_LEVEL=2
+	-DLUA_OPTIMIZE_MEMORY=2	\
+	-DMIN_OPT_LEVEL=2
 
-DEFINES +=      \
-    $(UNIVERSAL_TARGET_DEFINES) \
-    $(CONFIGURATION_DEFINES)
+DEFINES +=				\
+	$(UNIVERSAL_TARGET_DEFINES)	\
+	$(CONFIGURATION_DEFINES)
 
-DDEFINES +=     \
-    $(UNIVERSAL_TARGET_DEFINES) \
-    $(CONFIGURATION_DEFINES)
+DDEFINES +=				\
+	$(UNIVERSAL_TARGET_DEFINES)	\
+	$(CONFIGURATION_DEFINES)
 
 
 #############################################################
@@ -134,12 +136,4 @@ sinclude $(SDK_PATH)/Makefile
 
 .PHONY: FORCE
 FORCE:
-	@if test -z $(SDK_PATH); then	\
-		echo "Please export SDK_PATH firstly!!!";	\
-		exit 1;	\
-	else	\
-		if test ! -d $(SDK_PATH)/include/esp32; then \
-			echo "$(SDK_PATH) is not a ESP32_RTOS_SDK path, please check!!!";	\
-			exit 1;	\
-		fi;	\
-	fi;
+

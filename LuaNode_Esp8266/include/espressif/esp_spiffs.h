@@ -25,7 +25,7 @@
 #ifndef __ESP_SPIFFS_H__
 #define __ESP_SPIFFS_H__
 
-#include "../examples/project_template/spiffs/spiffs.h"
+#include "../components/spiffs/spiffs.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -6,7 +6,7 @@ The hardware is provided by www.doit.am.
 
 Our Kickstarter campaign is alive: https://www.kickstarter.com/projects/857552561/luanode-for-esp8266-and-esp32 . If you back for it, we will be very appreciated!
 
-![github](http://bbs.doit.am/data/attachment/common/19/common_36_banner.jpg "esp8266")
+![github](https://ksr-ugc.imgix.net/projects/2439759/photo-original.jpg?w=1024&h=576&fit=fill&bg=FFFFFF&v=1462164335&auto=format&q=92&s=e2d90d11a3fdbffa9d2b9ee5ac975d6a "Esp32 & Esp8266")
 
 PROJECT STRUCTRUE:
 --------------------------------------
@@ -16,6 +16,9 @@ LuaNode-master
         -->bin
         -->components
             -->apps
+		-->luaapp
+		-->task
+		-->wifikiller
             -->driver
             -->include
             -->libc
@@ -47,6 +50,8 @@ LuaNode-master
 * `lib` contains some libraries to be linked when bin file generated.
 
 * `tools` contains some useful tools.
+
+Note that the wifikiller app only support ESP8266.
 
 
 HOW TO BUILD (For `ESP32`):
@@ -109,7 +114,7 @@ Now that you can place your source in the share folder, build it with your virtu
 
 * Create a directory, say LuaNode, and then clone the LuaNode project to it: `git clone --recursive https://github.com/Nicholas3388/LuaNode.git`
 * Create a Bin folder for LuaNode, say LuaNode_Bin, you should place LuaNode_Bin and LuaNode_Esp32 at the same directory.
-* Modify the gen_misc.sh, setup the following three variables: SDK_PATH, BIN_PATH, and APP. SDK_PATH is the path of LuaNode_Esp32; BIN_PATH is the path of LuaNode_Bin; APP is the path of the application that you want to build. The apps you can build is in the apps folder.
+* Modify the gen_misc.sh, setup the following three variables: SDK_PATH, BIN_PATH, and APP_NAME. SDK_PATH is the path of LuaNode_Esp32; BIN_PATH is the path of LuaNode_Bin; APP is the path of the application that you want to build. The apps you can build is in the apps folder.
 * Start to build by input `./gen_misc.sh` in your shell.
 
 

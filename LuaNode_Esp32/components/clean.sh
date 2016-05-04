@@ -7,3 +7,4 @@ rm -Rf modules/.output/
 rm -Rf spiffs/.output/
 rm -Rf apps/wifikiller/.output/
 rm -Rf apps/luaapp/.output/
+rm -Rf apps/task/.output/
