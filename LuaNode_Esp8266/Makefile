@@ -192,7 +192,6 @@ OBINS := $(GEN_BINS:%=$(BINODIR)/%)
 CCFLAGS += 			\
 	-g			\
 	-Wpointer-arith		\
-	-Wundef			\
 	-Werror			\
 	-Wl,-EL			\
 	-fno-inline-functions	\
@@ -395,7 +394,7 @@ $(foreach image,$(GEN_IMAGES),$(eval $(call MakeImage,$(basename $(image)))))
 # Required for each makefile to inherit from the parent
 #
 
-INCLUDES := $(INCLUDES) -I $(SDK_PATH)/include -I $(SDK_PATH)/extra_include
+INCLUDES := $(INCLUDES) -I $(SDK_PATH)/libc/xtensa-lx106-elf/include -I $(SDK_PATH)/include -I $(SDK_PATH)/extra_include
 INCLUDES += -I $(SDK_PATH)/include/espressif
 INCLUDES += -I $(SDK_PATH)/include/lwip
 INCLUDES += -I $(SDK_PATH)/include/lwip/ipv4

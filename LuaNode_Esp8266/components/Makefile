@@ -32,7 +32,7 @@ SUBDIRS=    \
     driver	\
     spiffs	\
     platform	\
-    libc	\
+    mylibc	\
     lua
 
 endif # } PDIR
@@ -61,11 +61,12 @@ COMPONENTS_eagle.app.v6 = \
     driver/libdriver.a	\
     spiffs/libspiffs.a	\
     platform/libplatform.a	\
-    libc/liblibc.a	\
+    mylibc/libmylibc.a	\
     lua/liblua.a
 
 LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \
+	-L$(SDK_PATH)libc/xtensa-lx106-elf/lib	\
 	-Wl,--gc-sections   \
 	-nostdlib	\
     -T$(LD_FILE)   \
