@@ -196,12 +196,39 @@ HOW TO FLASH THE FIRMWARE:
 
 #### Flash tool for Windows:
 
-You can download the windows flash tool [HERE](http://bbs.doit.am/forum.php?mod=viewthread&tid=196&extra=page%3D1). This tool is official Espressif flash tool.
+For `ESP8266`:
 
-![github](http://ww3.sinaimg.cn/mw690/999babe3gw1f2je4e2012j20u80hs7b2.jpg "Flash Tool")
+You can download the windows flash tool (for Esp8266) [HERE](http://bbs.doit.am/forum.php?mod=viewthread&tid=196&extra=page%3D1). This tool is official Espressif flash tool.
+
+![github](http://ww3.sinaimg.cn/mw690/999babe3gw1f2je4e2012j20u80hs7b2.jpg "Flash Tool for Esp8266")
 
 You can also use `esptool` to flash the bin files on Linux, instead of Espressif flash tool.
 
+For `ESP32`:
+
+Download the flash tool (for Esp32) [HERE](https://www.dropbox.com/s/mvd84fgfu8imbro/ESP31_FLASH_DOWNLOAD_TOOL_V1.0.1.zip?dl=0).
+
+![github](http://ww1.sinaimg.cn/mw690/999babe3gw1f3sq1jtx5ij20jv0i5qa0.jpg "Flash tool for Esp32")
+
+#### Flash address
+
+The images flash to the address list below:
+
+For `ESP8266`:
+
+* blank.bin --> 0xfe000
+* esp_init_data_default.bin -- > 0x7c000
+* 0x00000.bin --> 0x00000
+* 0x40000.bin --> 0x40000
+
+For `ESP32`:
+
+* blank.bin --> 0xfe000
+* boot.bin --> 0x00000
+* drom0.bin --> 0x04000
+* irom0_flash.bin --> 0x40000
+
+`Note: The baudrate to flash for Esp32 must be 230400, while the baudrate for Esp8266 is 115200.`
 
 HOW TO DEBUG:
 --------------------------------------
@@ -354,6 +381,8 @@ CHANGE LOG:
 2016.4.19
 	Modified code structure	
 
+2016.5.11
+    Replace libc
 
 REFERENCES AND ACKNOWLEDGEMENTS:
 --------------------------------------
