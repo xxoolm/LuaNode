@@ -23,14 +23,7 @@
 int line_position;
 char line_buffer[LUA_MAXINPUT];
 
-//extern uint8 *RcvMsgBuff;
-extern uint8 *pRcvMsgBuff;
-extern uint8 *pWritePos;
-extern uint8 *pReadPos;
-
 static lua_State *lua_crtstate = NULL;
-
-
 
 static lua_State *globalL = NULL;
 
@@ -72,9 +65,9 @@ static void print_usage (void) {
 
 
 static void l_message (const char *pname, const char *msg) {
-  if (pname) fprintf(stderr, "%s: ", pname);
-  fprintf(stderr, "%s\n", msg);
-  fflush(stderr);
+  //if (pname) fprintf(stderr, "%s: ", pname);
+  //fprintf(stderr, "%s\n", msg);
+  //fflush(stderr);
 }
 
 
@@ -493,44 +486,16 @@ static void dojob(lua_Load *load) {
       l = c_strlen(b);
       if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
         b[l-1] = '\0';  /* remove it */
-      if (load->firstline && b[0] == '=')  /* first line starts with `=' ? */
-        lua_pushfstring(L, "return %s", b+1);  /* change it to `return' */
-      else
-        lua_pushstring(L, b);
-      if(load->firstline != 1){
-        lua_pushliteral(L, "\n");  /* add a new line... */
-        lua_insert(L, -2);  /* ...between the two lines */
-        lua_concat(L, 3);  /* join them */
-		uart_tx_one_char(UART0, 'j');
-      }
-  
-      status = luaL_loadbuffer(L, lua_tostring(L, 1), lua_strlen(L, 1), "=stdin");
-      if (!incomplete(L, status)) {  /* cannot try to add lines? */
-        lua_remove(L, 1);  /* remove line */
-        if (status == 0) {
-          status = docall(L, 0, 0);
-		  uart_tx_one_char(UART0, '*');
-        }
-        report(L, status);
-		if (status == 0) uart_tx_one_char(UART0, 'o');
-        if (status == 0 && lua_gettop(L) > 0) {  /* any result to print? */
-          lua_getglobal(L, "print");
-          lua_insert(L, 1);
-		  uart_tx_one_char(UART0, '#');
-          if (lua_pcall(L, lua_gettop(L)-1, 0, 0) != 0)
-            l_message(progname, lua_pushfstring(L, "error calling " LUA_QL("print") " (%s)", lua_tostring(L, -1)));
-        }
-        load->firstline = 1;
-        load->prmt = get_prompt(L, 1);
-        lua_settop(L, 0);
-        /* force a complete garbage collection in case of errors */
-        if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
-		uart_tx_one_char(UART0, '$');
-      } else {
-        load->firstline = 0;
-        load->prmt = get_prompt(L, 0);
-		uart_tx_one_char(UART0, '&');
-      }
+
+	  status = luaL_dostring(L, b);
+	  
+	  if (status) {
+		printf(lua_tostring(L, -1));
+		lua_pop(L, 1);
+	  }
+
+	  load->firstline = 0;
+      load->prmt = get_prompt(L, 1);
     }
   }while(0);
   
@@ -548,8 +513,9 @@ static void dojob(lua_Load *load) {
 
 static char last_nl_char = '\0';
 static bool readline(lua_Load *load) {
-  int need_dojob = 0;
+  bool need_dojob = false;
   char ch;
+
   while (uart_getc(&ch)) {
     char tmp_last_nl_char = last_nl_char;
     // reset marker, will be finally set below when newline is processed
@@ -578,14 +544,19 @@ static bool readline(lua_Load *load) {
     if (ch == '\r' || ch == '\n') {
       last_nl_char = ch;
       line_buffer[line_position] = 0;
+	  printf("\n");
       if (line_position == 0){
         /* Get a empty line, then go to get a new line */
+		printf(load->prmt);
       } else {
-        need_dojob = 1;
+		load->done = 1;
+        need_dojob = true;
       }
       continue;
     }
     
+	uart_tx_one_char(UART0, ch);
+
     /* it's a large line, discard it */
     if ( line_position + 1 >= LUA_MAXINPUT ){
       line_position = 0;
@@ -594,6 +565,7 @@ static bool readline(lua_Load *load) {
     line_buffer[line_position] = ch;
     line_position++;
   }
+
   return need_dojob;
 }
 

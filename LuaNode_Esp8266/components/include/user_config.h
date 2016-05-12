@@ -25,6 +25,13 @@
 #ifndef __USER_CONFIG_H__
 #define __USER_CONFIG_H__
 
+#define LUA_OPTRAM
+#ifdef LUA_OPTRAM
+#define LUA_OPTIMIZE_MEMORY			2
+#else
+#define LUA_OPTIMIZE_MEMORY         0
+#endif	/* LUA_OPTRAM */
+
 #ifdef NODE_DEBUG
 #define NODE_DBG c_printf
 #else
@@ -37,7 +44,7 @@
 #define ICACHE_STORE_ATTR __attribute__((aligned(4)))
 #define ICACHE_RAM_ATTR __attribute__((section(".iram0.text")))
 
-#define LUA_NUMBER_INTEGRAL
+//#define LUA_NUMBER_INTEGRAL
 
 #endif
 

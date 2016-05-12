@@ -39,7 +39,7 @@ endif
 
 INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
-INCLUDES += -I ../libc
+INCLUDES += -I ../mylibc
 INCLUDES += -I ../lua
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile

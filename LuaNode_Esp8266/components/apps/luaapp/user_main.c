@@ -26,7 +26,6 @@
 #include "uart.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "lua.h"
 
 
 /******************************************************************************

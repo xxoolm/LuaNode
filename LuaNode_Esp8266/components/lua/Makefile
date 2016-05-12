@@ -38,7 +38,7 @@ endif
 
 INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
-INCLUDES += -I ../libc
+INCLUDES += -I ../mylibc
 INCLUDES += -I ../driver
 INCLUDES += -I ../modules
 INCLUDES += -I ../platform
