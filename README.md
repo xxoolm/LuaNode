@@ -260,6 +260,9 @@ void user_init(void) {
 }
 ```
 
+`Note: There is a task to receive uart input. You'd better alloc more than 512k memory for this task,
+since the lua command handler will be called in this task, more memory is required for lua handler.`
+
 * `luaapp`: A lua sample. 
 
 * `wifikiller`: An wifi sample. Set baud rate to 115200pbs, using UART0. It will disconnect WiFi connection.
