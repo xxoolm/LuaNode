@@ -447,6 +447,12 @@ int lua_main (int argc, char **argv) {
   return 0;
 }
 
+void lua_test(void) {
+  lua_State *L = gLoad.L;
+  const char *buff = "local str=222; print(str)";
+  luaL_dostring(L, buff);
+}
+
 void lua_handle_input (bool force)
 {
   if (force || readline (&gLoad)) {

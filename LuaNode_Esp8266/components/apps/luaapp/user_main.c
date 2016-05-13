@@ -43,5 +43,6 @@ void ICACHE_FLASH_ATTR user_init(void)
     char* lua_argv[] = { (char *)"lua", (char *)"-i", NULL };
     lua_main( 2, lua_argv );
     
+	//lua_test();
 }
 

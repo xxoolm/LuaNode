@@ -420,5 +420,6 @@ void lua_handle_input (bool force);
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
+void lua_test(void);
 
 #endif

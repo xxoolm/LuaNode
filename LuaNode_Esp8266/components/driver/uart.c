@@ -295,7 +295,7 @@ uart_init_new()
 
 	// create a new task for uart event handling
 	xQueueUart = xQueueCreate(10, sizeof(os_event_t));
-    xTaskCreate(uart_task, (uint8 const *)"uTask", 256, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
+    xTaskCreate(uart_task, (uint8 const *)"uTask", 512, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
 }
 
 //=================================================================
