@@ -20,7 +20,6 @@
 #include "esp_common.h"
 #include "uart.h"
 
-int line_position;
 char line_buffer[LUA_MAXINPUT];
 
 static lua_State *lua_crtstate = NULL;
@@ -492,7 +491,6 @@ static void dojob(lua_Load *load) {
       l = c_strlen(b);
       if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
         b[l-1] = '\0';  /* remove it */
-
 	  status = luaL_dostring(L, b);
 	  
 	  if (status) {
@@ -536,22 +534,22 @@ static bool readline(lua_Load *load) {
     }
       
     if (ch == 0x7f || ch == 0x08) {
-      if (line_position > 0) {
+      if (load->line_position > 0) {
         uart_tx_one_char(UART0, 0x08);
         uart_tx_one_char(UART0, ' ');
         uart_tx_one_char(UART0, 0x08);
-        line_position--;
+        load->line_position--;
       }
-      line_buffer[line_position] = 0;
+      line_buffer[load->line_position] = 0;
       continue;
     }
     
     /* end of line */
     if (ch == '\r' || ch == '\n') {
       last_nl_char = ch;
-      line_buffer[line_position] = 0;
+      line_buffer[load->line_position] = 0;
 	  printf("\n");
-      if (line_position == 0){
+      if (load->line_position == 0){
         /* Get a empty line, then go to get a new line */
 		printf(load->prmt);
       } else {
@@ -564,12 +562,12 @@ static bool readline(lua_Load *load) {
 	uart_tx_one_char(UART0, ch);
 
     /* it's a large line, discard it */
-    if ( line_position + 1 >= LUA_MAXINPUT ){
-      line_position = 0;
+    if ( load->line_position + 1 >= LUA_MAXINPUT ){
+      load->line_position = 0;
     }
     
-    line_buffer[line_position] = ch;
-    line_position++;
+    line_buffer[load->line_position] = ch;
+    load->line_position++;
   }
 
   return need_dojob;

@@ -204,6 +204,13 @@ SECTIONS
     _irom0_text_start = ABSOLUTE(.);
     *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
     *(.literal.* .text.*)
+    . = ALIGN(4);
+    lua_libs = ABSOLUTE(.);
+    KEEP(*(.lua_libs))
+    LONG(0) LONG(0)
+    lua_rotable = ABSOLUTE(.);
+    KEEP(*(.lua_rotable))
+    LONG(0) LONG(0)
     _irom0_text_end = ABSOLUTE(.);
   } >irom0_0_seg :irom0_0_phdr
 }

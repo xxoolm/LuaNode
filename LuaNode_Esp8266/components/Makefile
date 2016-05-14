@@ -64,6 +64,8 @@ COMPONENTS_eagle.app.v6 = \
     mylibc/libmylibc.a	\
     lua/liblua.a
 
+SELECTED_MODULE_SYMS=$(filter %_module_selected %module_selected1,$(shell $(NM) modules/.output/$(TARGET)/$(FLAVOR)/lib/libmodules.a))
+
 LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \
 	-L$(SDK_PATH)libc/xtensa-lx106-elf/lib	\
@@ -73,6 +75,7 @@ LINKFLAGS_eagle.app.v6 = \
 	-Wl,--no-check-sections	\
     -u call_user_start	\
 	-Wl,-static						\
+	$(addprefix -u , $(SELECTED_MODULE_SYMS)) \
 	-Wl,--start-group					\
 	-lminic \
 	-lc	\

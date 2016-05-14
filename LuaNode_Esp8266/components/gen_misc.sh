@@ -8,8 +8,8 @@ export SDK_PATH=~/LuaNode_Esp8266
 export BIN_PATH=~/LuaNode_Esp8266_Bin
 !
 
-export SDK_PATH=/mnt/Share/LuaNode/LuaNode/LuaNode_Esp8266
-export BIN_PATH=/mnt/Share/LuaNode/LuaNode/LuaNode_Esp8266_Bin
+export SDK_PATH=/mnt/share/LuaNode/LuaNode/LuaNode_Esp8266
+export BIN_PATH=/mnt/share/LuaNode/LuaNode/LuaNode_Esp8266_Bin
 export APP_NAME=luaapp
 
 echo "gen_misc.sh version 20150911"
