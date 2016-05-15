@@ -77,7 +77,7 @@ void uart0_putc(const char c)
   }
 }
 
-void uart0_sendStr(unsigned char *str)
+void uart0_sendStr(const char *str)
 {
     while(*str)
     {
@@ -468,6 +468,6 @@ void uart_init_new(void)
 	rcvMsgBuff.pReadPos = rcvMsgBuff.pRcvMsgBuff;
 
 	xQueueUart = xQueueCreate(32, sizeof(os_event_t));
-    xTaskCreate(uart_task, (uint8 const *)"uTask", 512, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
+    xTaskCreate(uart_task, (uint8 const *)"uTask", 1024, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
 }
 

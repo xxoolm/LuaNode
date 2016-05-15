@@ -318,7 +318,7 @@ void UART_SetLineInverse(UART_Port uart_no, UART_LineLevelInverse inverse_mask) 
 void uart_init_new(void);
 
 STATUS uart_tx_one_char(uint8 uart, uint8 TxChar);
-void uart0_sendStr(unsigned char *str);
+void uart0_sendStr(const char *str);
 void uart0_putc(const char c);
 
 /**

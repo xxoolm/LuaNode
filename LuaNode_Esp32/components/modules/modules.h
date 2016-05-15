@@ -4,25 +4,12 @@
 #include "user_modules.h"
 #include "lrodefs.h"
 
-/* Registering a module within NodeMCU is really easy these days!
- *
- * Most of the work is done by a combination of pre-processor, compiler
- * and linker "magic". Gone are the days of needing to update 4+ separate
- * files just to register a module!
- *
- * You will need:
- *   - to include this header
- *   - a name for the module
- *   - a LUA_REG_TYPE module map
- *   - optionally, an init function
- *
- * Then simply put a line like this at the bottom of your module file:
- *
- *   NODEMCU_MODULE(MYNAME, "myname", myname_map, luaopen_myname);
+/* Registering a module 
+ *   LUANODE_MODULE(MYNAME, "myname", myname_map, luaopen_myname);
  *
  * or perhaps
  *
- *   NODEMCU_MODULE(MYNAME, "myname", myname_map, NULL);
+ *   LUANODE_MODULE(MYNAME, "myname", myname_map, NULL);
  *
  * if you don't need an init function.
  *
@@ -30,8 +17,7 @@
  *
  *   #define LUA_USE_MODULES_MYNAME
  *
- * and within NodeMCU you access it with myname.foo(), assuming you have
- * a foo function in your module.
+ * Access methods in module by invoking myname.foo()
  */
 
 #define MODULE_EXPAND_(x) x
@@ -50,7 +36,7 @@
  * letting the build system detect automatically (via nm) which modules need
  * to be linked in.
  */
-#define NODEMCU_MODULE(cfgname, luaname, map, initfunc) \
+#define LUANODE_MODULE(cfgname, luaname, map, initfunc) \
   const LOCK_IN_SECTION(".lua_libs") \
     luaL_Reg MODULE_PASTE_(lua_lib_,cfgname) = { luaname, initfunc }; \
   const LOCK_IN_SECTION(".lua_rotable") \
@@ -68,7 +54,7 @@
     luaR_table MODULE_PASTE_(lua_rotable_,name) = { luaname, map }
 
 #if !(MIN_OPT_LEVEL==2 && LUA_OPTIMIZE_MEMORY==2)
-# error "NodeMCU modules must be built with LTR enabled (MIN_OPT_LEVEL=2 and LUA_OPTIMIZE_MEMORY=2)"
+# error "Modules must be built with LTR enabled (MIN_OPT_LEVEL=2 and LUA_OPTIMIZE_MEMORY=2)"
 #endif
 
 #endif

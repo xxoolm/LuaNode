@@ -17,7 +17,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lrotable.h"
-
+#include "esp_misc.h"
 
 
 
@@ -33,10 +33,10 @@ static int luaB_print (lua_State *L) {
   lua_getglobal(L, "tostring");
   for (i=1; i<=n; i++) {
     if (lua_isstring(L, i)) {
-		printf("%s", lua_tostring(L, i));
+		os_printf("%s\n", lua_tostring(L, i));
 	}
 	else {
-		printf("input are not string\n");
+		os_printf("input are not string\n");
 	}
   }
 #if defined(LUA_USE_STDIO)

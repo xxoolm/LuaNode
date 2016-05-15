@@ -1,9 +1,7 @@
 // Module for interfacing with system
 
-#include "lua.h"
+#include "modules.h"
 #include "lauxlib.h"
-
-#include "esp_system.h"
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -17,15 +15,13 @@
 #include "lundump.h"
 
 #include "platform.h"
-#include "auxmods.h"
-#include "lrotable.h"
+#include "lrodefs.h"
 
 #include "c_types.h"
 //#include "romfs.h"
 #include "c_string.h"
 #include "uart.h"
-//#include "spi_flash.h"
-//#include "user_interface.h"
+#include "user_interface.h"
 #include "flash_api.h"
 #include "flash_fs.h"
 #include "user_version.h"
@@ -89,8 +85,8 @@ static int node_info( lua_State* L )
   lua_pushinteger(L, NODE_VERSION_MAJOR);
   lua_pushinteger(L, NODE_VERSION_MINOR);
   lua_pushinteger(L, NODE_VERSION_REVISION);
-  lua_pushinteger(L, system_get_chip_id(0));   // chip id
-  //lua_pushinteger(L, spi_flash_get_id());     // flash id
+  lua_pushinteger(L, system_get_chip_id());   // chip id
+  lua_pushinteger(L, spi_flash_get_id());     // flash id
 #if defined(FLASH_SAFE_API)
   lua_pushinteger(L, flash_safe_get_size_byte() / 1024);  // flash size in KB
 #else
@@ -104,7 +100,7 @@ static int node_info( lua_State* L )
 // Lua: chipid()
 static int node_chipid( lua_State* L )
 {
-  uint32_t id = system_get_chip_id(0);
+  uint32_t id = system_get_chip_id();
   lua_pushinteger(L, id);
   return 1;
 }
@@ -121,8 +117,8 @@ static int node_chipid( lua_State* L )
 // Lua: flashid()
 static int node_flashid( lua_State* L )
 {
-  //uint32_t id = spi_flash_get_id();
-  //lua_pushinteger( L, id );
+  uint32_t id = spi_flash_get_id();
+  lua_pushinteger( L, id );
   return 1;
 }
 
@@ -175,7 +171,7 @@ static void default_long_press(void *arg) {
 }
 
 static void default_short_press(void *arg) {
-  sdk_system_restart();
+  system_restart();
 }
 
 static void key_long_press(void *arg) {
@@ -341,14 +337,12 @@ void output_redirect(const char *str) {
   // }
 
   if (output_redir_ref == LUA_NOREF || !gL) {
-    //printf("%s", str);
-	os_printf(str);
+    os_printf(str);
     return;
   }
 
   if (serial_debug != 0) {
-	os_printf(str);
-    //printf("%s", str);
+    os_printf(str);
   }
 
   lua_rawgeti(gL, LUA_REGISTRYINDEX, output_redir_ref);
@@ -496,7 +490,7 @@ static int node_restore (lua_State *L)
 }
 
 #ifdef LUA_OPTIMIZE_DEBUG
-/* node.stripdebug([level[, function]]). 
+/* node.stripdebug([level[, function]]). 
  * level:    1 don't discard debug
  *           2 discard Local and Upvalue debug info
  *           3 discard Local, Upvalue and lineno debug info.
@@ -559,12 +553,10 @@ static int node_stripdebug (lua_State *L) {
 #endif
 
 // Module function map
-#define MIN_OPT_LEVEL 2
-#include "lrodefs.h"
-const LUA_REG_TYPE node_map[] =
+static const LUA_REG_TYPE node_map[] =
 {
   { LSTRKEY( "restart" ), LFUNCVAL( node_restart ) },
-//  { LSTRKEY( "dsleep" ), LFUNCVAL( node_deepsleep ) },
+  //{ LSTRKEY( "dsleep" ), LFUNCVAL( node_deepsleep ) },
   { LSTRKEY( "info" ), LFUNCVAL( node_info ) },
   { LSTRKEY( "chipid" ), LFUNCVAL( node_chipid ) },
   { LSTRKEY( "flashid" ), LFUNCVAL( node_flashid ) },
@@ -581,29 +573,16 @@ const LUA_REG_TYPE node_map[] =
   { LSTRKEY( "compile" ), LFUNCVAL( node_compile) },
   { LSTRKEY( "CPU80MHZ" ), LNUMVAL( CPU80MHZ ) },
   { LSTRKEY( "CPU160MHZ" ), LNUMVAL( CPU160MHZ ) },
-//  { LSTRKEY( "setcpufreq" ), LFUNCVAL( node_setcpufreq) },
-//  { LSTRKEY( "bootreason" ), LFUNCVAL( node_bootreason) },
-//  { LSTRKEY( "restore" ), LFUNCVAL( node_restore) },
+  //{ LSTRKEY( "setcpufreq" ), LFUNCVAL( node_setcpufreq) },
+  //{ LSTRKEY( "bootreason" ), LFUNCVAL( node_bootreason) },
+  { LSTRKEY( "restore" ), LFUNCVAL( node_restore) },
 #ifdef LUA_OPTIMIZE_DEBUG
   { LSTRKEY( "stripdebug" ), LFUNCVAL( node_stripdebug ) },
 #endif
 
 // Combined to dsleep(us, option)
 // { LSTRKEY( "dsleepsetoption" ), LFUNCVAL( node_deepsleep_setoption) },
-#if LUA_OPTIMIZE_MEMORY > 0
-
-#endif
   { LNILKEY, LNILVAL }
 };
 
-LUALIB_API int luaopen_node( lua_State *L )
-{
-#if LUA_OPTIMIZE_MEMORY > 0
-  return 0;
-#else // #if LUA_OPTIMIZE_MEMORY > 0
-  luaL_register( L, AUXLIB_NODE, node_map );
-  // Add constants
-
-  return 1;
-#endif // #if LUA_OPTIMIZE_MEMORY > 0
-}
+LUANODE_MODULE(NODE, "node", node_map, NULL);

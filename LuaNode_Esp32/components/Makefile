@@ -34,7 +34,7 @@ SUBDIRS=    \
     driver	\
     spiffs	\
     platform	\
-    libc	\
+    mylibc	\
     lua
 
 endif # } PDIR
@@ -61,8 +61,10 @@ COMPONENTS_eagle.app.v7 =   \
     driver/libdriver.a	\
     spiffs/libspiffs.a	\
     platform/libplatform.a	\
-    libc/liblibc.a	\
+    mylibc/libmylibc.a	\
     lua/liblua.a
+
+SELECTED_MODULE_SYMS=$(filter %_module_selected %module_selected1,$(shell $(NM) modules/.output/$(TARGET)/$(FLAVOR)/lib/libmodules.a))
 
 LINKFLAGS_eagle.app.v7 =    \
     -L$(SDK_PATH)/lib       \
