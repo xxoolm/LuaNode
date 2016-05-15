@@ -254,5 +254,10 @@ void* platform_get_last_free_ram( unsigned id );
  */
 uint32_t platform_flash_mapped2phys (uint32_t mapped_addr);
 
+// *****************************************************************************
+// Helper macros
+#define MOD_CHECK_ID( mod, id )\
+  if( !platform_ ## mod ## _exists( id ) )\
+    return luaL_error( L, #mod" %d does not exist", ( unsigned )id )
 
 #endif

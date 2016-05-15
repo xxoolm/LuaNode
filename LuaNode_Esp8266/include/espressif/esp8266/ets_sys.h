@@ -62,4 +62,24 @@ extern uint32 WDEV_INTEREST_EVENT;
     }   \
     } while(0)
 
+#define ets_intr_lock() ETS_INTR_LOCK()
+
+#define ets_intr_unlock() ETS_INTR_UNLOCK()
+
+typedef enum {
+	INUM_SLC = 1,
+	INUM_SPI = 2,
+	INUM_GPIO = 4,
+	INUM_UART = 5,
+	INUM_TICK = 6,
+	INUM_SOFT = 7,
+	INUM_WDT = 8,
+	INUM_TIMER_FRC1 = 9,
+	INUM_TIMER_FRC2 = 10,
+} xt_isr_num_t;
+
+#define ETS_GPIO_INTR_ENABLE() _xt_isr_unmask(1 << INUM_GPIO)
+
+#define ETS_GPIO_INTR_DISABLE() _xt_isr_mask(1 << INUM_GPIO)
+
 #endif /* _ETS_SYS_H */

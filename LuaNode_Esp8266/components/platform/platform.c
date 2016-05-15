@@ -7,6 +7,8 @@
 #include "gpio.h"
 #include "user_interface.h"
 #include "uart.h"
+#include "esp8266/gpio_register.h"
+#include "esp8266/pin_mux_register.h"
 // Platform specific includes
 
 //static void pwms_init();
