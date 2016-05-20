@@ -30,6 +30,7 @@
 
 #include "uart.h"
 #include "lua.h"
+#include "flash_fs.h"
 
 enum {
     UART_EVENT_RX_CHAR,
@@ -162,8 +163,28 @@ uart_config(uint8 uart_no, UartDevice *uart)
 #endif
 
 LOCAL void
+fs_init0(void)
+{
+	int mount_res = fs_init();
+	printf("mount result: %d\n", mount_res);
+	/*int fd = fs_open("init.lua", fs_mode2flag("w+"));
+	// write flash
+	int write_len = fs_write(fd, "hello spiffs", 12);
+	printf("write length: %d\n", write_len);
+	fs_close(fd);
+
+	fd = fs_open("init.lua", fs_mode2flag("r"));
+	char buff[15];
+	int n = fs_read(fd, buff, 12);
+	printf("read %d char; contents: %s\n", n, buff);
+	fs_close(fd);*/
+}
+
+LOCAL void
 uart_task(void *pvParameters)
 {
+	fs_init0();
+
     os_event_t e;
 
     for (;;) {
@@ -180,6 +201,11 @@ uart_task(void *pvParameters)
             }
         }
     }
+
+	////////////////////////////////
+	// program will never run here.
+
+	fs_deinit();
 
     vTaskDelete(NULL);
 }

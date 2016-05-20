@@ -379,6 +379,7 @@ static int node_output( lua_State* L )
 
 static int writer(lua_State* L, const void* p, size_t size, void* u)
 {
+#if 0
   UNUSED(L);
   int file_fd = *( (int *)u );
   if ((FS_OPEN_OK - 1) == file_fd)
@@ -388,6 +389,7 @@ static int writer(lua_State* L, const void* p, size_t size, void* u)
   if (size != 0 && (size != fs_write(file_fd, (const char *)p, size)) )
     return 1;
   NODE_DBG("write fd:%d,size:%d\n", file_fd, size);
+#endif
   return 0;
 }
 

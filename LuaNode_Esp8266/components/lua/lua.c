@@ -4,7 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,6 +101,7 @@ static int traceback (lua_State *L) {
 
 
 static int docall (lua_State *L, int narg, int clear) {
+#if 0
   int status;
   int base = lua_gettop(L) - narg;  /* function index */
   lua_pushcfunction(L, traceback);  /* push traceback function */
@@ -112,6 +112,11 @@ static int docall (lua_State *L, int narg, int clear) {
   lua_remove(L, base);  /* remove traceback function */
   /* force a complete garbage collection in case of errors */
   if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
+  return status;
+#endif
+  int status;
+  int base = lua_gettop(L) - narg;  /* function index */
+  status = lua_pcall(L, narg, (clear ? 0 : LUA_MULTRET), base);
   return status;
 }
 
@@ -139,8 +144,8 @@ static int getargs (lua_State *L, char **argv, int n) {
 }
 
 
-static int dofile (lua_State *L, const char *name) {
-  int status = luaL_loadfile(L, name) || docall(L, 0, 1);
+static int dofsfile (lua_State *L, const char *name) {
+  int status = luaL_loadfsfile(L, name) || docall(L, 0, 1);
   return report(L, status);
 }
 
@@ -299,7 +304,6 @@ static int collectargs (char **argv, int *pi, int *pv, int *pe) {
   return 0;
 }
 
-
 static int runargs (lua_State *L, char **argv, int n) {
   int i;
   for (i = 1; i < n; i++) {
@@ -337,14 +341,8 @@ static int runargs (lua_State *L, char **argv, int n) {
   return 0;
 }
 
-
 static int handle_luainit (lua_State *L) {
-  const char *init = getenv(LUA_INIT);
-  if (init == NULL) return 0;  /* status OK */
-  else if (init[0] == '@')
-    return dofile(L, init+1);
-  else
-    return dostring(L, init, "=" LUA_INIT);
+  return dofsfile(L, "init.lua");
 }
 
 
@@ -424,6 +422,8 @@ int lua_main (int argc, char **argv) {
 
   dojob(&gLoad);
 
+  //status = handle_luainit(L);
+
   //const char *buff = "local str=222; print(str)";
   //luaL_dostring(L, buff);
 
@@ -488,7 +488,7 @@ static void dojob(lua_Load *load) {
   
   do{
     if(load->done == 1){
-      l = c_strlen(b);
+      l = strlen(b);
       if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
         b[l-1] = '\0';  /* remove it */
 	  status = luaL_dostring(L, b);

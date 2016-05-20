@@ -26,6 +26,7 @@
 #include "uart.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "flash_fs.h"
 
 
 /******************************************************************************
@@ -37,8 +38,8 @@
 void ICACHE_FLASH_ATTR user_init(void)
 {
     printf("SDK version:%s\n", system_get_sdk_version());
-    
-    uart_init_new();
+
+	uart_init_new();
     
     char* lua_argv[] = { (char *)"lua", (char *)"-i", NULL };
     lua_main( 2, lua_argv );

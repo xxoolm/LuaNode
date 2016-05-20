@@ -42,6 +42,7 @@ INCLUDES += -I ./
 INCLUDES += -I ../mylibc
 INCLUDES += -I ../lua
 INCLUDES += -I ../platform
+INCLUDES += -I ../spiffs
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 

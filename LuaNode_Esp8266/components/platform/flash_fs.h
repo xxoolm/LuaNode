@@ -4,7 +4,8 @@
 
 #include "user_config.h"
 
-#include "../spiffs/spiffs.h"
+#include "spiffs.h"
+#include "esp_spiffs.h"
 
 #define FS_OPEN_OK	1
 
@@ -20,10 +21,13 @@
 #define FS_SEEK_CUR SPIFFS_SEEK_CUR
 #define FS_SEEK_END SPIFFS_SEEK_END
 
+#define fs_init myspiffs_init
+#define fs_deinit myspiffs_deinit
+#define fs_read myspiffs_read
+#define fs_write myspiffs_write
+
 #define fs_open myspiffs_open
 #define fs_close myspiffs_close
-#define fs_write myspiffs_write
-#define fs_read myspiffs_read
 #define fs_seek myspiffs_lseek
 #define fs_eof myspiffs_eof
 #define fs_getc myspiffs_getc
@@ -38,8 +42,10 @@
 #define fs_rename myspiffs_rename
 #define fs_size myspiffs_size
 
-#define fs_mount myspiffs_mount
-#define fs_unmount myspiffs_unmount
+#define fs_opendir myspiffs_opendir
+#define fs_readdir myspiffs_readdir
+#define fs_remove myspiffs_remove
+#define fs_fsinfo myspiffs_fsinfo
 
 #define FS_NAME_MAX_LENGTH SPIFFS_OBJ_NAME_LEN
 

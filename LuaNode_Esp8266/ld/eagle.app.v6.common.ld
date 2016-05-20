@@ -212,6 +212,7 @@ SECTIONS
     KEEP(*(.lua_rotable))
     LONG(0) LONG(0)
     _irom0_text_end = ABSOLUTE(.);
+    _flash_used_end = ABSOLUTE(.);
   } >irom0_0_seg :irom0_0_phdr
 }
 

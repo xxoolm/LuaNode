@@ -32,17 +32,21 @@
 #define LUA_OPTIMIZE_MEMORY         0
 #endif	/* LUA_OPTRAM */
 
-#ifdef NODE_DEBUG
-#define NODE_DBG c_printf
-#else
-#define NODE_DBG
-#endif	/* NODE_DEBUG */
+#define NODE_DBG printf
+#define NODE_ERR printf
 
+// relative to SPIFFS
 #define BUILD_SPIFFS	1
+#define SPIFFS_CACHE	1
+#define FLASH_SAFE_API
+
+#define ESP_INIT_DATA_ENABLE_READVDD33
 
 #define ICACHE_STORE_TYPEDEF_ATTR __attribute__((aligned(4),packed))
 #define ICACHE_STORE_ATTR __attribute__((aligned(4)))
 #define ICACHE_RAM_ATTR __attribute__((section(".iram0.text")))
+
+#define TEXT_SECTION_ATTR __attribute__((section(".text")))
 
 //#define LUA_NUMBER_INTEGRAL
 
