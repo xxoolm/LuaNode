@@ -1,7 +1,12 @@
 LuaNode
 ======================================
 
-This project is a `lua` `rtos` sdk, based on ESP32-RTOS-SDK/ESP8266_RTOS_SDK, for esp8266/esp32.
+This project is an improved `Lua` SDK, based on ESP32-RTOS-SDK/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266).
+
+As we know, there are some existing Lua SDK such as NodeMCU, esp-open-rtos, but them are not support for both Esp32 at this time, and
+some of them are not support multi-task.
+
+Our kickstarter campaign is launched. If you back for our project, an Esp32 dev-kit will ship to you once the project goal is completed.
 The hardware is provided by www.doit.am.
 
 Our Kickstarter campaign is alive: https://www.kickstarter.com/projects/857552561/luanode-for-esp8266-and-esp32 . If you back for it, we will be very appreciated!
@@ -52,6 +57,30 @@ LuaNode-master
 * `tools` contains some useful tools.
 
 Note that the wifikiller app only support ESP8266.
+
+LUA PROGRAMMING
+--------------------------------------
+Programming with Lua is easy, some samples are as follow:
+
+```lua
+-- create file on file system
+file.open("myfile.lua", "w+");
+file.write("hello world");
+file.close();
+
+-- read file from file system
+file.open("myfile.lua", "r");
+file.read("myfile.lua");
+file.close();
+
+-- remove file
+file.remove("myfile.lua");
+
+-- restart device
+node.restart();
+```
+
+You can add your own Lua modules to LuaNode at will, visit the LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki") for detail.
 
 
 HOW TO BUILD (For `ESP32`):
