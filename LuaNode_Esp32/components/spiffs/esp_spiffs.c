@@ -1,5 +1,7 @@
 #include "esp_common.h"
-#include "spiffs.h"
+#include "spiffs_test_params.h"
+#include "cpu_esp8266.h"
+#include "platform.h"
 #include "esp_spiffs.h"
 
 #include <fcntl.h>
@@ -15,7 +17,7 @@ static u8_t *spiffs_cache_buf;
 
 #define FLASH_UNIT_SIZE 4
 
-static int32_t esp_spiffs_readwrite(u32_t addr, u32_t size, u8_t *p, int write)
+static s32_t esp_spiffs_readwrite(u32_t addr, u32_t size, u8_t *p, int write)
 {
     /*
      * With proper configurarion spiffs never reads or writes more than
@@ -83,14 +85,29 @@ static s32_t esp_spiffs_erase(u32_t addr, u32_t size)
     return spi_flash_erase_sector(addr / fs.cfg.phys_erase_block);
 }
 
-int32_t esp_spiffs_init(struct esp_spiffs_config *config)
+s32_t esp_spiffs_init(struct esp_spiffs_config *config)
 {
     if (SPIFFS_mounted(&fs)) {
         return -1;
     }
 
+	u32_t sect_first, sect_last;
+	sect_first = ( u32_t )platform_flash_get_first_free_block_address( NULL ); 
+	sect_first += 0x3FFF;
+	sect_first &= 0xFFFFC000;  // align to 4 sector.
+	sect_first = platform_flash_get_sector_of_address(sect_first);
+	sect_last = INTERNAL_FLASH_SIZE - SYS_PARAM_SEC_NUM;
+	sect_last = platform_flash_get_sector_of_address(sect_last);
+	NODE_DBG("sect_first: %x, sect_last: %x\n", sect_first, sect_last);
+	while( sect_first <= sect_last ) {
+		if( platform_flash_erase_sector( sect_first ++ ) == PLATFORM_ERR ) {
+			NODE_DBG("format failed\n");
+			return -1;
+		}
+	}
+
     spiffs_config cfg;
-    int32_t ret;
+    s32_t ret;
 
     cfg.phys_size = config->phys_size;
     cfg.phys_addr = config->phys_addr;
@@ -161,6 +178,118 @@ void esp_spiffs_deinit(u8_t format)
             SPIFFS_format(&fs);
         }
     }
+}
+
+size_t myspiffs_write( int fd, const void* ptr, size_t len )
+{
+  int res = SPIFFS_write(&fs, (spiffs_file)fd, (void *)ptr, len);
+  if (res < 0) {
+    NODE_DBG("write errno %i\n", SPIFFS_errno(&fs));
+    return 0;
+  }
+  return res;
+}
+
+size_t myspiffs_read( int fd, void* ptr, size_t len)
+{
+  int res = SPIFFS_read(&fs, (spiffs_file)fd, ptr, len);
+  if (res < 0) {
+    NODE_DBG("read errno %i\n", SPIFFS_errno(&fs));
+    return 0;
+  }
+  return res;
+}
+
+size_t myspiffs_init() {
+	struct esp_spiffs_config config;
+
+    config.phys_size = FS1_FLASH_SIZE;
+    config.phys_addr = FS1_FLASH_ADDR;
+    config.phys_erase_block = SECTOR_SIZE;
+    config.log_block_size = LOG_BLOCK;
+    config.log_page_size = LOG_PAGE;
+    config.fd_buf_size = FD_BUF_SIZE * 2;
+    config.cache_buf_size = CACHE_BUF_SIZE;
+
+	int ret = esp_spiffs_init(&config);
+	return ret;
+}
+
+void myspiffs_deinit() {
+	u8_t format;
+	esp_spiffs_deinit(format);
+}
+
+int myspiffs_format( void )
+{
+
+  return 1;
+}
+
+int myspiffs_check( void )
+{
+  // ets_wdt_disable();
+  // int res = (int)SPIFFS_check(&fs);
+  // ets_wdt_enable();
+  // return res;
+}
+
+int myspiffs_open(const char *name, int flags){
+  return (int)SPIFFS_open(&fs, (char *)name, (spiffs_flags)flags, 0);
+}
+
+int myspiffs_close( int fd ){
+  SPIFFS_close(&fs, (spiffs_file)fd);
+  return 0;
+}
+
+int myspiffs_lseek( int fd, int off, int whence ){
+  return 0;
+}
+int myspiffs_eof( int fd ){
+  return 0;
+}
+int myspiffs_tell( int fd ){
+  return 0;
+}
+int myspiffs_getc( int fd ){
+  unsigned char c = 0xFF;
+  
+  return (int)EOF;
+}
+int myspiffs_ungetc( int c, int fd ){
+  return 0;
+}
+int myspiffs_flush( int fd ){
+  return 0;
+}
+int myspiffs_error( int fd ){
+  return 0;
+}
+void myspiffs_clearerr( int fd ){
+  
+}
+int myspiffs_rename( const char *old, const char *newname ){
+  return 0;
+}
+size_t myspiffs_size( int fd ){
+  return 0;
+}
+
+/*void myspiffs_opendir( const char *dir, spiffs_DIR d ){
+
+}
+
+spiffs_dirent *myspiffs_readdir( spiffs_DIR *dir, spiffs_dirent *pe ){
+
+}*/
+
+void myspiffs_remove( char *name ){
+	SPIFFS_remove(&fs, name);
+}
+
+void myspiffs_fsinfo( uint32 *total, uint32 *used ) {
+
 }
 
 int _open_r(struct _reent *r, const char *filename, int flags, int mode)

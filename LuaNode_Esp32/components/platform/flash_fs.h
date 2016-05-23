@@ -4,40 +4,8 @@
 
 #include "user_config.h"
 
-#if defined( BUILD_WOFS )
-#include "romfs.h"
-
-#define FS_OPEN_OK	0
-
-#define FS_RDONLY O_RDONLY
-#define FS_WRONLY O_WRONLY
-#define FS_RDWR O_RDWR
-#define FS_APPEND O_APPEND
-#define FS_TRUNC O_TRUNC
-#define FS_CREAT O_CREAT
-#define FS_EXCL O_EXCL
-
-#define FS_SEEK_SET SEEK_SET
-#define FS_SEEK_CUR SEEK_CUR
-#define FS_SEEK_END SEEK_END
-
-#define fs_open wofs_open
-#define fs_close wofs_close
-#define fs_write wofs_write
-#define fs_read wofs_read
-#define fs_seek wofs_lseek
-#define fs_eof wofs_eof
-#define fs_getc wofs_getc
-#define fs_ungetc wofs_ungetc
-
-#define fs_format wofs_format
-#define fs_next wofs_next
-
-#define FS_NAME_MAX_LENGTH MAX_FNAME_LENGTH
-
-#elif defined( BUILD_SPIFFS )
-
 #include "spiffs.h"
+#include "esp_spiffs.h"
 
 #define FS_OPEN_OK	1
 
@@ -53,10 +21,13 @@
 #define FS_SEEK_CUR SPIFFS_SEEK_CUR
 #define FS_SEEK_END SPIFFS_SEEK_END
 
+#define fs_init myspiffs_init
+#define fs_deinit myspiffs_deinit
+#define fs_read myspiffs_read
+#define fs_write myspiffs_write
+
 #define fs_open myspiffs_open
 #define fs_close myspiffs_close
-#define fs_write myspiffs_write
-#define fs_read myspiffs_read
 #define fs_seek myspiffs_lseek
 #define fs_eof myspiffs_eof
 #define fs_getc myspiffs_getc
@@ -71,12 +42,12 @@
 #define fs_rename myspiffs_rename
 #define fs_size myspiffs_size
 
-#define fs_mount myspiffs_mount
-#define fs_unmount myspiffs_unmount
+#define fs_opendir myspiffs_opendir
+#define fs_readdir myspiffs_readdir
+#define fs_remove myspiffs_remove
+#define fs_fsinfo myspiffs_fsinfo
 
 #define FS_NAME_MAX_LENGTH SPIFFS_OBJ_NAME_LEN
-
-#endif
 
 int fs_mode2flag(const char *mode);
 

@@ -26,7 +26,6 @@
 #define __ESP_SPIFFS_H__
 
 #include "spiffs.h"
-#include "c_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +62,7 @@ struct esp_spiffs_config {
   * @return 0         : succeed
   * @return otherwise : fail
   */
-sint32 esp_spiffs_init(struct esp_spiffs_config *config);
+s32_t esp_spiffs_init(struct esp_spiffs_config *config);
 
 /**
   * @brief  Deinitialize spiffs
@@ -73,6 +72,32 @@ sint32 esp_spiffs_init(struct esp_spiffs_config *config);
   * @return null
   */
 void esp_spiffs_deinit(uint8 format);
+
+
+size_t myspiffs_init(void);
+void myspiffs_deinit(void);
+
+int myspiffs_open(const char *name, int flags);
+size_t myspiffs_write( int fd, const void* ptr, size_t len );
+size_t myspiffs_read( int fd, void* ptr, size_t len);
+int myspiffs_close( int fd );
+int myspiffs_lseek( int fd, int off, int whence );
+int myspiffs_eof( int fd );
+int myspiffs_tell( int fd );
+int myspiffs_getc( int fd );
+int myspiffs_ungetc( int c, int fd );
+int myspiffs_flush( int fd );
+int myspiffs_error( int fd );
+void myspiffs_clearerr( int fd );
+int myspiffs_check( void );
+int myspiffs_rename( const char *old, const char *newname );
+int myspiffs_format( void );
+//void myspiffs_opendir( const char *dir, spiffs_DIR *d );
+//spiffs_dirent *myspiffs_readdir( spiffs_DIR *dir, spiffs_dirent *pe );
+void myspiffs_remove( char *name );
+void myspiffs_fsinfo( uint32 *total, uint32 *used );
+
+size_t myspiffs_size( int fd );
 
 /**
   * @}
