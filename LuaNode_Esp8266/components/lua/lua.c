@@ -345,6 +345,10 @@ static int handle_luainit (lua_State *L) {
   return dofsfile(L, "init.lua");
 }
 
+int do_luainit (void) {
+	lua_State *L = gLoad.L;
+	return dofsfile(L, "init.lua");
+}
 
 struct Smain {
   int argc;

@@ -246,20 +246,35 @@ int myspiffs_close( int fd ){
 int myspiffs_lseek( int fd, int off, int whence ){
   return 0;
 }
+
 int myspiffs_eof( int fd ){
+  return SPIFFS_eof(&fs, (spiffs_file)fd);
   return 0;
 }
+
 int myspiffs_tell( int fd ){
   return 0;
 }
+
 int myspiffs_getc( int fd ){
   unsigned char c = 0xFF;
-  
+  int res;
+  if(!myspiffs_eof(fd)){
+    res = SPIFFS_read(&fs, (spiffs_file)fd, &c, 1);
+    if (res != 1) {
+      NODE_DBG("getc errno %i\n", SPIFFS_errno(&fs));
+      return (int)EOF;
+    } else {
+      return (int)c;
+    }
+  }
   return (int)EOF;
 }
+
 int myspiffs_ungetc( int c, int fd ){
-  return 0;
+  return SPIFFS_lseek(&fs, (spiffs_file)fd, -1, SEEK_CUR);
 }
+
 int myspiffs_flush( int fd ){
   return 0;
 }

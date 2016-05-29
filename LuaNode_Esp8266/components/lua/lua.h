@@ -421,5 +421,6 @@ void lua_handle_input (bool force);
 ******************************************************************************/
 
 void lua_test(void);
+int do_luainit (void);
 
 #endif

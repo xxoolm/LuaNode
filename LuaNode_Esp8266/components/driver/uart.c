@@ -178,6 +178,8 @@ fs_init0(void)
 	int n = fs_read(fd, buff, 12);
 	printf("read %d char; contents: %s\n", n, buff);
 	fs_close(fd);*/
+
+	int status = do_luainit();
 }
 
 LOCAL void
