@@ -33,8 +33,9 @@ SUBDIRS=    \
     spiffs	\
     platform	\
     mylibc	\
+    cjson	\
     lua	\
-    cjson
+    websocket
 
 endif # } PDIR
 
@@ -63,8 +64,9 @@ COMPONENTS_eagle.app.v6 = \
     spiffs/libspiffs.a	\
     platform/libplatform.a	\
     mylibc/libmylibc.a	\
+    cjson/libcjson.a	\
     lua/liblua.a	\
-    cjson/libcjson.a
+    websocket/libwebsocket.a
 
 SELECTED_MODULE_SYMS=$(filter %_module_selected %module_selected1,$(shell $(NM) modules/.output/$(TARGET)/$(FLAVOR)/lib/libmodules.a))
 

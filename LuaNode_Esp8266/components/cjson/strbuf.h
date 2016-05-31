@@ -43,7 +43,7 @@ typedef struct {
 } strbuf_t;
 
 #ifndef STRBUF_DEFAULT_SIZE
-#define STRBUF_DEFAULT_SIZE 1023
+#define STRBUF_DEFAULT_SIZE 256
 #endif
 #ifndef STRBUF_DEFAULT_INCREMENT
 #define STRBUF_DEFAULT_INCREMENT -2

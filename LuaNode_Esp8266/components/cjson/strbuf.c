@@ -29,6 +29,8 @@
 
 #include "strbuf.h"
 #include "cjson_mem.h"
+//#include <fcntl.h>
+//#include <stdio.h>
 
 int strbuf_init(strbuf_t *s, int len)
 {
@@ -52,6 +54,7 @@ int strbuf_init(strbuf_t *s, int len)
         NODE_ERR("not enough memory\n");
         return -1;
     }
+	NODE_ERR("cjson mem alloc ok\n");
 
     strbuf_ensure_null(s);
 	return 0;

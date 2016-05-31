@@ -39,6 +39,10 @@ void ICACHE_FLASH_ATTR user_init(void)
 {
     printf("SDK version:%s\n", system_get_sdk_version());
 
+	wifi_station_disconnect();
+	wifi_set_opmode(NULL_MODE);
+	wifi_fpm_set_sleep_type(MODEM_SLEEP_T);
+
 	uart_init_new();
     
     char* lua_argv[] = { (char *)"lua", (char *)"-i", NULL };

@@ -32,9 +32,9 @@ extern int c_stderr;
 #define	EOF	(-1)
 
 #ifdef __BUFSIZ__
-#define   BUFSIZ         __BUFSIZ__
+#define   BUFSIZ0         __BUFSIZ__
 #else
-#define   BUFSIZ         1024
+#define   BUFSIZ0         1024
 #endif
 
 #ifndef SEEK_SET
@@ -65,7 +65,7 @@ void c_sprintf(char* s,char *fmt, ...);
 
 // #define c_vsprintf ets_vsprintf
 #define c_printf(...) do {					\
-	unsigned char __print_buf[BUFSIZ];		\
+	unsigned char __print_buf[BUFSIZ0];		\
 	c_sprintf(__print_buf, __VA_ARGS__);	\
 	c_puts(__print_buf);					\
 } while(0)
