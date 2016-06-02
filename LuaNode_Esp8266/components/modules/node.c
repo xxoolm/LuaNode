@@ -334,12 +334,12 @@ void output_redirect(const char *str) {
   // }
 
   if (output_redir_ref == LUA_NOREF || !gL) {
-    uart0_sendStr(str);
+    NODE_ERR(str);
     return;
   }
 
   if (serial_debug != 0) {
-    uart0_sendStr(str);
+    NODE_ERR(str);
   }
 
   lua_rawgeti(gL, LUA_REGISTRYINDEX, output_redir_ref);
