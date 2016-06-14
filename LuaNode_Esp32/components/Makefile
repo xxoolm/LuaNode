@@ -73,6 +73,7 @@ LINKFLAGS_eagle.app.v7 =    \
     -Wl,--no-check-sections \
     -u call_user_start      \
     -Wl,-static             \
+    $(addprefix -u , $(SELECTED_MODULE_SYMS)) \
     -Wl,--start-group       \
     -lc                     \
     -lgcc                   \

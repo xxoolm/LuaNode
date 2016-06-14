@@ -8,6 +8,7 @@
 #include "lauxlib.h"
 #include "luaconf.h"
 #include "modules.h"
+#include "esp_misc.h"
 
 #include "c_string.h"
 
@@ -51,7 +52,7 @@ extern const luaL_Reg lua_libs[];
 void luaL_openlibs (lua_State *L) {
   const luaL_Reg *lib = lua_libs;
   for (; lib->name; lib++) {
-	printf("require lib: %s\n", lib->name);
+	os_printf("require lib: %s\n", lib->name);
     if (lib->func)
     {
       lua_pushcfunction(L, lib->func);

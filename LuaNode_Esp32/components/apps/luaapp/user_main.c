@@ -22,5 +22,7 @@ void user_init(void)
 	char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
     lua_main(2, lua_argv);
 
+	//wifi_station_disconnect();
+	//wifi_set_opmode(NULL_MODE);
 }
 

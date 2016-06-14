@@ -175,6 +175,9 @@ LOCAL void uart_config(uint8 uart_no, UartDevice *uart)
 
 void uart_task(void *pvParameters)
 {
+	wifi_station_disconnect();
+	wifi_set_opmode(NULL_MODE);
+
     os_event_t e;
 
     for (;;) {

@@ -307,10 +307,10 @@ int lua_main (int argc, char **argv) {
   
   lua_State *L = luaL_newstate();
   if (L == NULL) {
-    printf("lua failed\n");
+    os_printf("lua failed\n");
     return 1;
   }
-  printf("lua create ok!\n");
+  os_printf("lua create ok!\n");
   
   //luaopen_base(L);
 

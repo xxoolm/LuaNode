@@ -80,6 +80,7 @@ static int node_deepsleep( lua_State* L )
 // }
 // Lua: info()
 
+#if 0
 static int node_info( lua_State* L )
 {
   lua_pushinteger(L, NODE_VERSION_MAJOR);
@@ -96,6 +97,7 @@ static int node_info( lua_State* L )
   lua_pushinteger(L, flash_rom_get_speed());
   return 8;
 }
+#endif
 
 // Lua: chipid()
 static int node_chipid( lua_State* L )
@@ -117,8 +119,8 @@ static int node_chipid( lua_State* L )
 // Lua: flashid()
 static int node_flashid( lua_State* L )
 {
-  uint32_t id = spi_flash_get_id();
-  lua_pushinteger( L, id );
+  //uint32_t id = spi_flash_get_id();
+  //lua_pushinteger( L, id );
   return 1;
 }
 
@@ -557,7 +559,7 @@ static const LUA_REG_TYPE node_map[] =
 {
   { LSTRKEY( "restart" ), LFUNCVAL( node_restart ) },
   //{ LSTRKEY( "dsleep" ), LFUNCVAL( node_deepsleep ) },
-  { LSTRKEY( "info" ), LFUNCVAL( node_info ) },
+  //{ LSTRKEY( "info" ), LFUNCVAL( node_info ) },
   { LSTRKEY( "chipid" ), LFUNCVAL( node_chipid ) },
   { LSTRKEY( "flashid" ), LFUNCVAL( node_flashid ) },
   { LSTRKEY( "flashsize" ), LFUNCVAL( node_flashsize) },
