@@ -422,5 +422,6 @@ void lua_handle_input (bool force);
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
+int do_luainit (void);
 
 #endif

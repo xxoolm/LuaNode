@@ -31,6 +31,7 @@
 #include "uart.h"
 #include "gpio.h"
 #include "lua.h"
+#include "flash_fs.h"
 #include <stdio.h>
 
 enum {
@@ -173,10 +174,22 @@ LOCAL void uart_config(uint8 uart_no, UartDevice *uart)
 }
 #endif
 
+LOCAL void
+fs_init0(void)
+{
+	int mount_res = fs_init();
+	os_printf("mount result: %d\n", mount_res);
+
+	int status = do_luainit();
+}
+
 void uart_task(void *pvParameters)
 {
+	// Close wifi temporary
 	wifi_station_disconnect();
 	wifi_set_opmode(NULL_MODE);
+
+	//fs_init0();
 
     os_event_t e;
 
@@ -185,20 +198,20 @@ void uart_task(void *pvParameters)
             switch (e.event) {
                 case UART_EVENT_RX_CHAR:
 				{
-                    //printf("%c", e.param);
-					//printf("uart task receive input\n");
 					lua_handle_input(false);
 				}
                     break;
 
                 default:
-				{
-					printf("what\n");
-				}
                     break;
             }
         }
     }
+
+	////////////////////////////////
+	// program will never run here.
+
+	fs_deinit();
 
     vTaskDelete(NULL);
 }

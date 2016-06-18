@@ -41,5 +41,6 @@ INCLUDES += -I ./
 INCLUDES += -I ../mylibc
 INCLUDES += -I ../platform
 INCLUDES += -I ../driver
+INCLUDES += -I ../modules
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile

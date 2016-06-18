@@ -13,7 +13,7 @@
 #
 ifndef PDIR
 
-GEN_LIBS = libdriver.a
+GEN_LIBS = libcjson.a
 
 endif
 
@@ -41,9 +41,9 @@ endif
 
 INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
-INCLUDES += -I ../platform
-INCLUDES += -I ../lua
 INCLUDES += -I ../mylibc
-INCLUDES += -I ../spiffs
+INCLUDES += -I ../lua
+INCLUDES += -I ../modules
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
+

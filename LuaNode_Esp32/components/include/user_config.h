@@ -25,6 +25,8 @@
 #ifndef __USER_CONFIG_H__
 #define __USER_CONFIG_H__
 
+#include "esp_misc.h"
+
 #define LUA_OPTRAM
 #ifdef LUA_OPTRAM
 #define LUA_OPTIMIZE_MEMORY			2
@@ -49,13 +51,13 @@
 #define NODE_ERROR
 
 #ifdef NODE_DEBUG
-#define NODE_DBG c_printf
+#define NODE_DBG os_printf
 #else
 #define NODE_DBG
 #endif	/* NODE_DEBUG */
 
 #ifdef NODE_ERROR
-#define NODE_ERR printf
+#define NODE_ERR os_printf
 #else
 #define NODE_ERR
 #endif	/* NODE_ERROR */
