@@ -18,6 +18,7 @@
 
 #include "esp_common.h"
 #include "uart.h"
+#include "lptree.h"
 
 char line_buffer[LUA_MAXINPUT];
 
@@ -408,8 +409,8 @@ int lua_main (int argc, char **argv) {
   printf("lua create ok!\n");
   
   //luaopen_base(L);
-
   luaL_openlibs(L);
+  luaopen_lpeg(L);
 
   /*s.argc = argc;
   s.argv = argv;

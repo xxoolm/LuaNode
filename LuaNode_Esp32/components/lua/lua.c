@@ -21,6 +21,7 @@
 #include "uart.h"
 #include "esp32/ets_sys.h"
 #include "esp_misc.h"
+#include "lptree.h"
 
 char line_buffer[LUA_MAXINPUT];
 
@@ -318,8 +319,8 @@ int lua_main (int argc, char **argv) {
   os_printf("lua create ok!\n");
   
   //luaopen_base(L);
-
   luaL_openlibs(L);
+  luaopen_lpeg(L);
 
   /*s.argc = argc;
   s.argv = argv;
@@ -402,7 +403,7 @@ static void dojob(lua_Load *load) {
 	  status = luaL_dostring(L, b);
 	  
 	  if (status) {
-		printf(lua_tostring(L, -1));
+		os_printf(lua_tostring(L, -1));
 		lua_pop(L, 1);
 	  }
 

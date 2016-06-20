@@ -44,6 +44,7 @@ INCLUDES += -I ../modules
 INCLUDES += -I ../platform
 INCLUDES += -I ../spiffs
 INCLUDES += -I ../cjson
+INCLUDES += -I ../lpeg
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 

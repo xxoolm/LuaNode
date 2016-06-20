@@ -484,6 +484,6 @@ void uart_init_new(void)
 	rcvMsgBuff.pReadPos = rcvMsgBuff.pRcvMsgBuff;
 
 	xQueueUart = xQueueCreate(32, sizeof(os_event_t));
-    xTaskCreate(uart_task, (uint8 const *)"uTask", 1024, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
+    xTaskCreate(uart_task, (uint8 const *)"uTask", 2048, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
 }
 
