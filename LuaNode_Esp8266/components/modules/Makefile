@@ -44,7 +44,7 @@ INCLUDES += -I ../driver
 INCLUDES += -I ../spiffs
 INCLUDES += -I ../platform
 INCLUDES += -I ../cjson
-INCLUDES += -I ../coap
+INCLUDES += -I ../utils
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 

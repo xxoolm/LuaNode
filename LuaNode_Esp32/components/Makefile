@@ -37,7 +37,8 @@ SUBDIRS=    \
     mylibc	\
     cjson	\
     lua		\
-    lpeg
+    lpeg	\
+    utils
 
 endif # } PDIR
 
@@ -66,7 +67,8 @@ COMPONENTS_eagle.app.v7 =   \
     mylibc/libmylibc.a	\
     cjson/libcjson.a	\
     lua/liblua.a	\
-    lpeg/liblpeg.a
+    lpeg/liblpeg.a	\
+    utils/libutils.a
 
 SELECTED_MODULE_SYMS=$(filter %_module_selected %module_selected1,$(shell $(NM) modules/.output/$(TARGET)/$(FLAVOR)/lib/libmodules.a))
 

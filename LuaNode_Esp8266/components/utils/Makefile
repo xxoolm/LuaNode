@@ -12,8 +12,11 @@
 #     a generated lib/image xxx.a ()
 #
 ifndef PDIR
-GEN_LIBS = libmodules.a
+
+GEN_LIBS = libutils.a
+
 endif
+
 
 #############################################################
 # Configuration i.e. compile options etc.
@@ -39,12 +42,7 @@ endif
 INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
 INCLUDES += -I ../mylibc
-INCLUDES += -I ../lua
-INCLUDES += -I ../driver
-INCLUDES += -I ../spiffs
-INCLUDES += -I ../platform
-INCLUDES += -I ../lpeg
-INCLUDES += -I ../utils
+INCLUDES += -I ../modules
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 
