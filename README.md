@@ -21,9 +21,10 @@ LuaNode-master
         -->bin
         -->components
             -->apps
-            -->luaapp
-            -->task
-		-->wifikiller
+                -->luaapp
+                -->task
+                -->wifilister
+                -->wifikiller
             -->driver
             -->include
             -->libc
