@@ -21,8 +21,8 @@ LuaNode-master
         -->bin
         -->components
             -->apps
-		-->luaapp
-		-->task
+            -->luaapp
+            -->task
 		-->wifikiller
             -->driver
             -->include
@@ -119,13 +119,16 @@ void user_init(void) {
 `Note: There is a task to receive uart input. You'd better alloc more than 512k memory for this task,
 since the lua command handler will be called in this task, more memory is required for lua handler.`
 
-* `luaapp`: A lua sample. 
+* `luaapp`: A lua app. 
 
 * `wifikiller`: An wifi sample. Set baud rate to 115200pbs, using UART0. It will disconnect WiFi connection.
 
+* `wifilister`: List all APs, along with clents connected to them, near your device. The list info then sent to Android device via OTG, and display on Android.
 
 APPLICATIONS:
 --------------------------------------
+
+### Wifi Vedio Tank
 
 A funny application is to utilize Luanode and Esp32/Esp8266 to create a Wifi tank. You can control the tank via app installed on your phone.
 The Luanode run on Esp32/Esp8266 and wait for the commands sent from phone, and then drives the motor on tank to move it on.
@@ -144,7 +147,19 @@ Another video on Youku, a Chinese video website, to illustrate the features of t
 
 [![WiFi video car](http://a1.qpic.cn/psb?/V14H7R7s11nbTN/CUnAapb.4U2AgDuGfsAWrztFuYKc2TE.tvJ**Kshk4c!/b/dKgAAAAAAAAA&bo=QAHwAAAAAAAFB5U!&rf=viewer_4)](http://v.youku.com/v_show/id_XMTI5NjUwOTYzMg==.html?from=s1.8-1-1.2)
 
+### Wifilister
 
+Another interesting application is the `Wifilister` app. The app scans all APs along with the clients connected to them around device, and scan results are sent to
+Android device via OTG, then you can see the result displayed on Android device.
+
+To test this app, you have to install the `LuanodeUsbHost` Android app to your Android phone (device).
+`LuanodeUsbHost` is an Android USB Host app for ESP8266/ESP32. The Android device receive messages, sent from ESP8266, via OTG.
+Then the messages display on this app.
+
+Download the `LuanodeUsbHost` source [Here](https://github.com/Nicholas3388/LuanodeUsbHost).
+
+Compile `Wifilister` provided in Luanode, flash it to ESP8266/ESP32, and then connect your ESP8266/ESP32 with Android phone.
+You can see the scanning results.
 
 FAQ:
 --------------------------------------
