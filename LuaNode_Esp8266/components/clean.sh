@@ -9,6 +9,7 @@ rm -Rf cjson/.output
 rm -Rf coap/.output
 rm -Rf lpeg/.output
 rm -Rf utils/.output
+rm -Rf websocket/.output
 rm -Rf apps/luaapp/.output
 rm -Rf apps/task/.output
 rm -Rf apps/wifikiller/.output

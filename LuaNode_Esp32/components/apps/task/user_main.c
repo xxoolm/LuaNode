@@ -8,11 +8,11 @@
 
 
 void my_task(void *pvParameters) {
-    printf("task init\n");
+    os_printf("task init\n");
 
 	while (1)
 	{
-		printf("repost\n");
+		os_printf("repost\n");
 		vTaskDelay(1000);
 	}
 

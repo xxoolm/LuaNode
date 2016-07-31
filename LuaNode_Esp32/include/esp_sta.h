@@ -26,6 +26,7 @@
 #define __ESP_STA_H__
 
 #include "queue.h"
+#include "esp_wifi.h"
 
 #ifdef __cplusplus
 extern "C" {

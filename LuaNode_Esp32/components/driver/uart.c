@@ -186,8 +186,9 @@ fs_init0(void)
 void uart_task(void *pvParameters)
 {
 	// Close wifi temporary
-	wifi_station_disconnect();
-	wifi_set_opmode(NULL_MODE);
+	char *appName = getenv("APP_NAME");
+	//wifi_station_disconnect();
+	//wifi_set_opmode(NULL_MODE);
 
 	//fs_init0();
 

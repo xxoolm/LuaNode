@@ -26,6 +26,7 @@
 #include "flash_fs.h"
 #include "user_version.h"
 #include "esp_misc.h"
+#include "esp_system.h"
 
 #define CPU80MHZ 80
 #define CPU160MHZ 160
@@ -102,7 +103,8 @@ static int node_info( lua_State* L )
 // Lua: chipid()
 static int node_chipid( lua_State* L )
 {
-  uint32_t id = system_get_chip_id();
+  uint8 id = 0;
+  bool succeed = system_get_chip_id(&id);
   lua_pushinteger(L, id);
   return 1;
 }

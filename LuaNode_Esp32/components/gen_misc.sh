@@ -10,7 +10,7 @@ export BIN_PATH=~/LuaNode_Esp32_Bin
 
 export SDK_PATH=/mnt/Share/LuaNode/LuaNode/LuaNode_Esp32
 export BIN_PATH=/mnt/Share/LuaNode/LuaNode/LuaNode_Esp32_Bin
-export APP_NAME=luaapp
+export APP_NAME=wifilister
 
 echo "gen_misc.sh version 20151105"
 echo ""

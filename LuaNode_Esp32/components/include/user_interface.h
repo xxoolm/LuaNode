@@ -8,7 +8,6 @@
 
 void system_restore(void);
 void system_restart(void);
-uint32 system_get_chip_id(void);
 uint32 system_get_free_heap_size(void);
 
 #endif

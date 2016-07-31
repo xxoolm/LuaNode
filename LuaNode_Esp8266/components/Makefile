@@ -36,8 +36,7 @@ SUBDIRS=    \
     cjson	\
     lua	\
     lpeg	\
-    utils	\
-    websocket
+    utils
 
 endif # } PDIR
 
@@ -69,8 +68,7 @@ COMPONENTS_eagle.app.v6 = \
     cjson/libcjson.a	\
     lua/liblua.a	\
     lpeg/liblpeg.a	\
-    utils/libutils.a	\
-    websocket/libwebsocket.a
+    utils/libutils.a
 
 SELECTED_MODULE_SYMS=$(filter %_module_selected %module_selected1,$(shell $(NM) modules/.output/$(TARGET)/$(FLAVOR)/lib/libmodules.a))
 

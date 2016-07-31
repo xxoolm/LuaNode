@@ -12,7 +12,7 @@
 #     a generated lib/image xxx.a ()
 #
 ifndef PDIR
-GEN_LIBS = libtask.a
+GEN_LIBS = libwifilister.a
 endif
 
 
@@ -39,9 +39,6 @@ endif
 
 INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
-INCLUDES += -I ../../lua
-INCLUDES += -I ../../mylibc
-INCLUDES += -I ../../spiffs
 INCLUDES += -I ../../driver
 PDIR := ../../$(PDIR)
 sinclude $(PDIR)Makefile

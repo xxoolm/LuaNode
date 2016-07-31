@@ -75,6 +75,7 @@ CCFLAGS +=                  \
     -Werror                 \
     -Wl,-EL                 \
     -fno-inline-functions   \
+    -fno-aggressive-loop-optimizations	\
     -nostdlib               \
     -mlongcalls             \
     -mtext-section-literals #\
