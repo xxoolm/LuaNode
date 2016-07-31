@@ -162,7 +162,7 @@ Download the `LuanodeUsbHost` source [Here](https://github.com/Nicholas3388/Luan
 Compile `Wifilister` provided in Luanode, flash it to ESP8266/ESP32, and then connect your ESP8266/ESP32 with Android phone.
 You can see the scanning results.
 
-![github](http://ww3.sinaimg.cn/mw690/999babe3jw1f6cwmk0lqcj20f00qotaq.jpg "LuanodeUsbHost")
+![github](http://ww1.sinaimg.cn/mw690/999babe3jw1f6cwovhg2vj207i0dct9g.jpg "LuanodeUsbHost")
 
 FAQ:
 --------------------------------------
