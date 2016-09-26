@@ -71,7 +71,10 @@ file.close();
 
 -- read file from file system
 file.open("myfile.lua", "r");
-file.read("myfile.lua");
+-- read 1024 bytes from myfile.lua and save them
+-- to content
+content=file.read(1024);
+print(content);
 file.close();
 
 -- remove file
