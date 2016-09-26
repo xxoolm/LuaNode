@@ -183,9 +183,10 @@ int platform_gpio_intr_init( unsigned pin, GPIO_INT_TYPE type )
 // TODO: Support timeouts.
 
 // UartDev is defined and initialized in rom code.
-/*extern UartDevice UartDev;
+//extern UartDevice UartDev;
 uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int parity, int stopbits )
 {
+	UartDevice UartDev;
   switch( baud )
   {
     case BIT_RATE_300:
@@ -214,57 +215,57 @@ uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int pari
   switch( databits )
   {
     case 5:
-      UartDev.data_bits = FIVE_BITS;
+      UartDev.data_bits = UART_WordLength_5b;
       break;
     case 6:
-      UartDev.data_bits = SIX_BITS;
+      UartDev.data_bits = UART_WordLength_6b;
       break;
     case 7:
-      UartDev.data_bits = SEVEN_BITS;
+      UartDev.data_bits = UART_WordLength_7b;
       break;
     case 8:
-      UartDev.data_bits = EIGHT_BITS;
+      UartDev.data_bits = UART_WordLength_8b;
       break;
     default:
-      UartDev.data_bits = EIGHT_BITS;
+      UartDev.data_bits = UART_WordLength_8b;
       break;
   }
 
   switch (stopbits)
   {
-    case PLATFORM_UART_STOPBITS_1:
-      UartDev.stop_bits = ONE_STOP_BIT;
+    case USART_StopBits_1:
+      UartDev.stop_bits = USART_StopBits_1;
       break;
-    case PLATFORM_UART_STOPBITS_2:
-      UartDev.stop_bits = TWO_STOP_BIT;
+    case USART_StopBits_2:
+      UartDev.stop_bits = USART_StopBits_2;
       break;
     default:
-      UartDev.stop_bits = ONE_STOP_BIT;
+      UartDev.stop_bits = USART_StopBits_1;
       break;
   }
 
   switch (parity)
   {
-    case PLATFORM_UART_PARITY_EVEN:
-      UartDev.parity = EVEN_BITS;
+    case USART_Parity_Even:
+      UartDev.parity = USART_Parity_Even;
       break;
-    case PLATFORM_UART_PARITY_ODD:
-      UartDev.parity = ODD_BITS;
+    case USART_Parity_Odd:
+      UartDev.parity = USART_Parity_Odd;
       break;
     default:
-      UartDev.parity = NONE_BITS;
+      UartDev.parity = USART_Parity_None;
       break;
   }
 
-  uart_setup(id);
+  uart_config(id, &UartDev);
 
   return baud;
-}*/
+}
 
 // if set=1, then alternate serial output pins are used. (15=rx, 13=tx)
 void platform_uart_alt( int set )
 {
-    //uart0_alt( set );
+    uart0_alt( set );
     return;
 }
 
@@ -272,8 +273,8 @@ void platform_uart_alt( int set )
 // Send: version with and without mux
 void platform_uart_send( unsigned id, u8 data ) 
 {
-  //uart_tx_one_char(id, data);
-  printf("%c", data);
+  uart_tx_one_char(id, data);
+  //printf("%c", data);
 }
 
 // ****************************************************************************

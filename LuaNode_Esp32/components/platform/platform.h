@@ -209,6 +209,10 @@ enum
   PLATFORM_I2C_DIRECTION_RECEIVER
 };
 
+// The platform UART functions
+uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int parity, int stopbits );
+void platform_uart_alt( int set );
+
 int platform_i2c_exists( unsigned id );
 //uint32_t platform_i2c_setup( unsigned id, uint8_t sda, uint8_t scl, uint32_t speed );
 //void platform_i2c_send_start( unsigned id );
@@ -243,6 +247,11 @@ int platform_flash_erase_sector( uint32_t sector_id );
 void* platform_get_first_free_ram( unsigned id );
 void* platform_get_last_free_ram( unsigned id );
 
+// *****************************************************************************
+// Helper macros
+#define MOD_CHECK_ID( mod, id )\
+  if( !platform_ ## mod ## _exists( id ) )\
+    return luaL_error( L, #mod" %d does not exist", ( unsigned )id )
 
 /**
  * Translated a mapped address to a physical flash address, based on the

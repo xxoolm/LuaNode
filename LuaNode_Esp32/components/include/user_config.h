@@ -49,6 +49,7 @@
 #endif	/* LUA_OPTRAM */
 
 #define NODE_ERROR
+#define NODE_DEBUG
 
 #ifdef NODE_DEBUG
 #define NODE_DBG os_printf

@@ -139,6 +139,16 @@ typedef struct {
     uint8  UART_RX_FifoFullIntrThresh;
 } UART_IntrConfTypeDef;
 
+
+typedef struct {
+    UART_BautRate 	     baut_rate;
+    UART_WordLength		data_bits;
+    UartExistParity      exist_parity;
+    UART_ParityMode 	    parity;    // chip size in byte
+    UART_StopBits		stop_bits;
+    UART_HwFlowCtrl         flow_ctrl;
+} UartDevice;
+
 //=======================================
 
 /** \defgroup Driver_APIs Driver APIs
@@ -320,6 +330,8 @@ void uart_init_new(void);
 STATUS uart_tx_one_char(uint8 uart, uint8 TxChar);
 void uart0_sendStr(const char *str);
 void uart0_putc(const char c);
+void uart_config(uint8 uart_no, UartDevice *uart);
+void uart0_alt(uint8 on);
 
 /**
   * @}

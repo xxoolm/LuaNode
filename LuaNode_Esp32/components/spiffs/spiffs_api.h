@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef __ESP_SPIFFS_H__
-#define __ESP_SPIFFS_H__
+#ifndef __SPIFFS_API_H__
+#define __SPIFFS_API_H__
 
 #include "spiffs.h"
 
@@ -38,21 +38,6 @@ extern "C" {
   *
   */
 
-/** @addtogroup Spiffs_APIs
-  * @{
-  */
-
-struct esp_spiffs_config {
-    uint32 phys_size;        /**< physical size of the SPI Flash */
-    uint32 phys_addr;        /**< physical offset in spi flash used for spiffs, must be on block boundary */
-    uint32 phys_erase_block; /**< physical size when erasing a block */
-
-    uint32 log_block_size;   /**< logical size of a block, must be on physical block size boundary and must never be less than a physical block */
-    uint32 log_page_size;    /**< logical size of a page, at least log_block_size/8  */
-
-    uint32 fd_buf_size;      /**< file descriptor memory area size */
-    uint32 cache_buf_size;   /**< cache buffer size */
-};
 
 /**
   * @brief  Initialize spiffs
@@ -62,7 +47,7 @@ struct esp_spiffs_config {
   * @return 0         : succeed
   * @return otherwise : fail
   */
-s32_t esp_spiffs_init(struct esp_spiffs_config *config);
+//s32_t esp_spiffs_init(struct esp_spiffs_config *config);
 
 /**
   * @brief  Deinitialize spiffs
@@ -71,7 +56,7 @@ s32_t esp_spiffs_init(struct esp_spiffs_config *config);
   *
   * @return null
   */
-void esp_spiffs_deinit(uint8 format);
+//void esp_spiffs_deinit(uint8 format);
 
 
 size_t myspiffs_init(void);
@@ -92,12 +77,12 @@ void myspiffs_clearerr( int fd );
 int myspiffs_check( void );
 int myspiffs_rename( const char *old, const char *newname );
 int myspiffs_format( void );
-//void myspiffs_opendir( const char *dir, spiffs_DIR *d );
+spiffs_DIR *myspiffs_opendir(char *name, spiffs_DIR *d);
 //spiffs_dirent *myspiffs_readdir( spiffs_DIR *dir, spiffs_dirent *pe );
 void myspiffs_remove( char *name );
-void myspiffs_fsinfo( uint32 *total, uint32 *used );
+s32_t myspiffs_fsinfo(u32_t *total, u32_t *used);
 
-size_t myspiffs_size( int fd );
+//size_t myspiffs_size( int fd );
 
 /**
   * @}

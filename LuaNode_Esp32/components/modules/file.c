@@ -81,7 +81,7 @@ static int file_list( lua_State* L )
 
 #elif defined(BUILD_SPIFFS)
 
-#if 0
+
 // Lua: list()
 static int file_list( lua_State* L )
 {
@@ -91,7 +91,7 @@ static int file_list( lua_State* L )
 
   lua_newtable( L );
   fs_opendir("/", &d);
-  while ((pe = fs_readdir(&d, pe))) {
+  while ((pe = SPIFFS_readdir(&d, pe))) {
     // NODE_ERR("  %s size:%i\n", pe->name, pe->size);
     lua_pushinteger(L, pe->size);
     lua_setfield( L, -2, pe->name );
@@ -99,7 +99,6 @@ static int file_list( lua_State* L )
   SPIFFS_closedir(&d);
   return 1;
 }
-#endif
 
 static int file_seek (lua_State *L) 
 {
@@ -210,6 +209,7 @@ static int file_g_read( lua_State* L, int n, int16_t end_char )
   int i;
 
   n = fs_read(file_fd, p, n);
+  p[n] = '\0';
   NODE_DBG("read chars: %d, contents: %s\n", n, p);
   for (i = 0; i < n; ++i)
     if (p[i] == end_char)
@@ -303,7 +303,7 @@ static int file_writeline( lua_State* L )
 
 // Module function map
 static const LUA_REG_TYPE file_map[] = {
-//  { LSTRKEY( "list" ),      LFUNCVAL( file_list ) },
+  { LSTRKEY( "list" ),      LFUNCVAL( file_list ) },
   { LSTRKEY( "open" ),      LFUNCVAL( file_open ) },
   { LSTRKEY( "close" ),     LFUNCVAL( file_close ) },
   { LSTRKEY( "write" ),     LFUNCVAL( file_write ) },

@@ -5,7 +5,8 @@
 #include "user_config.h"
 
 #include "spiffs.h"
-#include "esp_spiffs.h"
+#include "spiffs_api.h"
+
 
 #define FS_OPEN_OK	1
 
@@ -43,7 +44,7 @@
 #define fs_size myspiffs_size
 
 #define fs_opendir myspiffs_opendir
-#define fs_readdir myspiffs_readdir
+//#define fs_readdir myspiffs_readdir
 #define fs_remove myspiffs_remove
 #define fs_fsinfo myspiffs_fsinfo
 

@@ -81,32 +81,51 @@ static int node_deepsleep( lua_State* L )
 // }
 // Lua: info()
 
-#if 0
+
 static int node_info( lua_State* L )
 {
-  lua_pushinteger(L, NODE_VERSION_MAJOR);
-  lua_pushinteger(L, NODE_VERSION_MINOR);
-  lua_pushinteger(L, NODE_VERSION_REVISION);
-  lua_pushinteger(L, system_get_chip_id());   // chip id
-  lua_pushinteger(L, spi_flash_get_id());     // flash id
-#if defined(FLASH_SAFE_API)
-  lua_pushinteger(L, flash_safe_get_size_byte() / 1024);  // flash size in KB
-#else
-  lua_pushinteger(L, flash_rom_get_size_byte() / 1024);  // flash size in KB
-#endif // defined(FLASH_SAFE_API)
-  lua_pushinteger(L, flash_rom_get_mode());
-  lua_pushinteger(L, flash_rom_get_speed());
-  return 8;
+	uint32_t fs = system_get_flash_size();
+	uint8 id = 0;
+	bool succeed = system_get_chip_id(&id);
+	uint32_t hs = system_get_free_heap_size();
+	lua_getglobal(L, "print");
+	switch(fs) {
+	case 0:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "1MB", id, hs);
+		break;
+	case 1:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "2MB", id, hs);
+		break;
+	case 2:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "4MB", id, hs);
+		break;
+	case 3:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "8MB", id, hs);
+		break;
+	case 4:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "16MB", id, hs);
+		break;
+	default:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "32MB", id, hs);
+		break;
+	}
+	int err = lua_pcall(L, 1, 1, 0);
+	if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+	lua_pop(L, 1) ;
+	return 0;
 }
-#endif
 
 // Lua: chipid()
 static int node_chipid( lua_State* L )
 {
   uint8 id = 0;
   bool succeed = system_get_chip_id(&id);
+  lua_getglobal(L, "print");
   lua_pushinteger(L, id);
-  return 1;
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 // deprecated, moved to adc module
@@ -123,31 +142,67 @@ static int node_flashid( lua_State* L )
 {
   //uint32_t id = spi_flash_get_id();
   //lua_pushinteger( L, id );
-  return 1;
+  lua_getglobal(L, "print");
+  lua_pushinteger(L, 0);
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 // Lua: flashsize()
 static int node_flashsize( lua_State* L )
 {
-  if (lua_type(L, 1) == LUA_TNUMBER)
-  {
-    flash_rom_set_size_byte(luaL_checkinteger(L, 1));
+  uint32_t sz = system_get_flash_size();
+  lua_getglobal(L, "print");
+  switch(sz) {
+	case 0:
+		lua_pushstring(L, "1MB");
+		break;
+	case 1:
+		lua_pushstring(L, "2MB");
+		break;
+	case 2:
+		lua_pushstring(L, "4MB");
+		break;
+	case 3:
+		lua_pushstring(L, "8MB");
+		break;
+	case 4:
+		lua_pushstring(L, "16MB");
+		break;
+	default:
+		lua_pushstring(L, "32MB");
+		break;
   }
-#if defined(FLASH_SAFE_API)
-  uint32_t sz = flash_safe_get_size_byte();
-#else
-  uint32_t sz = flash_rom_get_size_byte();
-#endif // defined(FLASH_SAFE_API)
-  lua_pushinteger( L, sz );
-  return 1;
+  //lua_pushinteger(L, sz);
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 // Lua: heap()
 static int node_heap( lua_State* L )
 {
   uint32_t sz = system_get_free_heap_size();
+  lua_getglobal(L, "print");
   lua_pushinteger(L, sz);
-  return 1;
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
+}
+
+static int node_memusage( lua_State* L )
+{
+  uint32_t usage = lua_gc(L, LUA_GCCOUNT, 0);
+  lua_getglobal(L, "print");
+  lua_pushinteger(L, usage);
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 static lua_State *gL = NULL;
@@ -561,11 +616,12 @@ static const LUA_REG_TYPE node_map[] =
 {
   { LSTRKEY( "restart" ), LFUNCVAL( node_restart ) },
   //{ LSTRKEY( "dsleep" ), LFUNCVAL( node_deepsleep ) },
-  //{ LSTRKEY( "info" ), LFUNCVAL( node_info ) },
+  { LSTRKEY( "info" ), LFUNCVAL( node_info ) },
   { LSTRKEY( "chipid" ), LFUNCVAL( node_chipid ) },
   { LSTRKEY( "flashid" ), LFUNCVAL( node_flashid ) },
   { LSTRKEY( "flashsize" ), LFUNCVAL( node_flashsize) },
   { LSTRKEY( "heap" ), LFUNCVAL( node_heap ) },
+  { LSTRKEY( "memusage" ), LFUNCVAL( node_memusage ) },
 #ifdef DEVKIT_VERSION_0_9
   { LSTRKEY( "key" ), LFUNCVAL( node_key ) },
   { LSTRKEY( "led" ), LFUNCVAL( node_led ) },

@@ -399,16 +399,21 @@ static void dojob(lua_Load *load) {
       l = c_strlen(b);
       if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
         b[l-1] = '\0';  /* remove it */
-
-	  status = luaL_dostring(L, b);
+	  if (load->firstline && b[0] == '=') {  /* first line starts with `=' ? */
+		status = luaL_dostring(L, b+1);
+	  } else {
+		status = luaL_dostring(L, b);
+	  }
 	  
 	  if (status) {
 		os_printf(lua_tostring(L, -1));
 		lua_pop(L, 1);
 	  }
 
-	  load->firstline = 0;
+	  load->firstline = 1;
       load->prmt = get_prompt(L, 1);
+
+	  lua_gc(L, LUA_GCCOLLECT, 0);	// print Lua memory usage
     }
   }while(0);
   
