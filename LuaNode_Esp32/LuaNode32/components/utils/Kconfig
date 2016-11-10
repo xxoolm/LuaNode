@@ -1,9 +1,0 @@
-menu "UTILS"
-
-config UTILS_ENABLE
-    bool "Enable utils"
-    default "y"
-    help
-        For utils.
-
-endmenu
