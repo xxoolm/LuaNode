@@ -1,7 +1,7 @@
 LuaNode
 ======================================
 
-This project is an improved `Lua` SDK, based on ESP32-RTOS-SDK/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266).
+This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266).
 
 As we know, there are some existing Lua SDK such as NodeMCU, esp-open-rtos, but them are not support for both Esp32 at this time, and
 some of them are not support multi-task.
@@ -13,51 +13,20 @@ Our Kickstarter campaign is alive: https://www.kickstarter.com/projects/85755256
 
 ![github](https://ksr-ugc.imgix.net/projects/2439759/photo-original.jpg?w=1024&h=576&fit=fill&bg=FFFFFF&v=1462164335&auto=format&q=92&s=e2d90d11a3fdbffa9d2b9ee5ac975d6a "Esp32 & Esp8266")
 
-PROJECT STRUCTRUE:
+NEW UPDATE FOR ESP32:
 --------------------------------------
-```
-LuaNode-master
-    -->LuaNode_Esp32
-        -->bin
-        -->components
-            -->apps
-                -->luaapp
-                -->task
-                -->wifilister
-                -->wifikiller
-            -->driver
-            -->include
-            -->libc
-            -->lua
-            -->modules
-            -->platform
-        -->extra_include
-        -->include
-        -->ld
-        -->lib
-        -->third_party
-        -->tools
-    -->LuaNode_Esp8266
-        -->The structure is almost the same as that of esp32
-```
 
-* `bin` contains blank.bin, boot.bin.
+New version of LuaNode is developed based on esp-idf and compatible with `Esplorer`.
 
-* `components` contains all components the project needed, including driver, modules, and lua source, etc.
+### How To Build LuaNode32
+* Download build tools [Here](http://pan.baidu.com/s/1eSzDv30 "toolchains")
+* Export build tools' directory by executing the following command on terminal,
+  `export PATH=/your_path/toolchains/esp32/bin:$PATH`, where the `your_path` is the
+  path the toolchains stored.
+* Export `esp-idf` path by the following command: `export IDF_PATH=the_esp-idf_path`
+* Change current directory to `LuaNode32`, then input `make` to build firmware.
 
-* `extra_include` contains the extra head files for this project.
-
-* `include` is a directory that contains head files for this project.
-
-* `third_party` contains head files for the libraries used, such as freertos, in this project.
-
-* `ld` contains the link files.
-
-* `lib` contains some libraries to be linked when bin file generated.
-
-* `tools` contains some useful tools.
-
-Note that the wifikiller app only support ESP8266.
+For more details, view LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki")
 
 LUA PROGRAMMING
 --------------------------------------
@@ -84,7 +53,7 @@ file.remove("myfile.lua");
 node.restart();
 ```
 
-You can add your own Lua modules to LuaNode at will, visit the LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki") for detail.
+You can add your own Lua modules to LuaNode at will, visit the LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki") for more details.
 
 
 HOW TO BUILD For `ESP32/ESP8266`:
