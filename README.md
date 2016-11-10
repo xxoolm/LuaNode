@@ -19,7 +19,7 @@ NEW UPDATE FOR ESP32:
 New version of LuaNode is developed based on esp-idf and compatible with `Esplorer`.
 
 ### How To Build LuaNode32
-* Download build tools [Here](http://pan.baidu.com/s/1eSzDv30 "toolchains")
+* Download build tools [Here](https://www.jianguoyun.com/p/DZYjgb4Q2bSDBhj8xx8 "toolchains")
 * Export build tools' directory by executing the following command on terminal,
   `export PATH=/your_path/toolchains/esp32/bin:$PATH`, where the `your_path` is the
   path the toolchains stored.
