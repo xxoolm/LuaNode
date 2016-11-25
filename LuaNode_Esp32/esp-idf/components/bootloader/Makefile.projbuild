@@ -1,0 +1,57 @@
+#
+# Bootloader component
+#
+# The bootloader is not a real component that gets linked into the project.
+# Instead it is an entire standalone project ( in src/) that gets built in 
+# the upper projects build directory. This Makefile.projbuild provides the 
+# glue to  build the bootloader project from the original project. It 
+# basically runs Make in the src/ directory but it needs to zero some variables
+# the ESP-IDF project.mk makefile exports first, to not let them interfere.
+#
+ifndef IS_BOOTLOADER_BUILD
+
+BOOTLOADER_COMPONENT_PATH := $(COMPONENT_PATH)
+BOOTLOADER_BUILD_DIR=$(abspath $(BUILD_DIR_BASE)/bootloader)
+BOOTLOADER_BIN=$(BOOTLOADER_BUILD_DIR)/bootloader.bin
+BOOTLOADER_SDKCONFIG=$(BOOTLOADER_BUILD_DIR)/sdkconfig
+
+# Custom recursive make for bootloader sub-project
+BOOTLOADER_MAKE=+$(MAKE) -C $(BOOTLOADER_COMPONENT_PATH)/src \
+	V=$(V) SDKCONFIG=$(BOOTLOADER_SDKCONFIG) \
+	BUILD_DIR_BASE=$(BOOTLOADER_BUILD_DIR) \
+
+.PHONY: bootloader-clean bootloader-flash bootloader $(BOOTLOADER_BIN)
+
+$(BOOTLOADER_BIN): | $(BOOTLOADER_BUILD_DIR)/sdkconfig
+	$(Q) $(BOOTLOADER_MAKE) $@
+
+bootloader-clean:
+	$(Q) $(BOOTLOADER_MAKE) app-clean config-clean
+	$(Q) rm -f $(BOOTLOADER_SDKCONFIG) $(BOOTLOADER_SDKCONFIG).old
+
+clean: bootloader-clean
+
+bootloader: $(BOOTLOADER_BIN)
+	@echo "Bootloader built. Default flash command is:"
+	@echo "$(ESPTOOLPY_WRITE_FLASH) 0x1000 $^"
+
+all_binaries: $(BOOTLOADER_BIN)
+
+ESPTOOL_ALL_FLASH_ARGS += 0x1000 $(BOOTLOADER_BIN)
+
+# bootloader-flash calls flash in the bootloader dummy project
+bootloader-flash: $(BOOTLOADER_BIN)
+	$(ESPTOOLPY_WRITE_FLASH) 0x1000 $^
+
+# synchronise the project level config to the bootloader's
+# config
+$(BOOTLOADER_SDKCONFIG): $(PROJECT_PATH)/sdkconfig | $(BOOTLOADER_BUILD_DIR)
+	$(Q) cp $< $@
+
+$(BOOTLOADER_BUILD_DIR):
+	$(Q) mkdir -p $@
+
+else
+CFLAGS += -D BOOTLOADER_BUILD=1 -I $(IDF_PATH)/components/esp32/include 
+
+endif
