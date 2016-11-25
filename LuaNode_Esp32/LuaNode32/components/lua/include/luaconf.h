@@ -803,7 +803,7 @@ union luai_Cast { double l_d; long l_l; };
 #else
 
 #define lua_popen(L,c,m)	((void)((void)c, m),  \
-		luaL_error(L, LUA_QL("popen") " not supported"), (FILE*)0)
+		luaL_error(L, LUA_QL("popen") " not supported"), (int)0)
 #define lua_pclose(L,file)		((void)((void)L, file), 0)
 
 #endif

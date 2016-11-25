@@ -5,7 +5,7 @@
 #include "user_config.h"
 
 #include "spiffs.h"
-#include "spiffs_api.h"
+//#include "spiffs_api.h"
 
 
 #define FS_OPEN_OK	1

@@ -1,9 +1,0 @@
-menu "SPIFFS"
-
-config SPIFFS_ENABLE
-    bool "Enable spiffs"
-    default "y"
-    help
-        For spiffs.
-
-endmenu

@@ -38,7 +38,7 @@ typedef int8_t   s8_t;
 typedef uint16_t u16_t;
 typedef int16_t  s16_t;
 typedef uint32_t u32_t;
-//typedef int32_t  s32_t;
+typedef int32_t  s32_t;
 
 typedef uint8_t  uint8;
 typedef uint8_t  u8;
@@ -78,9 +78,6 @@ typedef signed char		sint8_t;
 
 
 #define STORE_ATTR          __attribute__((aligned(4)))
-
-#define ICACHE_FLASH_ATTR
-#define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
 
 /* only uninitialized data can be put in .share.mem section */
 #define SHMEM_ATTR          __attribute__((section(".share.mem")))

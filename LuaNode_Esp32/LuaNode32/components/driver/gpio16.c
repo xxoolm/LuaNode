@@ -2,8 +2,9 @@
 //#include "osapi.h"
 #include "gpio16.h"
 #include "soc/soc.h"
+#include "soc/rtc_io_reg.h"
 
-void ICACHE_FLASH_ATTR
+void 
 gpio16_output_conf(void)
 {
     WRITE_PERI_REG(PAD_XPD_DCDC_CONF,
@@ -16,14 +17,14 @@ gpio16_output_conf(void)
                    (READ_PERI_REG(RTC_GPIO_ENABLE) & (uint32)0xfffffffe) | (uint32)0x1);	//out enable
 }
 
-void ICACHE_FLASH_ATTR
+void 
 gpio16_output_set(uint8 value)
 {
     WRITE_PERI_REG(RTC_GPIO_OUT,
                    (READ_PERI_REG(RTC_GPIO_OUT) & (uint32)0xfffffffe) | (uint32)(value & 1));
 }
 
-void ICACHE_FLASH_ATTR
+void 
 gpio16_input_conf(void)
 {
     WRITE_PERI_REG(PAD_XPD_DCDC_CONF,
@@ -36,7 +37,7 @@ gpio16_input_conf(void)
                    READ_PERI_REG(RTC_GPIO_ENABLE) & (uint32)0xfffffffe);	//out disable
 }
 
-uint8 ICACHE_FLASH_ATTR
+uint8 
 gpio16_input_get(void)
 {
     return (uint8)(READ_PERI_REG(RTC_GPIO_IN_DATA) & 1);

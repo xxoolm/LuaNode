@@ -11,11 +11,7 @@
 
 #include "lua.h"
 
-#ifdef LUA_CROSS_COMPILER
 #include <stdio.h>
-#else
-#include "c_stdio.h"
-#endif
 
 
 #if defined(LUA_COMPAT_GETN)
@@ -82,8 +78,11 @@ LUALIB_API int (luaL_checkoption) (lua_State *L, int narg, const char *def,
 LUALIB_API int (luaL_ref) (lua_State *L, int t);
 LUALIB_API void (luaL_unref) (lua_State *L, int t, int ref);
 
+#ifdef LUA_CROSS_COMPILER
 LUALIB_API int (luaL_loadfile) (lua_State *L, const char *filename);
-
+#else
+LUALIB_API int (luaL_loadfsfile) (lua_State *L, const char *filename);
+#endif
 LUALIB_API int (luaL_loadbuffer) (lua_State *L, const char *buff, size_t sz,
                                   const char *name);
 LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s);
@@ -97,7 +96,7 @@ LUALIB_API const char *(luaL_gsub) (lua_State *L, const char *s, const char *p,
 LUALIB_API const char *(luaL_findtable) (lua_State *L, int idx,
                                          const char *fname, int szhint);
 
-
+LUALIB_API void luaL_assertfail(const char *file, int line, const char *message);
 
 
 /*
@@ -117,8 +116,13 @@ LUALIB_API const char *(luaL_findtable) (lua_State *L, int idx,
 
 #define luaL_typename(L,i)	lua_typename(L, lua_type(L,(i)))
 
+#if 0
 #define luaL_dofile(L, fn) \
 	(luaL_loadfile(L, fn) || lua_pcall(L, 0, LUA_MULTRET, 0))
+#else
+#define luaL_dofile(L, fn) \
+  (luaL_loadfsfile(L, fn) || lua_pcall(L, 0, LUA_MULTRET, 0))
+#endif
 
 #define luaL_dostring(L, s) \
 	(luaL_loadstring(L, s) || lua_pcall(L, 0, LUA_MULTRET, 0))
@@ -158,7 +162,6 @@ LUALIB_API void (luaL_addstring) (luaL_Buffer *B, const char *s);
 LUALIB_API void (luaL_addvalue) (luaL_Buffer *B);
 LUALIB_API void (luaL_pushresult) (luaL_Buffer *B);
 
-LUALIB_API int (luaL_loadfsfile) (lua_State *L, const char *filename);
 
 /* }====================================================== */
 

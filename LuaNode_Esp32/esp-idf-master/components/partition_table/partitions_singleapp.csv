@@ -1,4 +1,0 @@
-# Name,   Type, SubType, Offset,  Size
-factory,  app,  factory, 0x10000, 1M
-rfdata,	  data, rf,      ,        256K
-wifidata, data, wifi,    ,        256K

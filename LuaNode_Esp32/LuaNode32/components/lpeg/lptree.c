@@ -1289,7 +1289,6 @@ int luaopen_lpeg (lua_State *L) {
   luaL_newlib(L, pattreg);
   lua_pushvalue(L, -1);
   lua_setfield(L, -3, "__index");
-  printf("load lib: lpeg\n");
   return 1;
 }
 

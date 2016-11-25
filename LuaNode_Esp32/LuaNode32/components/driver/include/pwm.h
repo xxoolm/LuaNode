@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#include "Ledc_reg.h"
+//#include "Ledc_reg.h"
 //#include "ets_sys.h"
 //#include "eagle_soc.h"
 #include "c_types.h"

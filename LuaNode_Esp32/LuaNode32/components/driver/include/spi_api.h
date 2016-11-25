@@ -49,8 +49,7 @@ void spi_slave_isr_handler(void *para);
 void hspi_master_readwrite_repeat(void);
 
 
-void ICACHE_FLASH_ATTR
-    spi_test_init(void);
+void spi_test_init(void);
 
 uint32 spi_mast_get_miso(uint8 spi_no, uint8 offset, uint8 bitlen);
 void spi_mast_set_mosi(uint8 spi_no, uint8 offset, uint8 bitlen, uint32 data);

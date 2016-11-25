@@ -139,12 +139,6 @@ static int getargs (lua_State *L, char **argv, int n) {
 }
 
 
-static int dofile (lua_State *L, const char *name) {
-  int status = luaL_loadfile(L, name) || docall(L, 0, 1);
-  return report(L, status);
-}
-
-
 static int dostring (lua_State *L, const char *s, const char *name) {
   int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
   return report(L, status);
@@ -246,7 +240,6 @@ static void mydofile(lua_State *L)
      dofile(L,"init.lua");
   }    
 }
-#endif
 
 static void dotty (lua_State *L) {
   int status;
@@ -293,7 +286,7 @@ static int handle_script (lua_State *L, char **argv, int n) {
     lua_pop(L, narg);      
   return report(L, status);
 }
-
+#endif
 
 /* check that argument has no extra characters at the end */
 #define notail(x)	{if ((x)[2] != '\0') return -1;}
@@ -370,12 +363,20 @@ static int runargs (lua_State *L, char **argv, int n) {
   return 0;
 }
 
+static int dofsfile (lua_State *L, const char *name) {
+  int status = luaL_loadfsfile(L, name) || docall(L, 0, 1);
+  return report(L, status);
+}
 
 static int handle_luainit (lua_State *L) {
   const char *init = getenv(LUA_INIT);
   if (init == NULL) return 0;  /* status OK */
   else if (init[0] == '@')
+#if 0
     return dofile(L, init+1);
+#else
+	return dofsfile(L, init+1);
+#endif
   else
     return dostring(L, init, "=" LUA_INIT);
 }
@@ -399,16 +400,21 @@ static int pmain (lua_State *L) {
   luaL_openlibs(L);  /* open libraries */
   lua_gc(L, LUA_GCRESTART, 0);
   s->status = handle_luainit(L);
+#if 0
   if (s->status != 0) return 0;
+#endif
   script = collectargs(argv, &has_i, &has_v, &has_e);
   if (script < 0) {  /* invalid args? */
+#if 0
     print_usage();
+#endif
     s->status = 1;
     return 0;
   }
-  if (has_v) print_version();
+  //if (has_v) print_version();
   s->status = runargs(L, argv, (script > 0) ? script : s->argc);
   if (s->status != 0) return 0;
+#if 0
   if (script)
     s->status = handle_script(L, argv, script);
   if (s->status != 0) return 0;
@@ -421,12 +427,8 @@ static int pmain (lua_State *L) {
     }
     else dofile(L, NULL);  /* executes stdin as a file */
   }
+#endif
   return 0;
-}
-
-static int dofsfile (lua_State *L, const char *name) {
-  int status = luaL_loadfsfile(L, name) || docall(L, 0, 1);
-  return report(L, status);
 }
 
 int do_luainit (void) {
@@ -475,29 +477,47 @@ static void dojob(lua_Load *load) {
       if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
         b[l-1] = '\0';  /* remove it */
 	  if (load->firstline && b[0] == '=') {  /* first line starts with `=' ? */
-		status = luaL_dostring(L, b+1);
+		lua_pushfstring(L, "return %s", b+1);  /* change it to `return' */
 	  } else {
-		status = luaL_dostring(L, b);
+		lua_pushstring(L, b);
 	  }
+	  if(load->firstline != 1) {
+        lua_pushliteral(L, "\n");  /* add a new line... */
+        lua_insert(L, -2);  /* ...between the two lines */
+        lua_concat(L, 3);  /* join them */
+      }
 	  
-	  if (status) {
+	  status = luaL_loadbuffer(L, lua_tostring(L, 1), lua_strlen(L, 1), "=stdin");
+	  if (!incomplete(L, status)) {  /* cannot try to add lines? */
+        lua_remove(L, 1);  /* remove line */
+        if (status == 0) {
+          status = docall(L, 0, 0);
+        }
+        report(L, status);
+        if (status == 0 && lua_gettop(L) > 0) {  /* any result to print? */
+          lua_getglobal(L, "print");
+          lua_insert(L, 1);
+          if (lua_pcall(L, lua_gettop(L)-1, 0, 0) != 0)
+            l_message(progname, lua_pushfstring(L,
+                                   "error calling " LUA_QL("print") " (%s)",
+                                   lua_tostring(L, -1)));
+        }
+        load->firstline = 1;
+        load->prmt = get_prompt(L, 1);
+        lua_settop(L, 0);
+        /* force a complete garbage collection in case of errors */
+        if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
+      } else {
+        load->firstline = 0;
+        load->prmt = get_prompt(L, 0);
+      }
+	  /*if (status) {
 		uart_sendStr(lua_tostring(L, -1));
 		lua_pop(L, 1);
-	  }
-
-	  load->firstline = 1;
-      load->prmt = get_prompt(L, 1);
-
-	  lua_gc(L, LUA_GCCOLLECT, 0);	// force garbage collection
+	  }*/
     }
   }while(0);
   
-  progname = oldprogname;
-
-//  char *b = load->line;
-//  lua_State *L = load->L;
-//  luaL_dostring(L, b);
-
   load->done = 0;
   load->line_position = 0;
   memset(load->line, 0, load->len);
@@ -562,20 +582,20 @@ static bool readline(lua_Load *load){
 
 
 int lua_main (int argc, char **argv) {
-  lua_State *L = luaL_newstate();
+  lua_State *L = lua_open();
   if (L == NULL) {
     printf("lua failed\n");
     return 1;
   }
-  printf("lua create ok!\n");
 
-  //luaopen_base(L);
-  luaL_openlibs(L);
+  //luaL_openlibs(L);
 
-  /*s.argc = argc;
+  int status;
+  struct Smain s;
+  s.argc = argc;
   s.argv = argv;
   status = lua_cpcall(L, &pmain, &s);
-  report(L, status);*/
+  //report(L, status);
 
   gLoad.L = L;
   gLoad.firstline = 1;

@@ -59,5 +59,7 @@
 #define NODE_ERR
 #endif	/* NODE_ERROR */
 
+#define SHOW_WRITE_PROGRESS
+
 #endif
 

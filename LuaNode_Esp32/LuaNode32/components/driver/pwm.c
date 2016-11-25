@@ -1128,7 +1128,7 @@ void pwm_init(uint32 period, uint32 *duty, uint32 pwm_channel_num, uint32(*pin_i
     pwm_start();
 }
 
-bool ICACHE_FLASH_ATTR
+bool 
 pwm_exist(uint8 channel){
     //PWM_DBG("--Function pwm_exist() is called. channel:%d\n", channel);
     //PWM_DBG("pwm_gpio:%x,pwm_channel_num:%d\n",pwm_gpio,pwm_channel_num);
@@ -1143,7 +1143,7 @@ pwm_exist(uint8 channel){
 }
 
 
-uint16 ICACHE_FLASH_ATTR
+uint16 
 pwm_get_freq(uint8 channel)
 {
     return pwm.freq;
@@ -1160,7 +1160,7 @@ LOCAL volatile uint8 critical = 0;
     (c) = 0;                                    \
 } while (0)
 
-void ICACHE_FLASH_ATTR
+void 
 pwm_set_freq(uint16 freq, uint8 channel)
 {
     LOCK_PWM(critical);   // enter critical
@@ -1176,7 +1176,7 @@ pwm_set_freq(uint16 freq, uint8 channel)
     UNLOCK_PWM(critical);   // leave critical
 }
 
-bool ICACHE_FLASH_ATTR
+bool 
 pwm_add(uint8 channel){
     //PWM_DBG("--Function pwm_add() is called. channel:%d\n", channel);
     //PWM_DBG("pwm_gpio:%x,pwm_channel_num:%d\n",pwm_gpio,pwm_channel_num);
@@ -1201,7 +1201,7 @@ pwm_add(uint8 channel){
     return false;
 }
 
-bool ICACHE_FLASH_ATTR
+bool 
 pwm_delete(uint8 channel){
     //PWM_DBG("--Function pwm_delete() is called. channel:%d\n", channel);
     //PWM_DBG("pwm_gpio:%x,pwm_channel_num:%d\n",pwm_gpio,pwm_channel_num);

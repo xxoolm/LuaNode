@@ -114,19 +114,40 @@ static void alarm_timer_common(void* arg){
 	lua_call(tmr->L, 0, 0);
 }
 
-// Lua: tmr.delay( us )
+void tmr_delay_msec(int ms) {
+	vTaskDelay(ms/portTICK_RATE_MS);
+}
+
+// Lua: tmr.delay( s )	delay seconds
+static int tmr_delay_s( lua_State *L ) {
+	uint32_t period = luaL_checkinteger(L, 1);
+	vTaskDelay(period*(1000/portTICK_RATE_MS));
+	return 0;
+}
+
+// Lua: tmr.delay_ms( ms )
+static int tmr_delay_ms( lua_State *L ) {
+	uint32_t period = luaL_checkinteger(L, 1);
+	tmr_delay_msec(period);
+	return 0;
+}
+
+// Lua: tmr.delay_us( us )
 static int tmr_delay( lua_State* L ){
 	sint32_t us = luaL_checkinteger(L, 1);
 	if(us <= 0)
 		return luaL_error(L, "wrong arg range");
 	while(us >= 1000000){
 		us -= 1000000;
-		os_delay_us(1000000);
-		//system_soft_wdt_feed ();
+		vTaskDelay(1000/portTICK_RATE_MS);
 	}
-	if(us>0){
+	uint32_t remain = (uint32_t)(us/1000);
+	if(remain > 0) {
+		us = us % 1000;
+		vTaskDelay(remain/portTICK_RATE_MS);
+	}
+	if(us > 0) {
 		os_delay_us(us);
-		//system_soft_wdt_feed ();
 	}
 	return 0; 
 }
@@ -312,7 +333,9 @@ static int tmr_softwd( lua_State* L ){
 // Module function map
 
 const LUA_REG_TYPE tmr_map[] = {
-	{ LSTRKEY( "delay" ), LFUNCVAL( tmr_delay ) },
+	{ LSTRKEY( "delay_us" ), LFUNCVAL( tmr_delay ) },
+	{ LSTRKEY( "delay_ms" ), LFUNCVAL( tmr_delay_ms ) },
+	{ LSTRKEY( "delay" ), LFUNCVAL( tmr_delay_s ) },
 	{ LSTRKEY( "now" ), LFUNCVAL( tmr_now ) },
 	{ LSTRKEY( "wdclr" ), LFUNCVAL( tmr_wdclr ) },
 	{ LSTRKEY( "softwd" ), LFUNCVAL( tmr_softwd ) },

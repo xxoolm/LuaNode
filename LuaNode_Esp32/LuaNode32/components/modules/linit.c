@@ -14,10 +14,13 @@
 
 #include "c_string.h"
 
+extern const LUA_REG_TYPE mqtt_map[];
+extern const LUA_REG_TYPE thread_map[];
 extern const LUA_REG_TYPE gpio_map[];
 extern const LUA_REG_TYPE pwm_map[];
 extern const LUA_REG_TYPE node_map[];
 extern const LUA_REG_TYPE wifi_map[];
+extern const LUA_REG_TYPE net_map[];
 extern const LUA_REG_TYPE file_map[];
 extern const LUA_REG_TYPE tmr_map[];
 extern const LUA_REG_TYPE i2c_map[];
@@ -25,15 +28,15 @@ extern const LUA_REG_TYPE uart_map[];
 extern const LUA_REG_TYPE utils_map[];
 extern const LUA_REG_TYPE strlib[];
 extern const LUA_REG_TYPE tab_funcs[];
+extern const LUA_REG_TYPE co_funcs[];
+extern const LUA_REG_TYPE math_map[];
 
-/*BUILTIN_LIB_INIT(BASE, "base", luaopen_base);
-BUILTIN_LIB_INIT(LOADLIB, "package", luaopen_package);
-BUILTIN_LIB_INIT(STRING, "string", luaopen_string);
-BUILTIN_LIB(STRING, "string", strlib);*/
 
 const luaL_Reg lua_libs[] = {
 	{"base", luaopen_base},
 	{"package", luaopen_package},
+	{"table", luaopen_table},
+	{"string", luaopen_string},
 #ifdef USE_GPIO_MODULE
 	{LUA_GPIOLIBNAME, luaopen_gpio},
 #endif
@@ -61,6 +64,18 @@ const luaL_Reg lua_libs[] = {
 #ifdef USE_UTILS_MODULE
 	{LUA_UTILSLIBNAME, luaopen_utils},
 #endif
+#ifdef USE_LPEG_MODULE
+	{LUA_LPEGLIBNAME, luaopen_lpeg},
+#endif
+#ifdef USE_NET_MODULE
+	{LUA_NETLIBNAME, luaopen_net},
+#endif
+#ifdef USE_THREAD_MODULE
+	{LUA_THREADLIBNAME, luaopen_thread},
+#endif
+#ifdef USE_MQTT_MODULE
+	{LUA_MQTTLIBNAME, luaopen_mqtt},
+#endif
 	{NULL, NULL},
 };
 
@@ -68,6 +83,8 @@ const luaR_table lua_rotable[] =
 {
 	{LUA_TABLIBNAME, tab_funcs},
     {LUA_STRLIBNAME, strlib},
+	//{LUA_COLIBNAME, co_funcs},
+	//{LUA_MATHLIBNAME, math_map},
 #ifdef USE_GPIO_MODULE
 	{LUA_GPIOLIBNAME, gpio_map},
 #endif
@@ -94,6 +111,15 @@ const luaR_table lua_rotable[] =
 #endif
 #ifdef USE_UTILS_MODULE
 	{LUA_UTILSLIBNAME, utils_map},
+#endif
+#ifdef USE_NET_MODULE
+	{LUA_NETLIBNAME, net_map},
+#endif
+#ifdef USE_THREAD_MODULE
+	{LUA_THREADLIBNAME, thread_map},
+#endif
+#ifdef USE_MQTT_MODULE
+	{LUA_MQTTLIBNAME, mqtt_map},
 #endif
 	{NULL, NULL}
 };

@@ -1,4 +1,4 @@
-
+#include "soc/spi_reg.h"
 #include "spi_api.h"
 #include "soc/soc.h"
 
@@ -507,7 +507,7 @@ static uint8 spi_flg = 0;
 //init the two intr line of slave
 //gpio0: wr_ready ,and  
 //gpio2: rd_ready , controlled by slave
-void ICACHE_FLASH_ATTR
+void 
     gpio_init()
 {
 
@@ -582,7 +582,7 @@ void spi_slave_isr_handler(void *para)
 
 #ifdef SPI_SLAVE_DEBUG
 
-void ICACHE_FLASH_ATTR
+void 
     set_miso_data()
 {
     if(GPIO_INPUT_GET(2)==0){
@@ -601,7 +601,7 @@ void ICACHE_FLASH_ATTR
 
 
 
-void ICACHE_FLASH_ATTR
+void 
     disp_spi_data()
 {
     uint8 i = 0;
@@ -612,7 +612,7 @@ void ICACHE_FLASH_ATTR
 }
 
 
-/*void ICACHE_FLASH_ATTR
+/*void 
     spi_task(os_event_t *e)
 {
     uint8 data;
@@ -643,7 +643,7 @@ void ICACHE_FLASH_ATTR
     }
 }
 
-void ICACHE_FLASH_ATTR
+void 
     spi_task_init(void)
 {
     spiQueue = (os_event_t*)os_malloc(sizeof(os_event_t)*SPI_QUEUE_LEN);
@@ -653,7 +653,7 @@ void ICACHE_FLASH_ATTR
 os_timer_t spi_timer_test;
 
 #if 0
-void ICACHE_FLASH_ATTR
+void 
     spi_test_init()
 {
     os_printf("spi init\n\r");

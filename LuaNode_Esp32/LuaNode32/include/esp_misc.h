@@ -83,11 +83,6 @@ enum dhcp_status {
     DHCP_STARTED    /**< enable DHCP */
 };
 
-enum dhcps_offer_option {
-    OFFER_START = 0x00,         /**< DHCP offer option start */
-    OFFER_ROUTER = 0x01,        /**< DHCP offer router, only support this option now */
-    OFFER_END                   /**< DHCP offer option start */
-};
 
 unsigned long os_random(void);
 

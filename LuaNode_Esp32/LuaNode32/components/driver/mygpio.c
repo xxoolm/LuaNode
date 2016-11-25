@@ -28,6 +28,7 @@
 #include "rom/gpio.h"
 #include "mygpio.h"
 #include "rom/ets_sys.h"
+#include "soc/gpio_reg.h"
 #include <stdio.h>
 
 const uint32 GPIO_PIN_REG[40] = {

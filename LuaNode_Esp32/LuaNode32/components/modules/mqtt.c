@@ -488,7 +488,6 @@ mqtt.unsubscribe(mqttClt,topic)
 
 #endif
 
-#define MIN_OPT_LEVEL  2
 #include "lrodefs.h"
 const LUA_REG_TYPE mqtt_map[] =
 {
@@ -509,4 +508,8 @@ const LUA_REG_TYPE mqtt_map[] =
   {LNILKEY, LNILVAL}
 };
 
+int luaopen_mqtt(lua_State *L) 
+{
+	return 0;
+}
 

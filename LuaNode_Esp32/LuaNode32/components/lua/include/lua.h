@@ -8,13 +8,15 @@
 
 #ifndef lua_h
 #define lua_h
-
+#ifdef LUAC_CROSS_FILE
+#include "luac_cross.h"
+#endif
 #include <stdarg.h>
 #include <stddef.h>
-
-#include "luac_cross.h"
+#include <ctype.h>
+#include <stdbool.h>
 #include "luaconf.h"
-#include "c_types.h"
+
 
 #define LUA_VERSION	"Lua 5.1"
 #define LUA_RELEASE	"Lua 5.1.4"
@@ -94,6 +96,9 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 #include LUA_USER_H
 #endif
 
+#if defined(LUA_OPTIMIZE_DEBUG) && LUA_OPTIMIZE_DEBUG == 0
+#undef LUA_OPTIMIZE_DEBUG
+#endif
 
 /* type of numbers in Lua */
 typedef LUA_NUMBER lua_Number;
@@ -250,7 +255,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 
 
-/* 
+/*
 ** ===============================================================
 ** some useful macros
 ** ===============================================================
@@ -368,21 +373,7 @@ struct lua_Debug {
   int i_ci;  /* active function */
 };
 
-//doit
-extern int readline4lua(const char *prompt, char *buffer, int length);
-enum{
-  TMR=0,
-  GPIO,
-  WIFI,
-};
-
-typedef struct _msg
-{
-  char  source;//which module
-  lua_State* L;
-  int   para1;//which type
-  int   para2;//parameters
-} queue_msg_t;
+/* }====================================================================== */
 
 typedef struct __lua_load{
   lua_State *L;
@@ -394,16 +385,11 @@ typedef struct __lua_load{
   const char *prmt;
 }lua_Load;
 
-/* }====================================================================== */
-void l_message (const char *pname, const char *msg);//doit
 int lua_main( int argc, char **argv );
 
+#ifndef LUA_CROSS_COMPILER
 void lua_handle_input (bool force);
-int do_luainit (void);
-
-#define MOD_REG_NUMBER( L, name, val )\
-  lua_pushnumber( L, val );\
-  lua_setfield( L, -2, name )
+#endif
 
 /******************************************************************************
 * Copyright (C) 1994-2008 Lua.org, PUC-Rio.  All rights reserved.

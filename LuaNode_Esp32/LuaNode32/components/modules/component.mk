@@ -1,4 +1,5 @@
-COMPONENT_LDFLAGS += -u GPIO_module_selectedLUA_USE_MODULES_GPIO
 COMPONENT_ADD_INCLUDEDIRS := include
+
+CFLAGS += -DdefaultThreadStack=1024
 
 include $(IDF_PATH)/make/component_common.mk

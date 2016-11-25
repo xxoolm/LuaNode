@@ -29,6 +29,7 @@
 #include "user_version.h"
 #include "esp_misc.h"
 #include "esp_system.h"
+#include "vfs.h"
 
 #define CPU80MHZ 80
 #define CPU160MHZ 160
@@ -431,7 +432,7 @@ static int writer(lua_State* L, const void* p, size_t size, void* u)
     return 1;
   NODE_DBG("get fd:%d,size:%d\n", file_fd, size);
 
-  if (size != 0 && (size != fs_write(file_fd, (const char *)p, size)) )
+  if (size != 0 && (size != vfs_write(file_fd, (const char *)p, size)) )
     return 1;
   NODE_DBG("write fd:%d,size:%d\n", file_fd, size);
   return 0;
@@ -466,7 +467,7 @@ static int node_compile( lua_State* L )
 
   int stripping = 1;      /* strip debug information? */
 
-  file_fd = fs_open(output, fs_mode2flag("w+"));
+  file_fd = vfs_open(output, "w+");
   if (file_fd < FS_OPEN_OK)
   {
     return luaL_error(L, "cannot open/write to file");
@@ -476,11 +477,11 @@ static int node_compile( lua_State* L )
   int result = luaU_dump(L, f, writer, &file_fd, stripping);
   lua_unlock(L);
 
-  if (fs_flush(file_fd) < 0) {   // result codes aren't propagated by flash_fs.h
+  if (vfs_flush(file_fd) < 0) {   // result codes aren't propagated by flash_fs.h
     // overwrite Lua error, like writer() does in case of a file io error
     result = 1;
   }
-  fs_close(file_fd);
+  vfs_close(file_fd);
   file_fd = FS_OPEN_OK - 1;
 
   if (result == LUA_ERR_CC_INTOVERFLOW) {
