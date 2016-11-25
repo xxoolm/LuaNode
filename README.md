@@ -163,7 +163,6 @@ If you have any question, you can contact me via Email/QQ list below, Thanks:)
 
   - `Email`: nicholas3388@gmail.com
   - `QQ`: 535873968
-  - `Homepage`: www.apparduino.com
 
 
 CHANGE LOG:
