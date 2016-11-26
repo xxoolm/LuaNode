@@ -5,12 +5,7 @@
 -- gpio.write(pin, level)
 -- level = gpio.read(pin)
 
-gpio.mode(2,2);
+gpio.mode(2,gpio.OUTPUT);
 gpio.write(2,1);  -- led on
 gpio.write(2,0);  -- led off
 
---[[
-gpio.mode(3,1);
-level = gpio.read(3);
-print(level);
-]]
