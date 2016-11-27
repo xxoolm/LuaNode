@@ -12,6 +12,7 @@ led_blink = function()
   end
 end
 
+gpio.mode(2,gpio.OUTPUT);
 
 period = 1000;
 tmr.register(1, period, tmr.ALARM_AUTO, led_blink);
