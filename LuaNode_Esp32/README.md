@@ -13,4 +13,5 @@
 ---------------------------------
 
 The firmware we built in the firmware directory is for test. You can flash it 
-to your device to test LuaNode.
+to your device to test LuaNode. The flash address for the firmware we provided
+is `0x1000`.
