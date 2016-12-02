@@ -8,3 +8,9 @@
   where `your_path` is the path your save LuaNode.
 
 * Change directory to `LuaNode32`, and then compile the project, `make`
+
+# FIRMWARE
+---------------------------------
+
+The firmware we built in the firmware directory is for test. You can flash it 
+to your device to test LuaNode.
