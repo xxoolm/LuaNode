@@ -12,13 +12,3 @@ f1=function()
 end
 
 th1=thread.start(f1);
-
-tmr.delay(2);
-status = thread.status(th1);
-print(status);	-- this will output running
-
--- there are still some bugs with suspend methond, chip will restart when it's called
--- thread.suspend(th1);
-
--- to stop blinking, run the following command:
--- thread.stop(th1)	
