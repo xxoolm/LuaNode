@@ -12,3 +12,5 @@ f1=function()
 end
 
 th1=thread.start(f1);
+--status = thread.status(th1);  -- get thread status, and then print it
+--print(status);	-- this will output running
