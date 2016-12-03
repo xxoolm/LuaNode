@@ -3,13 +3,9 @@ LuaNode
 
 This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266).
 
-As we know, there are some existing Lua SDK such as NodeMCU, esp-open-rtos, but them are not support for both Esp32 at this time, and
+As we know, there are some existing Lua SDK such as NodeMCU, esp-open-rtos, but they are not support for both Esp32 at this time, and
 some of them are not support multi-task.
 
-Our kickstarter campaign is launched. If you back for our project, an Esp32 dev-kit will ship to you once the project goal is completed.
-The hardware is provided by www.doit.am.
-
-Our Kickstarter campaign is alive: https://www.kickstarter.com/projects/857552561/luanode-for-esp8266-and-esp32 . If you back for it, we will be very appreciated!
 
 ![github](https://ksr-ugc.imgix.net/projects/2439759/photo-original.jpg?w=1024&h=576&fit=fill&bg=FFFFFF&v=1462164335&auto=format&q=92&s=e2d90d11a3fdbffa9d2b9ee5ac975d6a "Esp32 & Esp8266")
 
@@ -102,25 +98,6 @@ since the lua command handler will be called in this task, more memory is requir
 
 APPLICATIONS:
 --------------------------------------
-
-### Wifi Vedio Tank
-
-A funny application is to utilize Luanode and Esp32/Esp8266 to create a Wifi tank. You can control the tank via app installed on your phone.
-The Luanode run on Esp32/Esp8266 and wait for the commands sent from phone, and then drives the motor on tank to move it on.
-
-![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37i18lej20fe0duq7f.jpg "Appearance")
-
-The hardware contains: T300 Tank Chassis, Esp8266 Development Kit, 720p HD Camera, WR703N Wireless Router.
-
-![github](http://ww4.sinaimg.cn/mw690/999babe3gw1f3b37iabgvj20kt0c6jv7.jpg "Hardware")
-
-A video on Youtube to illustrate how to control the tank via phone.
-
-[![WiFi video car](http://a1.qpic.cn/psb?/V14H7R7s11nbTN/CUnAapb.4U2AgDuGfsAWrztFuYKc2TE.tvJ**Kshk4c!/b/dKgAAAAAAAAA&bo=QAHwAAAAAAAFB5U!&rf=viewer_4)](https://www.youtube.com/watch?v=9SpL22obIMw&feature=youtu.be)
-
-Another video on Youku, a Chinese video website, to illustrate the features of the tank.
-
-[![WiFi video car](http://a1.qpic.cn/psb?/V14H7R7s11nbTN/CUnAapb.4U2AgDuGfsAWrztFuYKc2TE.tvJ**Kshk4c!/b/dKgAAAAAAAAA&bo=QAHwAAAAAAAFB5U!&rf=viewer_4)](http://v.youku.com/v_show/id_XMTI5NjUwOTYzMg==.html?from=s1.8-1-1.2)
 
 ### Wifilister
 
