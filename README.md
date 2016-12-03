@@ -53,6 +53,10 @@ node.restart();
 
 You can add your own Lua modules to LuaNode at will, visit the LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki") for more details.
 
+LuaNode is compatible with `Esplorer` now, you can edit and download Lua
+Code to ESP32 with `Esplorer` conveniently.
+
+Get Esplorer [Here](https://github.com/4refr0nt/ESPlorer "Esplorer")
 
 HOW TO BUILD For `ESP32/ESP8266`:
 --------------------------------------
