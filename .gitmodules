@@ -1,0 +1,3 @@
+[submodule "LuaNode_Esp32/esp-idf"]
+	path = LuaNode_Esp32/esp-idf
+	url = https://github.com/espressif/esp-idf
