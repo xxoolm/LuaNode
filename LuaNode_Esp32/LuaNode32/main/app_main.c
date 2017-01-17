@@ -120,6 +120,10 @@ void app_main()
         }
         // Note that fs_format leaves the file system mounted
     }
+	printf("\n=================\n");
+	printf("LuaNode:\n"); 
+	printf("https://github.com/Nicholas3388/LuaNode\n");
+	printf("=================\n\n");
 	
 	nvs_flash_init();
 	tcpip_adapter_init();
