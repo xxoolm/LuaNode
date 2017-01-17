@@ -1,0 +1,9 @@
+menu "SERVER"
+
+config UART_ENABLE
+    bool "Enable server"
+    default "y"
+    help
+        For server.
+
+endmenu

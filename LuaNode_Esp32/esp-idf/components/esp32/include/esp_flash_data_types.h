@@ -21,16 +21,8 @@ extern "C"
 {
 #endif
 
-#define ESP_PARTITION_TABLE_ADDR 0x4000
+#define ESP_PARTITION_TABLE_ADDR 0x8000
 #define ESP_PARTITION_MAGIC 0x50AA
-
-
-/* Header of binary image segment */
-typedef struct {
-    uint32_t load_addr;
-    uint32_t data_len;
-} esp_image_section_header_t;
-
 
 /* OTA selection structure (two copies in the OTA data partition.)
    Size of 32 bytes is friendly to flash encryption */
@@ -55,9 +47,24 @@ typedef struct {
     uint8_t  subtype;
     esp_partition_pos_t pos;
 	uint8_t  label[16];
-    uint8_t  reserved[4];
+    uint32_t flags;
 } esp_partition_info_t;
 
+#define PART_TYPE_APP 0x00
+#define PART_SUBTYPE_FACTORY  0x00
+#define PART_SUBTYPE_OTA_FLAG 0x10
+#define PART_SUBTYPE_OTA_MASK 0x0f
+#define PART_SUBTYPE_TEST     0x20
+
+#define PART_TYPE_DATA 0x01
+#define PART_SUBTYPE_DATA_OTA 0x00
+#define PART_SUBTYPE_DATA_RF  0x01
+#define PART_SUBTYPE_DATA_WIFI 0x02
+
+#define PART_TYPE_END 0xff
+#define PART_SUBTYPE_END 0xff
+
+#define PART_FLAG_ENCRYPTED (1<<0)
 
 #ifdef __cplusplus
 }

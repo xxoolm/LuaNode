@@ -3,6 +3,7 @@
 #include "c_types.h"
 #include "rom/uart.h"
 #include "soc/uart_register.h"
+#include "extras/esp_intr_ext.h"
 #include "c_string.h"
 #include "lua.h"
 

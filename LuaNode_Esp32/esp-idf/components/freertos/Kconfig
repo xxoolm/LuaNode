@@ -54,7 +54,7 @@ config FREERTOS_ASSERT_ON_UNTESTED_FUNCTION
 
 choice FREERTOS_CHECK_STACKOVERFLOW
     prompt "Check for stack overflow"
-    default FREERTOS_CHECK_STACKOVERFLOW_QUICK
+    default FREERTOS_CHECK_STACKOVERFLOW_CANARY
     help
         FreeRTOS can check for stack overflows in threads and trigger an user function
         called vApplicationStackOverflowHook when this happens.
@@ -141,6 +141,35 @@ config FREERTOS_ISR_STACKSIZE
         The interrupt handlers have their own stack. The size of the stack can be defined here. 
         Each processor has its own stack, so the total size occupied will be twice this.
 
+config FREERTOS_LEGACY_HOOKS
+    bool "Use FreeRTOS legacy hooks"
+    default n
+    help
+        FreeRTOS offers a number of hooks/callback functions that are called when a timer
+        tick happens, the idle thread runs etc. esp-idf replaces these by runtime registerable
+        hooks using the esp_register_freertos_xxx_hook system, but for legacy reasons the old
+        hooks can also still be enabled. Please enable this only if you have code that for some
+        reason can't be migrated to the esp_register_freertos_xxx_hook system.
+
+if FREERTOS_LEGACY_HOOKS
+
+config FREERTOS_LEGACY_IDLE_HOOK
+    bool "Enable legacy idle hook"
+    default n
+    help
+        If enabled, FreeRTOS will call a function called vApplicationIdleHook when the idle thread
+        on a CPU is running. Please make sure your code defines such a function.
+
+config FREERTOS_LEGACY_TICK_HOOK
+    bool "Enable legacy tick hook"
+    default n
+    help
+        If enabled, FreeRTOS will call a function called vApplicationTickHook when a FreeRTOS
+        tick is executed. Please make sure your code defines such a function.
+
+endif #FREERTOS_LEGACY_HOOKS
+
+
 menuconfig FREERTOS_DEBUG_INTERNALS
     bool "Debug FreeRTOS internals"
     default n
@@ -158,6 +187,7 @@ config FREERTOS_PORTMUX_DEBUG
         If enabled, debug information (including integrity checks) will be printed
         to UART for the port-specific MUX implementation.
 
+if !FREERTOS_UNICORE
 config FREERTOS_PORTMUX_DEBUG_RECURSIVE
     bool "Debug portMUX Recursion"
     depends on FREERTOS_PORTMUX_DEBUG
@@ -165,8 +195,23 @@ config FREERTOS_PORTMUX_DEBUG_RECURSIVE
     help
         If enabled, additional debug information will be printed for recursive
         portMUX usage.
+endif #FREERTOS_UNICORE
 
 
+config FREERTOS_WATCHPOINT_END_OF_STACK
+    bool "Set a debug watchpoint at the end of each stack"
+    default n
+    help
+        FreeRTOS can check if a stack has overflown its bounds by checking either the value of
+        the stack pointer or by checking the integrity of canary bytes. (See FREERTOS_CHECK_STACKOVERFLOW
+        for more information.) These checks only happen on a context switch, and the situation that caused
+        the stack overflow may already be long gone by then. This option will use the debug memory 
+        watchpoint 1 (the second one) to allow breaking into the debugger (or panic'ing) as soon as any 
+        of the last 32 bytes on the stack of a task are overwritten. The side effect is that using gdb, you
+        effectively only have one watchpoint; the 2nd one is overwritten as soon as a task switch happens.
+        
+        When this watchpoint is hit, gdb will stop with a SIGTRAP message. When no OCD is attached, esp-idf
+        will panic on an unhandled debug exception.
 
 endif # FREERTOS_DEBUG_INTERNALS
 

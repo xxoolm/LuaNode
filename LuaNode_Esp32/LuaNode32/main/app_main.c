@@ -16,6 +16,7 @@
 #include "nodemcu_esp_event.h"
 #include "pthreadx.h"
 #include "tmr.h"
+#include "sock2uart_server.h"
 
 extern nodemcu_esp_event_reg_t esp_event_cb_table;
 
@@ -120,13 +121,17 @@ void app_main()
         }
         // Note that fs_format leaves the file system mounted
     }
-	printf("\n=================\n");
-	printf("LuaNode:\n"); 
-	printf("https://github.com/Nicholas3388/LuaNode\n");
-	printf("=================\n\n");
 	
 	nvs_flash_init();
 	tcpip_adapter_init();
+
+#if ENABLE_SOCK2UART
+	//sock2uart_server_start();
+#endif
+
+	printf("\n=======================================\n");
+	printf("LuaNode: https://github.com/Nicholas3388/LuaNode");
+	printf("\n=======================================\n\n");
 
 	char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
     lua_main(2, lua_argv);

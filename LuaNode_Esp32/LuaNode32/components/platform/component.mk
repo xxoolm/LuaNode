@@ -1,3 +1,3 @@
 COMPONENT_ADD_INCLUDEDIRS := include
 
-include $(IDF_PATH)/make/component_common.mk
+CFLAGS += -DCONFIG_NONE_OS -DETS_GPIO_INUM=4

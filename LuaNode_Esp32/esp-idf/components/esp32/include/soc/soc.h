@@ -17,20 +17,6 @@
 
 #include <stdint.h>
 
-#define FUNC_GPIO0						0
-#define FUNC_GPIO1						3
-#define FUNC_GPIO2						2
-#define FUNC_GPIO3						3
-#define FUNC_GPIO4						0
-#define FUNC_GPIO5						0
-#define FUNC_GPIO9						3
-#define FUNC_GPIO10						3
-#define FUNC_GPIO12						3
-#define FUNC_GPIO13						3
-#define FUNC_GPIO14						3
-#define FUNC_GPIO15						3
-#define PERIPHS_IO_MUX                  0x60009000
-
 //Register Bits{{
 #define BIT31   0x80000000
 #define BIT30   0x40000000
@@ -93,8 +79,8 @@
 //set bits of register controlled by mask
 #define REG_SET_BITS(_r, _b, _m) (*(volatile uint32_t*)(_r) = (*(volatile uint32_t*)(_r) & ~(_m)) | ((_b) & (_m)))
 
-//get field from register, used when _f is not left shifted by _f##_S
-#define REG_GET_FIELD(_r, _f) ((REG_READ(_r) >> (_f##_S)) & (_f))
+//get field from register, uses field _S & _V to determine mask
+#define REG_GET_FIELD(_r, _f) ((REG_READ(_r) >> (_f##_S)) & (_f##_V))
 
 //set field to register, used when _f is not left shifted by _f##_S
 #define REG_SET_FIELD(_r, _f, _v) (REG_WRITE((_r),((REG_READ(_r) & ~((_f) << (_f##_S)))|(((_v) & (_f))<<(_f##_S)))))
@@ -143,10 +129,10 @@
 //}}
 
 //Periheral Clock {{
-#define  APB_CLK_FREQ_ROM                            26*1000000
+#define  APB_CLK_FREQ_ROM                            ( 26*1000000 )
 #define  CPU_CLK_FREQ_ROM                            APB_CLK_FREQ_ROM
 #define  CPU_CLK_FREQ                                APB_CLK_FREQ
-#define  APB_CLK_FREQ                                80*1000000       //unit: Hz
+#define  APB_CLK_FREQ                                ( 80*1000000 )       //unit: Hz
 #define  UART_CLK_FREQ                               APB_CLK_FREQ
 #define  WDT_CLK_FREQ                                APB_CLK_FREQ
 #define  TIMER_CLK_FREQ                              (80000000>>4) //80MHz divided by 16
@@ -155,6 +141,8 @@
 //}}
 
 #define DR_REG_DPORT_BASE                       0x3ff00000
+#define DR_REG_RSA_BASE                         0x3ff02000
+#define DR_REG_SHA_BASE                         0x3ff03000
 #define DR_REG_UART_BASE                        0x3ff40000
 #define DR_REG_SPI1_BASE                        0x3ff42000
 #define DR_REG_SPI0_BASE                        0x3ff43000
@@ -165,11 +153,12 @@
 #define DR_REG_FRC_TIMER_BASE                   0x3ff47000
 #define DR_REG_RTCCNTL_BASE                     0x3ff48000
 #define DR_REG_RTCIO_BASE                       0x3ff48400
-#define DR_REG_SARADC_BASE                      0x3ff48800
+#define DR_REG_SENS_BASE                        0x3ff48800
 #define DR_REG_IO_MUX_BASE                      0x3ff49000
 #define DR_REG_RTCMEM0_BASE                     0x3ff61000
 #define DR_REG_RTCMEM1_BASE                     0x3ff62000
 #define DR_REG_RTCMEM2_BASE                     0x3ff63000
+#define DR_REG_SYSCON_BASE                      0x3ff66000
 #define DR_REG_HINF_BASE                        0x3ff4B000
 #define DR_REG_UHCI1_BASE                       0x3ff4C000
 #define DR_REG_I2S_BASE                         0x3ff4F000
@@ -199,7 +188,6 @@
 #define DR_REG_PWM3_BASE                        0x3ff70000
 #define PERIPHS_SPI_ENCRYPT_BASEADDR		DR_REG_SPI_ENCRYPT_BASE
 
-
 //Interrupt hardware source table
 //This table is decided by hardware, don't touch this.
 #define ETS_WIFI_MAC_INTR_SOURCE                0/**< interrupt of WiFi MAC, level*/
@@ -226,10 +214,10 @@
 #define ETS_TG1_LACT_LEVEL_INTR_SOURCE          21/**< interrupt of TIMER_GROUP1, LACT, level*/
 #define ETS_GPIO_INTR_SOURCE                    22/**< interrupt of GPIO, level*/
 #define ETS_GPIO_NMI_SOURCE                     23/**< interrupt of GPIO, NMI*/
-#define ETS_FROM_CPU_INTR0_SOURCE               24/**< interrupt0 generated from a CPU, level*/
-#define ETS_FROM_CPU_INTR1_SOURCE               25/**< interrupt1 generated from a CPU, level*/
-#define ETS_FROM_CPU_INTR2_SOURCE               26/**< interrupt2 generated from a CPU, level*/
-#define ETS_FROM_CPU_INTR3_SOURCE               27/**< interrupt3 generated from a CPU, level*/
+#define ETS_FROM_CPU_INTR0_SOURCE               24/**< interrupt0 generated from a CPU, level*/ /* Used for FreeRTOS */
+#define ETS_FROM_CPU_INTR1_SOURCE               25/**< interrupt1 generated from a CPU, level*/ /* Used for FreeRTOS */
+#define ETS_FROM_CPU_INTR2_SOURCE               26/**< interrupt2 generated from a CPU, level*/ /* Used for VHCI */
+#define ETS_FROM_CPU_INTR3_SOURCE               27/**< interrupt3 generated from a CPU, level*/ /* Reserved */
 #define ETS_SPI0_INTR_SOURCE                    28/**< interrupt of SPI0, level, SPI0 is for Cache Access, do not use this*/
 #define ETS_SPI1_INTR_SOURCE                    29/**< interrupt of SPI1, level, SPI1 is for flash read/write, do not use this*/
 #define ETS_SPI2_INTR_SOURCE                    30/**< interrupt of SPI2, level*/
@@ -277,14 +265,14 @@
  *      Intr num                Level           Type                    PRO CPU usage           APP CPU uasge
  *      0                       1               extern level            WMAC                    Reserved
  *      1                       1               extern level            BT/BLE Host VHCI        Reserved
- *      2                       1               extern level            FROM_CPU                FROM_CPU
- *      3                       1               extern level            TG0_WDT                 Reserved
+ *      2                       1               extern level
+ *      3                       1               extern level
  *      4                       1               extern level            WBB
  *      5                       1               extern level            BT Controller 
  *      6                       1               timer                   FreeRTOS Tick(L1)       FreeRTOS Tick(L1)
  *      7                       1               software                Reserved                Reserved
  *      8                       1               extern level            BLE Controller 
- *      9                       1               extern level            
+ *      9                       1               extern level
  *      10                      1               extern edge             Internal Timer
  *      11                      3               profiling
  *      12                      1               extern level
@@ -313,8 +301,6 @@
 //CPU0 Interrupt number reserved, not touch this.
 #define ETS_WMAC_INUM                           0
 #define ETS_BT_HOST_INUM                        1
-#define ETS_FROM_CPU_INUM                       2
-#define ETS_T0_WDT_INUM                         3
 #define ETS_WBB_INUM                            4
 #define ETS_TG0_T1_INUM                         10 /**< use edge interrupt*/
 #define ETS_FRC1_INUM                           22
@@ -326,19 +312,5 @@
 #define ETS_UART1_INUM                          5
 //Other interrupt number should be managed by the user
 
-#define PERIPHS_RTC_BASEADDR            0x60008000
-#define REG_RTC_BASE					PERIPHS_RTC_BASEADDR
-#define RTC_GPIO_OUT					(REG_RTC_BASE + 0x068)
-//#define RTC_GPIO_ENABLE					(REG_RTC_BASE + 0x074)
-#define RTC_GPIO_IN_DATA				(REG_RTC_BASE + 0x08C)
-#define RTC_GPIO_CONF					(REG_RTC_BASE + 0x090)
-#define PAD_XPD_DCDC_CONF				(REG_RTC_BASE + 0x0A0)
-
-#define GPIO_STATUS_W1TC_ADDRESS      0x24
-#define GPIO_STATUS_ADDRESS                  0x1c
-#define GPIO_PIN_SOURCE_LSB                      0
-#define GPIO_PIN_SOURCE_MASK                  0x00000001
-#define GPIO_PIN_SOURCE_SET(x)                  (((x) << GPIO_PIN_SOURCE_LSB) & GPIO_PIN_SOURCE_MASK)
-#define GPIO_AS_PIN_SOURCE                        0
 
 #endif /* _ESP32_SOC_H_ */

@@ -56,11 +56,6 @@
 #define IFNAME0 'e'
 #define IFNAME1 'n'
 
-static char hostname[16];
-#if ESP_PERF
-uint32_t g_rx_alloc_pbuf_fail_cnt = 0;
-#endif
-
 /**
  * In this function, the hardware should be initialized.
  * Called from ethernetif_init().
@@ -70,11 +65,7 @@ uint32_t g_rx_alloc_pbuf_fail_cnt = 0;
  */
 static void
 low_level_init(struct netif *netif)
-{ 
-
-
-
-
+{
   /* set MAC hardware address length */
   netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
@@ -86,18 +77,14 @@ low_level_init(struct netif *netif)
   /* device capabilities */
   /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
   netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
-  
+
 #if ESP_LWIP
-
 #if LWIP_IGMP
-
-     netif->flags |= NETIF_FLAG_IGMP;
+  netif->flags |= NETIF_FLAG_IGMP;
+#endif
 #endif
 
-
- #endif
- 
-  /* Do whatever else is needed to initialize interface. */  
+  /* Do whatever else is needed to initialize interface. */
 }
 
 /**
@@ -118,37 +105,29 @@ low_level_init(struct netif *netif)
 static err_t
 low_level_output(struct netif *netif, struct pbuf *p)
 {
-  struct pbuf *q;
-  wifi_interface_t wifi_if = tcpip_adapter_get_wifi_if(netif);
+  wifi_interface_t wifi_if = tcpip_adapter_get_esp_if(netif);
+  struct pbuf *q = p;
+  err_t ret;
 
-  if (wifi_if >= WIFI_IF_MAX) {
+  if (wifi_if >= ESP_IF_MAX) {
     return ERR_IF;
-  } 
-  
-#if ESP_LWIP
-    q = p;
-    u16_t pbuf_x_len = 0;
-    pbuf_x_len = q->len;
-    if(q->next !=NULL)
-    {
-        //char cnt = 0;
-        struct pbuf *tmp = q->next;
-        while(tmp != NULL)
-        {
-            memcpy( (u8_t *)( (u8_t *)(q->payload) + pbuf_x_len), (u8_t *)tmp->payload , tmp->len );
-            pbuf_x_len += tmp->len;
-            //cnt++;
-            tmp = tmp->next;
-        }
+  }
+
+  if(q->next == NULL) {
+    ret = esp_wifi_internal_tx(wifi_if, q->payload, q->len);
+  } else {
+    LWIP_DEBUGF(PBUF_DEBUG, ("low_level_output: pbuf is a list, application may has bug"));
+    q = pbuf_alloc(PBUF_RAW_TX, p->tot_len, PBUF_RAM);
+    if (q != NULL) {
+      pbuf_copy(q, p);
+    } else {
+      return ERR_MEM;
     }
-    
-    return esp_wifi_internal_tx(wifi_if, q->payload, pbuf_x_len);
-#else
-    for(q = p; q != NULL; q = q->next) {
-        esp_wifi_internal_tx(wifi_if, q->payload, q->len);
-    }
-  return ERR_OK;
-#endif
+    ret = esp_wifi_internal_tx(wifi_if, q->payload, q->len);
+    pbuf_free(q);
+  }
+
+  return ret;
 }
 
 /**
@@ -161,48 +140,41 @@ low_level_output(struct netif *netif, struct pbuf *p)
  * @param netif the lwip network interface structure for this ethernetif
  */
 void
-#if ESP_LWIP
 wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
-#else
-wlanif_input(struct netif *netif, void *buffer, uint16 len)
-#endif
 {
   struct pbuf *p;
-  
-#if ESP_LWIP
-    if(buffer== NULL)
-    	goto _exit;
-    if(netif == NULL)
-    	goto _exit;
-#endif
 
-#if ESP_LWIP
-  p = pbuf_alloc(PBUF_RAW, len, PBUF_REF);
-  if (p == NULL){
-#if ESP_PERF
-      g_rx_alloc_pbuf_fail_cnt++;
-#endif
-      return;
-  }
-  p->payload = buffer;
-  p->eb = eb;
-#else
-  p = pbuf_alloc(PBUF_IP, len, PBUF_POOL);
+  if(!buffer || !netif)
+    goto _exit;
+
+#if (ESP_L2_TO_L3_COPY == 1)
+  p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM);
   if (p == NULL) {
+    ESP_STATS_INC(esp.wlanif_input_pbuf_fail);
+    esp_wifi_internal_free_rx_buffer(eb);
     return;
   }
   memcpy(p->payload, buffer, len);
+  esp_wifi_internal_free_rx_buffer(eb);
+#else
+  p = pbuf_alloc(PBUF_RAW, len, PBUF_REF);
+  if (p == NULL){
+    ESP_STATS_INC(esp.wlanif_input_pbuf_fail);
+    return;
+  }
+  p->payload = buffer;
+  p->user_buf = eb;
+  p->user_flag = PBUF_USER_FLAG_OWNER_WIFI;
 #endif
-
 
   /* full packet send to tcpip_thread to process */
   if (netif->input(p, netif) != ERR_OK) {
     LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
     pbuf_free(p);
   }
-  
+
 _exit:
-;	  
+;
 }
 
 /**
@@ -226,25 +198,11 @@ wlanif_init(struct netif *netif)
   /* Initialize interface hostname */
 
 #if ESP_LWIP
-//TO_DO
-/*
-  if ((struct netif *)wifi_get_netif(STATION_IF) == netif) {
-      if (default_hostname == 1) {
-          wifi_station_set_default_hostname(netif->hwaddr);
-      }
-      netif->hostname = hostname;
-  } else {
-      netif->hostname = NULL;
-  }
-*/
-  sprintf(hostname, "ESP_%02X%02X%02X", netif->hwaddr[3], netif->hwaddr[4], netif->hwaddr[5]);
-  netif->hostname = hostname;
-  
+  netif->hostname = "espressif";
 #else
-  sprintf(hostname, "ESP_%02X%02X%02X", netif->hwaddr[3], netif->hwaddr[4], netif->hwaddr[5]);
-  netif->hostname = hostname;
+  netif->hostname = "lwip";
 #endif
-  
+
 #endif /* LWIP_NETIF_HOSTNAME */
 
   /*
@@ -252,7 +210,7 @@ wlanif_init(struct netif *netif)
    * The last argument should be replaced with your link speed, in units
    * of bits per second.
    */
-  NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, LINK_SPEED_OF_YOUR_NETIF_IN_BPS);
+  NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 100);
 
   netif->name[0] = IFNAME0;
   netif->name[1] = IFNAME1;
@@ -265,7 +223,7 @@ wlanif_init(struct netif *netif)
   netif->output_ip6 = ethip6_output;
 #endif /* LWIP_IPV6 */
   netif->linkoutput = low_level_output;
-  
+
   /* initialize the hardware */
   low_level_init(netif);
 

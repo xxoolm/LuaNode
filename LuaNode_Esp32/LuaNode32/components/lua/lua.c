@@ -451,14 +451,14 @@ bool uart_getc(char *c){
     if(pRxBuff->pWritePos == pRxBuff->pReadPos){   // empty
         return false;
     }
-    ets_intr_lock();
+    //ets_intr_lock();
     *c = (char)*(pRxBuff->pReadPos);
     if (pRxBuff->pReadPos == (pRxBuff->pRcvMsgBuff + RX_BUFF_SIZE)) {
         pRxBuff->pReadPos = pRxBuff->pRcvMsgBuff ; 
     } else {
         pRxBuff->pReadPos++;
     }
-    ets_intr_unlock();
+    //ets_intr_unlock();
     return true;
 }
 

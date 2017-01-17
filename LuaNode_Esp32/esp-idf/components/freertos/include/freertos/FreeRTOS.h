@@ -863,8 +863,8 @@ typedef struct xSTATIC_TCB
 	void				*pxDummy6;
 	uint8_t				ucDummy7[ configMAX_TASK_NAME_LEN ];
     UBaseType_t			uxDummyCoreId;
-	#if ( portSTACK_GROWTH > 0 )
-		void			*pxDummy8;
+	#if ( portSTACK_GROWTH > 0 || configENABLE_TASK_SNAPSHOT == 1 )
+		void            *pxDummy8;
 	#endif
 	#if ( portCRITICAL_NESTING_IN_TCB == 1 )
 		UBaseType_t		uxDummy9;
@@ -895,7 +895,8 @@ typedef struct xSTATIC_TCB
 		uint32_t 		ulDummy18;
 		uint32_t 		ucDummy19;
 	#endif
-	#if( ( configSUPPORT_STATIC_ALLOCATION == 1 ) && ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) )
+	#if( ( ( configSUPPORT_STATIC_ALLOCATION == 1 ) && ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) ) \
+		 || ( portUSING_MPU_WRAPPERS == 1 ) )
 		uint8_t			uxDummy20;
 	#endif
 
@@ -927,7 +928,6 @@ typedef struct xSTATIC_QUEUE
 
 	StaticList_t xDummy3[ 2 ];
 	UBaseType_t uxDummy4[ 3 ];
-	BaseType_t ucDummy5[ 2 ];
 
 	#if( ( configSUPPORT_STATIC_ALLOCATION == 1 ) && ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) )
 		uint8_t ucDummy6;
@@ -943,12 +943,12 @@ typedef struct xSTATIC_QUEUE
 	#endif
 
     struct {
-	    volatile uint32_t mux;
+	    volatile uint32_t ucDummy10;
     #ifdef CONFIG_FREERTOS_PORTMUX_DEBUG
-	    const char *lastLockedFn;
-	    int lastLockedLine;
+	    void *pvDummy8;
+	    UBaseType_t uxDummy11;
     #endif
-    } mux;
+    } sDummy12;
 
 } StaticQueue_t;
 typedef StaticQueue_t StaticSemaphore_t;

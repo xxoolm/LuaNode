@@ -13,6 +13,7 @@
 #include "soc/soc.h"
 #include "esp32-hal-gpio.h"
 #include "esp32-hal-i2c.h"
+#include "extras/soc_ext.h"
 // Platform specific includes
 
 #include "rom.h"

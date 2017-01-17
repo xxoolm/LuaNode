@@ -8,6 +8,8 @@
 #include "platform.h"
 #include "pin_map.h"
 #include "rom/gpio.h"
+#include "rom/ets_sys.h"
+#include "mydriver/gpio.h"
 
 #include "c_types.h"
 #include "c_string.h"
@@ -66,7 +68,7 @@ static int lgpio_trig( lua_State* L )
   }else if(sl == 4 && c_strcmp(str, "down") == 0){
     type = GPIO_PIN_INTR_NEGEDGE;
   }else if(sl == 4 && c_strcmp(str, "both") == 0){
-    type = GPIO_PIN_INTR_ANYEDGE;
+    type = GPIO_INTR_ANYEDGE;
   }else if(sl == 3 && c_strcmp(str, "low") == 0){
     type = GPIO_PIN_INTR_LOLEVEL;
   }else if(sl == 4 && c_strcmp(str, "high") == 0){
@@ -211,10 +213,10 @@ static int lgpio_serout( lua_State* L )
       continue;
     }
     for(j=0;j<table_len;j++){
-      noInterrupts();
+      //noInterrupts();
       // platform_gpio_write(pin, level);
       DIRECT_WRITE(pin, level);
-      interrupts();
+      //interrupts();
       delayMicroseconds(delay_table[j]);
       level=!level;
     }

@@ -26,6 +26,16 @@
 #define WSR(reg, newval)  asm volatile ("wsr %0, " #reg : : "r" (newval));
 #define XSR(reg, swapval) asm volatile ("xsr %0, " #reg : "+r" (swapval));
 
+/** @brief Read current stack pointer address
+ *
+ */
+static inline void *get_sp()
+{
+    void *sp;
+    asm volatile ("mov %0, sp;" : "=r" (sp));
+    return sp;
+}
+
 /* Return true if the CPU is in an interrupt context
    (PS.UM == 0)
 */
@@ -51,7 +61,10 @@ static inline void cpu_write_itlb(unsigned vpn, unsigned attr)
     asm volatile ("witlb  %1, %0; isync\n" :: "r" (vpn), "r" (attr));
 }
 
-/* Make page 0 access raise an exception.
+/**
+ * @brief Configure memory region protection
+ *
+ * Make page 0 access raise an exception.
  * Also protect some other unused pages so we can catch weirdness.
  * Useful attribute values:
  * 0 — cached, RW
@@ -70,9 +83,7 @@ static inline void cpu_configure_region_protection()
     cpu_write_itlb(0x20000000, 0);
 }
 
-
-
-/*
+/**
  * @brief Set CPU frequency to the value defined in menuconfig
  *
  * Called from cpu_start.c, not intended to be called from other places.
@@ -80,5 +91,26 @@ static inline void cpu_configure_region_protection()
  * CPU frequency changing is implemented.
  */
 void esp_set_cpu_freq(void);
+
+/**
+ * @brief Stall CPU using RTC controller
+ * @param cpu_id ID of the CPU to stall (0 = PRO, 1 = APP)
+ */
+void esp_cpu_stall(int cpu_id);
+
+/**
+ * @brief Un-stall CPU using RTC controller
+ * @param cpu_id ID of the CPU to un-stall (0 = PRO, 1 = APP)
+ */
+void esp_cpu_unstall(int cpu_id);
+
+/**
+ * @brief Returns true if a JTAG debugger is attached to CPU
+ * OCD (on chip debug) port.
+ *
+ * @note If "Make exception and panic handlers JTAG/OCD aware"
+ * is disabled, this function always returns false.
+ */
+bool esp_cpu_in_ocd_debug_mode();
 
 #endif

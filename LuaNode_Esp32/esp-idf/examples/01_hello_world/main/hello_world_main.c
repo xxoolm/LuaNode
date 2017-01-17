@@ -17,16 +17,15 @@ void hello_task(void *pvParameter)
     printf("Hello world!\n");
     for (int i = 10; i >= 0; i--) {
         printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     printf("Restarting now.\n");
     fflush(stdout);
-    system_restart();
+    esp_restart();
 }
 
 void app_main()
 {
     nvs_flash_init();
-    system_init();
     xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
 }

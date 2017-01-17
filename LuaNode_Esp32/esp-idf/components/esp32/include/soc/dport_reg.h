@@ -94,6 +94,16 @@
 #define DPORT_PERI_RST_EN_V  0xFFFFFFFF
 #define DPORT_PERI_RST_EN_S  0
 
+/* The following bits apply to DPORT_PERI_CLK_EN_REG, DPORT_PERI_RST_EN_REG
+ */
+#define DPORT_PERI_EN_AES (1<<0)
+#define DPORT_PERI_EN_SHA (1<<1)
+#define DPORT_PERI_EN_RSA (1<<2)
+/* NB: Secure boot reset will hold SHA & AES in reset */
+#define DPORT_PERI_EN_SECUREBOOT (1<<3)
+/* NB: Digital signature reset will hold AES & RSA in reset */
+#define DPORT_PERI_EN_DIGITAL_SIGNATURE (1<<4)
+
 #define DPORT_WIFI_BB_CFG_REG          (DR_REG_DPORT_BASE + 0x024)
 /* DPORT_WIFI_BB_CFG : R/W ;bitpos:[31:0] ;default: 32'h0 ; */
 /*description: */
@@ -1025,13 +1035,20 @@
 #define DPORT_WIFI_CLK_EN_V  0xFFFFFFFF
 #define DPORT_WIFI_CLK_EN_S  0
 
-#define DPORT_WIFI_RST_EN_REG          (DR_REG_DPORT_BASE + 0x0D0)
-/* DPORT_WIFI_RST : R/W ;bitpos:[31:0] ;default: 32'h0 ; */
+#define DPORT_CORE_RST_EN_REG          (DR_REG_DPORT_BASE + 0x0D0)
+/* DPORT_CORE_RST : R/W ;bitpos:[31:0] ;default: 32'h0 ; */
 /*description: */
-#define DPORT_WIFI_RST  0xFFFFFFFF
-#define DPORT_WIFI_RST_M  ((DPORT_WIFI_RST_V)<<(DPORT_WIFI_RST_S))
-#define DPORT_WIFI_RST_V  0xFFFFFFFF
-#define DPORT_WIFI_RST_S  0
+#define DPROT_RW_BTLP_RST (BIT(10))
+#define DPROT_RW_BTMAC_RST (BIT(9))
+#define DPORT_MACPWR_RST (BIT(8))
+#define DPORT_EMAC_RST (BIT(7))
+#define DPORT_SDIO_HOST_RST (BIT(6))
+#define DPORT_SDIO_RST (BIT(5))
+#define DPORT_BTMAC_RST (BIT(4))
+#define DPORT_BT_RST (BIT(3))
+#define DPORT_MAC_RST (BIT(2))
+#define DPORT_FE_RST (BIT(1))
+#define DPORT_BB_RST (BIT(0))  
 
 #define DPORT_BT_LPCK_DIV_INT_REG          (DR_REG_DPORT_BASE + 0x0D4)
 /* DPORT_BTEXTWAKEUP_REQ : R/W ;bitpos:[12] ;default: 1'b0 ; */

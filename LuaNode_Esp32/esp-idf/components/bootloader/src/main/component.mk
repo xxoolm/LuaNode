@@ -1,12 +1,23 @@
 #
-# Main Makefile. This is basically the same as a component makefile.
+# Main bootloader Makefile.
 #
-# This Makefile should, at the very least, just include $(IDF_PATH)/make/component_common.mk. By default, 
-# this will take the sources in the src/ directory, compile them and link them into 
-# lib(subdirectory_name).a in the build directory. This behaviour is entirely configurable,
-# please read the esp-idf build system document if you need to do this.
+# This is basically the same as a component makefile, but in the case of the bootloader
+# we pull in bootloader-specific linker arguments.
 #
 
-COMPONENT_ADD_LDFLAGS := -L $(abspath .) -lmain -T esp32.bootloader.ld -T $(IDF_PATH)/components/esp32/ld/esp32.rom.ld 
+LINKER_SCRIPTS := \
+	esp32.bootloader.ld \
+	$(IDF_PATH)/components/esp32/ld/esp32.rom.ld \
+	esp32.bootloader.rom.ld
 
-include $(IDF_PATH)/make/component_common.mk
+COMPONENT_ADD_LDFLAGS := -L $(COMPONENT_PATH) -lmain $(addprefix -T ,$(LINKER_SCRIPTS))
+
+COMPONENT_ADD_LINKER_DEPS := $(LINKER_SCRIPTS)
+
+ifdef IS_BOOTLOADER_BUILD
+# following lines are a workaround to link librtc into the
+# bootloader, until clock setting code is in a source-based esp-idf
+# component. See also rtc_printf() in bootloader_start.c
+COMPONENT_ADD_LDFLAGS += -L $(IDF_PATH)/components/esp32/lib/ -lrtc
+COMPONENT_EXTRA_INCLUDES += $(IDF_PATH)/components/esp32/
+endif

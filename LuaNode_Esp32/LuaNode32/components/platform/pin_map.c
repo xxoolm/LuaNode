@@ -1,5 +1,6 @@
 #include "pin_map.h"
 #include "soc/soc.h"
+#include "extras/soc_ext.h"
 #include "soc/io_mux_reg.h"
 
 #if 0

@@ -15,7 +15,9 @@ Before sending us a Pull Request, please consider this list of points:
 
 * Is the contribution entirely your own work, or already licensed under an Apache License 2.0 compatible Open Source License? If not then we unfortunately cannot accept it.
 
-* Does any new code conform to the esp-idf Style Guide? (Style Guide currently pending).
+* Does any new code conform to the esp-idf :doc:`Style Guide <style-guide>`?
+
+* Does the code documentation follow requirements in :doc:`documenting-code`?
 
 * Is the code adequately commented for people to understand how it is structured?
 
@@ -39,6 +41,7 @@ If this process passes, it will be merged onto the public github repository.
 Legal Part
 ----------
 
-Before a contribution can be accepted, you will need to sign our `Contributor Agreement <http://esp-idf.readthedocs.io/en/latest/contributing.html>`_. You will be prompted for this automatically as part of the Pull Request process.
+Before a contribution can be accepted, you will need to sign our :doc:`contributor-agreement`. You will be prompted for this automatically as part of the Pull Request process.
+
 
 

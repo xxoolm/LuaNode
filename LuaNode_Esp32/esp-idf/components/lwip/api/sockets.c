@@ -1437,7 +1437,9 @@ lwip_sendto(int s, const void *data, size_t size, int flags,
 #else /* LWIP_NETIF_TX_SINGLE_PBUF */
   err = netbuf_ref(&buf, data, short_size);
 #endif /* LWIP_NETIF_TX_SINGLE_PBUF */
+
   if (err == ERR_OK) {
+    DBG_PERF_PATH_SET(DBG_PERF_DIR_TX, DBG_PERF_POINT_SOC_OUT);
     /* send the data */
     err = netconn_send(sock->conn, &buf);
   }
@@ -2775,8 +2777,12 @@ lwip_setsockopt_impl(int s, int level, int optname, const void *optval, socklen_
   case IPPROTO_IPV6:
     switch (optname) {
     case IPV6_V6ONLY:
-      /* @todo: this does not work for datagram sockets, yet */
+      /* @todo: this does not work for datagram sockets, yet */ 
+#if CONFIG_MDNS
+      //LWIP_SOCKOPT_CHECK_OPTLEN_CONN_PCB_TYPE(sock, optlen, int, NETCONN_TCP);
+#else
       LWIP_SOCKOPT_CHECK_OPTLEN_CONN_PCB_TYPE(sock, optlen, int, NETCONN_TCP);
+#endif
       if (*(const int*)optval) {
         netconn_set_ipv6only(sock->conn, 1);
       } else {

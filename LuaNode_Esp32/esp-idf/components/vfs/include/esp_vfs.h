@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/reent.h>
 #include <sys/stat.h>
+#include <dirent.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,15 +59,15 @@ extern "C" {
  * flags member to ESP_VFS_FLAG_CONTEXT_PTR and provide the context pointer
  * to esp_vfs_register function.
  * If the implementation doesn't use this extra argument, populate the
- * members without _p suffix and set flags memeber to ESP_VFS_FLAG_DEFAULT.
+ * members without _p suffix and set flags member to ESP_VFS_FLAG_DEFAULT.
  *
  * If the FS driver doesn't provide some of the functions, set corresponding
  * members to NULL.
  */
 typedef struct
 {
-    int fd_offset;
-    int flags;
+    int fd_offset;  /*!< file descriptor offset, determined by the FS driver */
+    int flags;      /*!< ESP_VFS_FLAG_CONTEXT_PTR or ESP_VFS_FLAG_DEFAULT */
     union {
         size_t (*write_p)(void* p, int fd, const void * data, size_t size);
         size_t (*write)(int fd, const void * data, size_t size);
@@ -106,6 +108,38 @@ typedef struct
         int (*rename_p)(void* ctx, const char *src, const char *dst);
         int (*rename)(const char *src, const char *dst);
     };
+    union {
+        DIR* (*opendir_p)(void* ctx, const char* name);
+        DIR* (*opendir)(const char* name);
+    };
+    union {
+        struct dirent* (*readdir_p)(void* ctx, DIR* pdir);
+        struct dirent* (*readdir)(DIR* pdir);
+    };
+    union {
+        int (*readdir_r_p)(void* ctx, DIR* pdir, struct dirent* entry, struct dirent** out_dirent);
+        int (*readdir_r)(DIR* pdir, struct dirent* entry, struct dirent** out_dirent);
+    };
+    union {
+        long (*telldir_p)(void* ctx, DIR* pdir);
+        long (*telldir)(DIR* pdir);
+    };
+    union {
+        void (*seekdir_p)(void* ctx, DIR* pdir, long offset);
+        void (*seekdir)(DIR* pdir, long offset);
+    };
+    union {
+        int (*closedir_p)(void* ctx, DIR* pdir);
+        int (*closedir)(DIR* pdir);
+    };
+    union {
+        int (*mkdir_p)(void* ctx, const char* name, mode_t mode);
+        int (*mkdir)(const char* name, mode_t mode);
+    };
+    union {
+        int (*rmdir_p)(void* ctx, const char* name);
+        int (*rmdir)(const char* name);
+    };
 } esp_vfs_t;
 
 
@@ -132,10 +166,19 @@ esp_err_t esp_vfs_register(const char* base_path, const esp_vfs_t* vfs, void* ct
 
 
 /**
+ * Unregister a virtual filesystem for given path prefix
+ *
+ * @param base_path  file prefix previously used in esp_vfs_register call
+ * @return ESP_OK if successful, ESP_ERR_INVALID_STATE if VFS for given prefix
+ *         hasn't been registered
+ */
+esp_err_t esp_vfs_unregister(const char* base_path);
+
+/**
  * These functions are to be used in newlib syscall table. They will be called by
  * newlib when it needs to use any of the syscalls.
  */
-
+/**@{*/
 ssize_t esp_vfs_write(struct _reent *r, int fd, const void * data, size_t size);
 off_t esp_vfs_lseek(struct _reent *r, int fd, off_t size, int mode);
 ssize_t esp_vfs_read(struct _reent *r, int fd, void * dst, size_t size);
@@ -146,7 +189,7 @@ int esp_vfs_stat(struct _reent *r, const char * path, struct stat * st);
 int esp_vfs_link(struct _reent *r, const char* n1, const char* n2);
 int esp_vfs_unlink(struct _reent *r, const char *path);
 int esp_vfs_rename(struct _reent *r, const char *src, const char *dst);
-
+/**@}*/
 
 
 #ifdef __cplusplus

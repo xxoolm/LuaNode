@@ -1,3 +1,3 @@
 COMPONENT_ADD_INCLUDEDIRS := include
 
-include $(IDF_PATH)/make/component_common.mk
+CFLAGS += -DLUA_OPTIMIZE_MEMORY=2 -DMIN_OPT_LEVEL=2

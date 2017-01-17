@@ -1665,7 +1665,7 @@
  * LWIP_STATS==1: Enable statistics collection in lwip_stats.
  */
 #ifndef LWIP_STATS
-#define LWIP_STATS                      1
+#define LWIP_STATS                      0
 #endif
 
 #if LWIP_STATS
@@ -3006,6 +3006,13 @@
  */
 #ifndef LWIP_PERF
 #define LWIP_PERF                       0
+#endif
+
+/**
+ * ESP_L2_TO_L3_COPY: enable memcpy when receiving packet from L2
+ */
+#ifndef ESP_L2_TO_L3_COPY
+#define ESP_L2_TO_L3_COPY                   0
 #endif
 
 #ifndef ESP_THREAD_SAFE_DEBUG

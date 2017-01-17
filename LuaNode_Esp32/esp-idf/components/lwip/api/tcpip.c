@@ -56,9 +56,6 @@
 #define TCPIP_MSG_VAR_FREE(name)    API_VAR_FREE(MEMP_TCPIP_MSG_API, name)
 
 /* global variables */
-#if ESP_PERF
-uint32_t g_rx_post_mbox_fail_cnt = 0;
-#endif
 static tcpip_init_done_fn tcpip_init_done;
 static void *tcpip_init_done_arg;
 static sys_mbox_t mbox;
@@ -222,10 +219,14 @@ tcpip_inpkt(struct pbuf *p, struct netif *inp, netif_input_fn input_fn)
   msg->msg.inp.p = p;
   msg->msg.inp.netif = inp;
   msg->msg.inp.input_fn = input_fn;
-  if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
 #if ESP_PERF
-    g_rx_post_mbox_fail_cnt ++; 
+  if (p->len > DBG_PERF_FILTER_LEN) {
+    DBG_PERF_PATH_SET(DBG_PERF_DIR_RX, DBG_PERF_POINT_WIFI_OUT);
+  }
 #endif
+
+  if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+    ESP_STATS_INC(esp.tcpip_inpkt_post_fail);
     memp_free(MEMP_TCPIP_MSG_INPKT, msg);
     return ERR_MEM;
   }
@@ -282,6 +283,7 @@ tcpip_callback_with_block(tcpip_callback_fn function, void *ctx, u8_t block)
       sys_mbox_post(&mbox, msg);
     } else {
       if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+        ESP_STATS_INC(esp.tcpip_cb_post_fail);
         memp_free(MEMP_TCPIP_MSG_API, msg);
         return ERR_MEM;
       }
@@ -496,15 +498,11 @@ tcpip_init(tcpip_init_done_fn initfunc, void *arg)
 #endif /* LWIP_TCPIP_CORE_LOCKING */
 
 
-#if ESP_LWIP
   sys_thread_t xLwipTaskHandle = sys_thread_new(TCPIP_THREAD_NAME
                 , tcpip_thread, NULL, TCPIP_THREAD_STACKSIZE, TCPIP_THREAD_PRIO);
 
   printf("tcpip_task_hdlxxx : %x, prio:%d,stack:%d\n",
 		 (u32_t)xLwipTaskHandle,TCPIP_THREAD_PRIO,TCPIP_THREAD_STACKSIZE);
-#else
-  sys_thread_new(TCPIP_THREAD_NAME, tcpip_thread, NULL, TCPIP_THREAD_STACKSIZE, TCPIP_THREAD_PRIO);
-#endif
 
 }
 
