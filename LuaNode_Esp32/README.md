@@ -7,7 +7,8 @@
 * Export `IDF_PATH` by running the command, `export IDF_PATH=/your_path/LuaNode/LuaNode_Esp32/esp-idf/`,
   where `your_path` is the path your save LuaNode.
 
-* Change directory to `LuaNode32`, and then compile the project, `make`
+* Change directory to `LuaNode32`, and then compile the project, `./build.sh`. If `build.sh` is not executable,
+  you need to change the file permissions, input `sudo chmod 777 build.sh`
 
 # FIRMWARE
 ---------------------------------
