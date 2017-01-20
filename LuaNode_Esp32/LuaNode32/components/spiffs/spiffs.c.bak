@@ -66,6 +66,7 @@ static bool get_spiffs_partition (spiffs_config *cfg)
     if (info.type == PLATFORM_PARTITION_TYPE_NODEMCU &&
         info.subtype == PLATFORM_PARTITION_SUBTYPE_NODEMCU_SPIFFS)
     {
+		printf("==> NODEMCU TYPE match\n");
       cfg->phys_addr = info.offs;
       cfg->phys_size = info.size;
       return true;
@@ -115,6 +116,7 @@ static bool myspiffs_mount_internal(bool force_mount)
     return false;
 #if SPIFFS_USE_MAGIC
   if (!force_mount && SPIFFS_probe_fs (&cfg) != cfg.phys_size) {
+	printf("==> magic not match %d\n", cfg.phys_size);
     return false;
   }
 #endif
@@ -135,6 +137,7 @@ static bool myspiffs_mount_internal(bool force_mount)
 }
 
 bool myspiffs_mount() {
+	printf("==> in myspiffs_mount\n");
   return myspiffs_mount_internal(false);
 }
 
@@ -146,6 +149,7 @@ void myspiffs_unmount() {
 // Returns 1 if OK, 0 for error
 int myspiffs_format( void )
 {
+	printf("==> start myspiffs_format\n");
   SPIFFS_unmount(&fs);
   myspiffs_mount_internal(true);
   SPIFFS_unmount(&fs);
@@ -158,6 +162,7 @@ int myspiffs_format( void )
     printf("format failed  myspiffs_format\n");
     return 0;
   }
+  printf("==> in myspiffs_format\n");
   return myspiffs_mount();
 }
 
@@ -540,6 +545,7 @@ static int32_t myspiffs_vfs_fscfg( uint32_t *phys_addr, uint32_t *phys_size ) {
 
 static vfs_vol  *myspiffs_vfs_mount( const char *name, int num ) {
   // volume descriptor not supported, just return true / false
+  printf("==> in myspiffs_vfs_mount\n");
   return myspiffs_mount() ? (vfs_vol *)1 : NULL;
 }
 

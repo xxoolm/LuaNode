@@ -130,9 +130,9 @@ void app_main()
 #endif
 
 	printf("\n=======================================\n");
-	printf("LuaNode: https://github.com/Nicholas3388/LuaNode\n");
+	printf("LuaNode: https://github.com/Nicholas3388/LuaNode");
 	printf("Version: %s\n", VERSION);
-	printf("=======================================\n\n");
+	printf("\n=======================================\n\n");
 
 	char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
     lua_main(2, lua_argv);

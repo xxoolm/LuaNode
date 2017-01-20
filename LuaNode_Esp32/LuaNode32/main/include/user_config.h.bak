@@ -63,7 +63,5 @@
 
 #define ENABLE_SOCK2UART	1
 
-#define VERSION		"1.2.1"
-
 #endif
 
