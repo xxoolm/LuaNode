@@ -14,6 +14,7 @@ The examples show you how to use LuaNode.
 * `dns_resolver`: A DNS resolver sample. To test this sample, connect your phone or 
 		computer to ESP32 which run this sample, and then open any link in the browser.
 		the return page will be a test page.
+* **udp_broadcast**: 
 
 ## HOW TO BUILD THE EXAMPLES
 
