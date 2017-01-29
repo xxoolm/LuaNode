@@ -13,8 +13,8 @@
 #include "tmr.h"
 
 #define USER_DATA         "ESP32_Data"
-#define EXAMPLE_WIFI_SSID "TP-LINK_93D966"
-#define EXAMPLE_WIFI_PASS "wang11113388"
+#define EXAMPLE_WIFI_SSID "TP-LINK_router"
+#define EXAMPLE_WIFI_PASS "123456789"
 #define TMP_TASK_PRIORITY		13
 #define SEND_TASK_PRIORITY		12
 
