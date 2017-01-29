@@ -262,6 +262,7 @@ void* platform_get_last_free_ram( unsigned id );
  */
 uint32_t platform_flash_mapped2phys (uint32_t mapped_addr);
 
+uint32_t platform_get_flash_size(uint32_t phy_start_addr);
 
 #define PLATFORM_ALIGNMENT __attribute__((aligned(4)))
 #define PLATFORM_ALIGNMENT_PACKED __attribute__((aligned(4),packed))

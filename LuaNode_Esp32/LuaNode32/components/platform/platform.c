@@ -14,6 +14,7 @@
 #include "esp32-hal-gpio.h"
 #include "esp32-hal-i2c.h"
 #include "extras/soc_ext.h"
+#include "platform_partition.h"
 // Platform specific includes
 
 #include "rom.h"
@@ -25,6 +26,12 @@
 #include <stdlib.h>
 
 i2c_t *i2c;
+
+uint16_t flash_safe_get_sec_num(void);
+
+#define FLASH_SEC_NUM		(flash_safe_get_sec_num())
+#define SYS_PARAM_SEC_NUM	4
+#define SYS_PARAM_SEC_START	(FLASH_SEC_NUM - SYS_PARAM_SEC_NUM)
 
 //static void pwms_init();
 
@@ -450,7 +457,10 @@ int platform_spi_transaction( uint8_t id, uint8_t cmd_bitlen, spi_data_type cmd_
 
 // ****************************************************************************
 // Flash access functions
-
+uint32_t platform_get_flash_size(uint32_t phy_start_addr)
+{
+  return ((SYS_PARAM_SEC_START * INTERNAL_FLASH_SECTOR_SIZE) - phy_start_addr);
+}
 
 uint32_t platform_flash_mapped2phys (uint32_t mapped_addr)
 {

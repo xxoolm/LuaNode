@@ -65,5 +65,7 @@
 
 #define VERSION		"1.2.1"
 
+#define FLASH_READ_SIZE		1024
+
 #endif
 
