@@ -1079,9 +1079,18 @@ espconn_server_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
         	/*switch the state of espconn for application process*/
         	precv_cb->pespconn ->state = ESPCONN_READ;
         	precv_cb->pcommon.pcb = pcb;
+			espconn_printf("server prepare to call callback: \n");
+			if (precv_cb->pespconn->proto.tcp->connect_callback == NULL) {
+				espconn_printf("connect_callback is null! \n");
+			} else {
+				espconn_printf("connect_callback is not null! \n");
+			}
             if (precv_cb->pespconn->recv_callback != NULL) {
+				espconn_printf("server has called callback: \n");
             	precv_cb->pespconn->recv_callback(precv_cb->pespconn, (char*)data_ptr, data_cntr);
-            }
+            } else {
+				espconn_printf("recv_callback is null! \n");
+			}
 
             /*switch the state of espconn for next packet copy*/
             if (pcb->state == ESTABLISHED)

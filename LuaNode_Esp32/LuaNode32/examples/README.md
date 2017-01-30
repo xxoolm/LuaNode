@@ -11,6 +11,7 @@ The examples show you how to use LuaNode.
 			open `192.168.4.1` on browser, you'll see a test page, 
 			which echo `This is a test`, returned 
 			from ESP32.
+* **tcp_server_espconn**: A simple tcp server sample utilizing _espconn_
 * **dns_resolver**: A DNS resolver sample. To test this sample, connect your phone or 
 		computer to ESP32 which run this sample, and then open any link in the browser.
 		the return page will be a test page.

@@ -12,19 +12,19 @@
 #include "espconn.h"
 #include "tmr.h"
 
-#define USER_DATA         "ESP32_Data"
-#define EXAMPLE_WIFI_SSID "TP-LINK_router"
-#define EXAMPLE_WIFI_PASS "123456789"
+#define FEEDBACK_DATA			"ESP32_Data"
+#define EXAMPLE_WIFI_SSID		"TP-LINK_93D966"
+#define EXAMPLE_WIFI_PASS		"wang11113388"
 #define TMP_TASK_PRIORITY		13
-#define SEND_TASK_PRIORITY		12
+#define TCP_TASK_PRIORITY		12
+#define LOCAL_PORT				11000
+#define REMOTE_PORT				6000
 
-static uint8 udpServerIP[] = { 192, 168, 1, 255 };
 static struct espconn *_ptrUDPServer;
 static EventGroupHandle_t wifi_event_group;
-
+static int srv_timeout = 60 * 60;	// disconnect when the server didn't receive data in the past 1 hour
 const int CONNECTED_BIT = BIT0;
 static const char *TAG = "main";
-
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
@@ -69,16 +69,32 @@ static void initialise_wifi(void)
 	ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-static void send_task(void *pvParameters)
+void disconnect_cb(void *arg)
 {
-	espconn_create(_ptrUDPServer);
-	while(1) {
-		tmr_delay_msec(3000);
-		ESP_LOGI(TAG, "broadcast data");
-		espconn_sent(_ptrUDPServer, (uint8 *) USER_DATA, (uint16) strlen(USER_DATA));
-	}
-	espconn_delete(_ptrUDPServer);
-	vTaskDelete(NULL);
+	ESP_LOGI(TAG, "disconnected");
+}
+
+void receive_cb(void *arg, char *pdata, unsigned short len)
+{
+	struct espconn *pespconn = (struct espconn *) arg;
+	ESP_LOGI(TAG, "received data");
+	ESP_LOGI(TAG, "received data: %s, len=%d", pdata, len);
+	//espconn_sent(pespconn, (uint8*)FEEDBACK_DATA, strlen(FEEDBACK_DATA));
+}
+
+void send_cb(void *arg)
+{
+	ESP_LOGI(TAG, "sent data");
+}
+
+void connect_cb(void *arg)
+{
+	struct espconn *pespconn = (struct espconn *) arg;
+	ESP_LOGI(TAG, "connected");
+	espconn_regist_disconcb(pespconn, disconnect_cb);
+	espconn_regist_recvcb(pespconn, receive_cb);
+	espconn_regist_sentcb(pespconn, send_cb);
+	//espconn_sent(pespconn, (uint8*)FEEDBACK_DATA, strlen(FEEDBACK_DATA));
 }
 
 static void tmp_task(void *pvParameters)
@@ -90,16 +106,21 @@ static void tmp_task(void *pvParameters)
 
 		// start espconn
 		_ptrUDPServer = (struct espconn *) malloc(sizeof(struct espconn));
-		_ptrUDPServer->type = ESPCONN_UDP;
+		_ptrUDPServer->type = ESPCONN_TCP;
 		_ptrUDPServer->state = ESPCONN_NONE;
-		_ptrUDPServer->proto.udp = (esp_udp *) malloc(sizeof(esp_udp));
-		_ptrUDPServer->proto.udp->local_port = espconn_port();
-		_ptrUDPServer->proto.udp->remote_port = 11000;
-		memcpy(_ptrUDPServer->proto.udp->remote_ip, udpServerIP, 4);
+		_ptrUDPServer->proto.tcp = (esp_tcp *) malloc(sizeof(esp_tcp));
+		_ptrUDPServer->proto.tcp->local_port = LOCAL_PORT;
+		//_ptrUDPServer->proto.tcp->remote_port = REMOTE_PORT;
 
-		xTaskCreate(&send_task, "send_task", 4096, NULL, SEND_TASK_PRIORITY, NULL);
+		espconn_regist_connectcb(_ptrUDPServer, connect_cb);
+		ESP_LOGI(TAG, "wait for client");
+		espconn_accept(_ptrUDPServer);
+		espconn_regist_time(_ptrUDPServer, srv_timeout, 0);
 
-		break;
+		while(1) {
+			tmr_delay_msec(5000);
+			ESP_LOGI(TAG, "tmp_task loop");
+		}
 	}
 	vTaskDelete(NULL);
 }
@@ -109,6 +130,6 @@ void app_main()
 	nvs_flash_init();
     initialise_wifi();
 
-	xTaskCreate(&tmp_task, "tmp_task", 1536, NULL, TMP_TASK_PRIORITY, NULL);
+	xTaskCreate(&tmp_task, "tmp_task", 4096, NULL, TMP_TASK_PRIORITY, NULL);
 
 }
