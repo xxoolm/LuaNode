@@ -11,11 +11,16 @@ The examples show you how to use LuaNode.
 			open `192.168.4.1` on browser, you'll see a test page, 
 			which echo `This is a test`, returned 
 			from ESP32.
-* **tcp_server_espconn**: A simple tcp server sample utilizing _espconn_
+* **tcp_server_espconn**: A simple tcp server sample create with _espconn_. The server 
+		listen port 11000. When client send data, the server will print the data.
+* **tcp_client_espconn**: A tcp client create with _espconn_. To test this sample, make 
+		sure the client and the server connected with the same network segment, 
+		and the server listen the port 11000, than the server can receive data sent 
+		from client.
 * **dns_resolver**: A DNS resolver sample. To test this sample, connect your phone or 
 		computer to ESP32 which run this sample, and then open any link in the browser.
 		the return page will be a test page.
-* **udp_broadcast**: A UDP broadcast sample utilized _espconn_. In this sample, we create 
+* **udp_broadcast**: A UDP broadcast sample create with _espconn_. In this sample, we create 
 		a task to broadcast UDP message repeatedly. The remote port is set to 11000. 
 		If you create a UDP server to listen the port, you'll receive the message sent from 
 		ESP32 device. Don't forget to modified the macro EXAMPLE_WIFI_SSID and EXAMPLE_WIFI_PASS to 
