@@ -27,7 +27,8 @@ The examples show you how to use LuaNode.
 		ESP32 device. Don't forget to modified the macro EXAMPLE_WIFI_SSID and EXAMPLE_WIFI_PASS to 
 		valid value.
 * **telnet_server**: A simple telnet server sample. When you connect with ESP32 using telnet, and then 
-		input command `hello`, it will echo `hello back`
+		input command `hello`, it will echo `hello back`.
+* **lwip_raw_api**: A RAW API sample. Show you how to use LwIP RAW API.
 
 ## HOW TO BUILD THE EXAMPLES
 

@@ -17,7 +17,8 @@ New version of LuaNode is developed based on esp-idf and compatible with `Esplor
 ![github](http://ww1.sinaimg.cn/mw690/999babe3gw1f9mtxsz3pzj20tv0jx11k.jpg "ESP32")
 
 ### How To Build LuaNode32
-* Download build tools [Here](https://www.jianguoyun.com/p/DZYjgb4Q2bSDBhj8xx8 "toolchains")
+* Download prebuild toolchain [Here](https://github.com/jmattsson/nodemcu-prebuilt-toolchains "toolchains"), you 
+  can also build the tools from source, follow the steps [Here](http://esp-idf.readthedocs.io/en/latest/linux-setup.html "How to build toolchain")
 * Export build tools' directory by executing the following command on terminal,
   `export PATH=/your_path/toolchains/esp32/bin:$PATH`, where the `your_path` is the
   path the toolchains stored.
@@ -142,7 +143,7 @@ CONTACT ME:
 
 If you have any question, you can contact me via Email/QQ list below, Thanks:) 
 
-  - `Email`: nicholas3388@gmail.com
+  - `Email`: 535873968@qq.com
   - `QQ`: 535873968
 
 
@@ -156,3 +157,6 @@ CHANGE LOG:
 
 2016.5.11
     Replace libc
+
+2017.1.19
+	Update to the latest esp-idf
