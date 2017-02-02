@@ -12,9 +12,10 @@
 #include "espconn.h"
 #include "tmr.h"
 
-#define FEEDBACK1					"\r\nhello back\r\n"
-#define FEEDBACK2					"\r\nok\r\n"
-#define FEEDBACK3					"\r\ninvalid command\r\n"
+#define FEEDBACK1				"\r\nhello back\r\n"
+#define FEEDBACK2				"\r\nok\r\n"
+#define FEEDBACK3				"\r\ninvalid command\r\n"
+#define PROMPT					"You can input the following command:\r\n1. hello\r\n2. test\r\n"
 #define EXAMPLE_WIFI_SSID		"TP-LINK_93D966"
 #define EXAMPLE_WIFI_PASS		"123456"
 #define CMD1					"hello"
@@ -121,6 +122,7 @@ void connect_cb(void *arg)
 	espconn_regist_disconcb(pespconn, disconnect_cb);
 	espconn_regist_recvcb(pespconn, receive_cb);
 	espconn_regist_sentcb(pespconn, send_cb);
+	espconn_sent(pespconn, (uint8 *)PROMPT, strlen(PROMPT));
 }
 
 static void tmp_task(void *pvParameters)

@@ -155,7 +155,6 @@ static void tmp_task(void *pvParameters)
 void app_main()
 {
 	nvs_flash_init();
-	tcpip_adapter_init();
     initialise_wifi();
 
 	xTaskCreate(&tmp_task, "tmp_task", 4096, NULL, TMP_TASK_PRIORITY, NULL);
