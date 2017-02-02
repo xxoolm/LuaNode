@@ -25,6 +25,8 @@ The examples show you how to use LuaNode.
 		If you create a UDP server to listen the port, you'll receive the message sent from 
 		ESP32 device. Don't forget to modified the macro EXAMPLE_WIFI_SSID and EXAMPLE_WIFI_PASS to 
 		valid value.
+* **telnet_server**: A simple telnet server sample. When you connect with ESP32 using telnet, and then 
+		input command `hello`, it will echo `hello back`
 
 ## HOW TO BUILD THE EXAMPLES
 

@@ -492,7 +492,7 @@ espconn_tcp_sent(void *arg, uint8 *psent, uint16 length)
     u16_t len = 0;
     uint8_t data_to_send = false;
 
-    espconn_printf("espconn_tcp_sent ptcp_sent %p psent %p length %d\n", ptcp_sent, psent, length);
+    //espconn_printf("espconn_tcp_sent ptcp_sent %p psent %p length %d\n", ptcp_sent, psent, length);
 
     /*Check the parameters*/
     if (ptcp_sent == NULL || psent == NULL || length == 0) {
@@ -968,7 +968,7 @@ espconn_tcp_client(struct espconn *espconn)
     } else {
 
     	/*insert the node to the active connection list*/
-    	espconn_list_creat(&plink_active, pclient);
+    	espconn_list_creat(&plink_active, pclient); //printf("espconn_msg 3: %p\n", pclient);
     	tcp_arg(pcb, (void *)pclient);
     	tcp_err(pcb, espconn_client_err);
     	pclient->preverse = NULL;
@@ -1055,7 +1055,7 @@ espconn_server_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 	espconn_msg *precv_cb = arg;
 
     tcp_arg(pcb, arg);
-    espconn_printf("server has application data received: \n");
+    //espconn_printf("server has application data received: \n");
     if (p != NULL) {
     	/*To update and advertise a larger window*/
 		if(precv_cb->recv_hold_flag == 0)
@@ -1079,18 +1079,18 @@ espconn_server_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
         	/*switch the state of espconn for application process*/
         	precv_cb->pespconn ->state = ESPCONN_READ;
         	precv_cb->pcommon.pcb = pcb;
-			espconn_printf("server prepare to call callback: \n");
+			/*espconn_printf("server prepare to call callback: \n");
 			if (precv_cb->pespconn->proto.tcp->connect_callback == NULL) {
 				espconn_printf("connect_callback is null! \n");
 			} else {
 				espconn_printf("connect_callback is not null! \n");
-			}
+			}*/
             if (precv_cb->pespconn->recv_callback != NULL) {
-				espconn_printf("server has called callback: \n");
+				//espconn_printf("server has called callback: \n");
             	precv_cb->pespconn->recv_callback(precv_cb->pespconn, (char*)data_ptr, data_cntr);
-            } else {
+            } /*else {
 				espconn_printf("recv_callback is null! \n");
-			}
+			}*/
 
             /*switch the state of espconn for next packet copy*/
             if (pcb->state == ESTABLISHED)
@@ -1100,7 +1100,7 @@ espconn_server_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
         /*to prevent memory leaks, ensure that each allocated is deleted*/
         free(data_ptr);
         data_ptr = NULL;
-        espconn_printf("server's application data has been processed: \n");
+        //espconn_printf("server's application data has been processed: \n");
     } else {
         if (p != NULL) {
             pbuf_free(p);
@@ -1291,6 +1291,7 @@ espconn_tcp_accept(void *arg, struct tcp_pcb *pcb, err_t err)
 
 	/*Creates a new active connect control message*/
     paccept = (espconn_msg *)malloc(sizeof(espconn_msg));
+	memset(paccept, 0, sizeof(espconn_msg));
     tcp_arg(pcb, paccept);
 
 	if (paccept == NULL)
@@ -1362,6 +1363,7 @@ espconn_tcp_server(struct espconn *espconn)
     if (pserver == NULL){
     	return ESPCONN_MEM;
     }
+	memset(pserver, 0, sizeof(espconn_msg));
 
     /*Creates a new TCP protocol control block*/
     pcb = tcp_new();
@@ -1379,7 +1381,7 @@ espconn_tcp_server(struct espconn *espconn)
         pcb = tcp_listen(pcb);
         if (pcb != NULL) {
         	/*insert the node to the active connection list*/
-        	espconn_list_creat(&pserver_list, pserver);
+        	espconn_list_creat(&pserver_list, pserver); printf("espconn_msg 2: %p\n", pserver);
         	pserver->preverse = pcb;
         	pserver->pespconn = espconn;
         	pserver->count_opt = MEMP_NUM_TCP_PCB;

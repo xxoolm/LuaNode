@@ -247,7 +247,7 @@ bool ICACHE_FLASH_ATTR espconn_find_connection(struct espconn *pespconn, espconn
     /*find the active connection node*/
     for (plist = plink_active; plist != NULL; plist = plist->pnext){
 		if (pespconn == plist->pespconn) {
-			*pnode = plist;
+			*pnode = plist; 
 			return true;
 		}
 	}
@@ -271,7 +271,7 @@ bool ICACHE_FLASH_ATTR espconn_find_connection(struct espconn *pespconn, espconn
 						plist->pcommon.remote_ip[1], plist->pcommon.remote_ip[2],
 						plist->pcommon.remote_ip[3]);
 				if ((ip_list.u_addr.ip4.addr == ip_remot.u_addr.ip4.addr)	&& (pespconn->proto.tcp->remote_port == plist->pcommon.remote_port)) {
-					*pnode = plist;
+					*pnode = plist; 
 					return true;
 				}
 			}
@@ -469,9 +469,10 @@ espconn_sent(struct espconn *espconn, uint8 *psent, uint16 length)
 						pbuf->len = length;
 						/*insert the espconn_pbuf to the list*/
 						espconn_pbuf_create(&pnode->pcommon.pbuf, pbuf);
-						if (pnode->pcommon.ptail == NULL)
+						if (pnode->pcommon.ptail == NULL) {
 							pnode->pcommon.ptail = pbuf;
-	printf("espconn_pbuf_create %p pesp_buf %p\n",pnode,pnode->pcommon.pbuf);
+						}
+	//printf("espconn_pbuf_create %p pesp_buf %p\n",pnode,pnode->pcommon.pbuf);
 					}
 					/*when set the data copy option. change the flag for next packet*/
 					if (espconn_copy_disabled(pnode))
