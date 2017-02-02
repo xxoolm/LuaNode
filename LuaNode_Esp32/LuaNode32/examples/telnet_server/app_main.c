@@ -16,7 +16,7 @@
 #define FEEDBACK2					"\r\nok\r\n"
 #define FEEDBACK3					"\r\ninvalid command\r\n"
 #define EXAMPLE_WIFI_SSID		"TP-LINK_93D966"
-#define EXAMPLE_WIFI_PASS		"wang11113388"
+#define EXAMPLE_WIFI_PASS		"123456"
 #define CMD1					"hello"
 #define CMD2					"test"
 #define TMP_TASK_PRIORITY		13
