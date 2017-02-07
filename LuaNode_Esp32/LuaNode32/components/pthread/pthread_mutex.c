@@ -44,7 +44,7 @@ static int _check_attr(const pthread_mutexattr_t *attr) {
    return 0;
 }
 
-int pthread_mutex_init(pthread_mutex_t *mut, const pthread_mutexattr_t *attr) {
+int pthread_mutex_extend_init(pthread_mutex_extend_t *mut, const pthread_mutexattr_t *attr) {
     struct pthread_mutex *mutex;
     int res;
 
@@ -104,7 +104,7 @@ int pthread_mutex_init(pthread_mutex_t *mut, const pthread_mutexattr_t *attr) {
     return 0;    
 }
 
-int pthread_mutex_lock(pthread_mutex_t *mut) {
+int pthread_mutex_extend_lock(pthread_mutex_extend_t *mut) {
     struct pthread_mutex *mutex;
     int res;
 
@@ -133,7 +133,7 @@ int pthread_mutex_lock(pthread_mutex_t *mut) {
     return 0;
 }
 
-int pthread_mutex_unlock(pthread_mutex_t *mut) {
+int pthread_mutex_extend_unlock(pthread_mutex_extend_t *mut) {
     struct pthread_mutex *mutex;
     int res;
 
@@ -154,7 +154,7 @@ int pthread_mutex_unlock(pthread_mutex_t *mut) {
     return 0;
 }
 
-int pthread_mutex_trylock(pthread_mutex_t *mut) {
+int pthread_mutex_trylock(pthread_mutex_extend_t *mut) {
     struct pthread_mutex *mutex;
     int res;
     
@@ -181,7 +181,7 @@ int pthread_mutex_trylock(pthread_mutex_t *mut) {
     return 0;
 }
 
-int pthread_mutex_destroy(pthread_mutex_t *mut) {
+int pthread_mutex_extend_destroy(pthread_mutex_extend_t *mut) {
     struct pthread_mutex *mutex;
     int res;
     

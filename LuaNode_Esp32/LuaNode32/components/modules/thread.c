@@ -44,7 +44,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include "list.h"
+#include "pt_list.h"
 
 #define LTHREAD_STATUS_RUNNING   1
 #define LTHREAD_STATUS_SUSPENDED 2
@@ -298,7 +298,8 @@ static int new_thread(lua_State* L, int run) {
 	
     // Create pthread
     pthread_attr_init(&attr);
-    pthread_attr_setstacksize(&attr, defaultThreadStack);
+    //pthread_attr_setstacksize(&attr, defaultThreadStack);
+	pthread_attr_setstacksize(&attr, 2048);
 
     if (run)  {
         pthread_attr_setinitialstate(&attr, PTHREAD_INITIAL_STATE_RUN);

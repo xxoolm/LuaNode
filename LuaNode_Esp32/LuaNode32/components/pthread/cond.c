@@ -73,19 +73,19 @@ int pthread_cond_destroy(pthread_cond_t *cond) {
 	return 0; 
 }
 
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {    
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_extend_t *mutex) {    
     // Init condition, if not
     pthread_cond_init(cond, NULL);
     
     // Wait for condition
     mtx_lock(&cond->mutex);
-    pthread_mutex_unlock(mutex);
+    pthread_mutex_extend_unlock(mutex);
     
     return 0;
 }
   
 int pthread_cond_timedwait(pthread_cond_t *cond, 
-    pthread_mutex_t *mutex, const struct timespec *abstime) { 
+    pthread_mutex_extend_t *mutex, const struct timespec *abstime) { 
     
     // Init condition, if not
     pthread_cond_init(cond, NULL);
@@ -106,7 +106,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond,
 #endif
     
     mtx_lock(&cond->mutex);
-    pthread_mutex_unlock(mutex);
+    pthread_mutex_extend_unlock(mutex);
     
     return 0;
 }

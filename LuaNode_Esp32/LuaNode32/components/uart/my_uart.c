@@ -181,5 +181,5 @@ void uart_init(void)
 	ESP_UART0_INTR_ATTACH(uart0_rx_intr_handler, NULL);
 	ESP_UART0_INTR_ENABLE();
 	xQueueUart = xQueueCreate(32, sizeof(os_event_t));
-	xTaskCreate(uart_task, "uart_task", 3072, NULL, 10, &xUartTaskHandle);
+	xTaskCreate(uart_task, "uart_task", 4096, NULL, 10, &xUartTaskHandle);
 }

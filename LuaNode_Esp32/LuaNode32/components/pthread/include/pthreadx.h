@@ -36,7 +36,7 @@
 #include "freertos/semphr.h"
 
 #include "mutex.h"
-#include "list.h"
+#include "pt_list.h"
 #include <sys/time.h>
 
 #include <signal.h>
@@ -76,7 +76,7 @@ struct pthread_mutex {
     int type;
 };
 
-typedef unsigned int pthread_mutex_t;
+typedef unsigned int pthread_mutex_extend_t;
 typedef unsigned int pthread_condattr_t;
 typedef int pthread_t;
 typedef int pthread_key_t;
@@ -166,13 +166,13 @@ int pthread_key_create(pthread_key_t *k, void (*destructor)(void*));
 int pthread_setspecific(pthread_key_t k, const void *value);
 void *pthread_getspecific(pthread_key_t k);
 
-int pthread_mutex_init(pthread_mutex_t *mut, const pthread_mutexattr_t *attr);
-int pthread_mutex_lock(pthread_mutex_t *mut);
-int pthread_mutex_unlock(pthread_mutex_t *mut);
-int pthread_mutex_trylock(pthread_mutex_t *mut);
+int pthread_mutex_extend_init(pthread_mutex_extend_t *mut, const pthread_mutexattr_t *attr);
+int pthread_mutex_extend_lock(pthread_mutex_extend_t *mut);
+int pthread_mutex_extend_unlock(pthread_mutex_extend_t *mut);
+int pthread_mutex_trylock(pthread_mutex_extend_t *mut);
 int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int type);
 int pthread_mutexattr_init(pthread_mutexattr_t *attr);
-int pthread_mutex_destroy(pthread_mutex_t *mutex);
+int pthread_mutex_extend_destroy(pthread_mutex_extend_t *mutex);
 
 int pthread_once(pthread_once_t *once_control, void (*init_routine)(void));
     
@@ -180,8 +180,8 @@ pthread_t pthread_self(void);
 
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
 int pthread_cond_destroy(pthread_cond_t *cond);
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
-int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_extend_t *mutex);
+int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_extend_t *mutex, const struct timespec *abstime);
 
 void pthread_cleanup_push(void (*routine)(void *), void *arg);
 
