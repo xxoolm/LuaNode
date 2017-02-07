@@ -14,8 +14,12 @@ NEW UPDATE FOR ESP32:
 
 New version of LuaNode32 is developed based on esp-idf and compatible with `Esplorer`.
 
+The following figures show the DOIT ESP32 dev-kit. To buy the ESP32 dev-kit click [Here](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-7420449993.9.yduA0V&id=542459608596)
+
+ 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-kit")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-kit back")
+
 
 ### How To Build LuaNode32
 * Download prebuild toolchain [Here](https://github.com/jmattsson/nodemcu-prebuilt-toolchains "toolchains"), you 
