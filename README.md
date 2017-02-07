@@ -12,9 +12,10 @@ some of them are not support multi-task.
 NEW UPDATE FOR ESP32:
 --------------------------------------
 
-New version of LuaNode is developed based on esp-idf and compatible with `Esplorer`.
+New version of LuaNode32 is developed based on esp-idf and compatible with `Esplorer`.
 
-![github](http://ww1.sinaimg.cn/mw690/999babe3gw1f9mtxsz3pzj20tv0jx11k.jpg "ESP32")
+![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-kit")
+![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-kit back")
 
 ### How To Build LuaNode32
 * Download prebuild toolchain [Here](https://github.com/jmattsson/nodemcu-prebuilt-toolchains "toolchains"), you 
