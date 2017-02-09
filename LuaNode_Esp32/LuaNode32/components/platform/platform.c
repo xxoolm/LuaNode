@@ -15,6 +15,7 @@
 #include "esp32-hal-i2c.h"
 #include "extras/soc_ext.h"
 #include "platform_partition.h"
+#include "driver/ledc.h"
 // Platform specific includes
 
 #include "rom.h"
@@ -256,100 +257,89 @@ static uint16_t pwms_duty[NUM_PWM] = {0};
 uint32_t platform_pwm_get_clock( void )
 {
   // NODE_DBG("Function platform_pwm_get_clock() is called.\n");
-  return (uint32_t)pwm_get_period();
+  uint32_t freq = ledc_get_freq(LEDC_HIGH_SPEED_MODE, LEDC_TIMER_0);
+  return (uint32_t)freq;
 }
 
 // Set the PWM clock
 uint32_t platform_pwm_set_clock( unsigned pin, uint32_t clock )
 {
   // NODE_DBG("Function platform_pwm_set_clock() is called.\n");
-  if( pin >= NUM_PWM)
-    return 0;
-  if(!pwm_exist(pin))
-    return 0;
-
-  pwm_set_freq((uint16_t)clock, pin);
-  pwm_start();
-  return (uint32_t)pwm_get_freq( pin );
+  ledc_set_freq(LEDC_HIGH_SPEED_MODE, LEDC_TIMER_0, clock);
+  return (uint32_t)clock;
 }
 
-uint32_t platform_pwm_get_duty( unsigned pin )
+uint32_t platform_pwm_get_duty( unsigned channel )
 {
   // NODE_DBG("Function platform_pwm_get_duty() is called.\n");
-  if( pin < NUM_PWM){
-    if(!pwm_exist(pin))
-      return 0;
-    // return NORMAL_DUTY(pwm_get_duty(pin));
-    return pwms_duty[pin];
+  int duty = ledc_get_duty(LEDC_HIGH_SPEED_MODE, channel);
+  if(duty) {
+	return duty;
   }
   return 0;
 }
 
 // Set the PWM duty
-uint32_t platform_pwm_set_duty( unsigned pin, uint32_t duty )
+uint32_t platform_pwm_set_duty( unsigned channel, uint32_t duty )
 {
   // NODE_DBG("Function platform_pwm_set_duty() is called.\n");
-  if ( pin < NUM_PWM)
-  {
-    if(!pwm_exist(pin))
-      return 0;
-    pwm_set_duty(DUTY(duty), pin);
-  } else {
-    return 0;
-  }
-  pwm_start();
-  pwms_duty[pin] = NORMAL_DUTY(pwm_get_duty(pin));
-  return pwms_duty[pin];
+  ledc_set_duty(LEDC_HIGH_SPEED_MODE, channel, duty);	//the new duty is not valid, until ledc_update_duty is called
+  ledc_update_duty(LEDC_HIGH_SPEED_MODE, channel);
+  return duty;
 }
 
-uint32_t platform_pwm_setup( unsigned pin, uint32_t frequency, unsigned duty )
+uint32_t platform_pwm_setup( unsigned pin, uint32_t frequency, unsigned duty, unsigned channel )
 {
-  /*uint32_t clock;
-  if ( pin < NUM_PWM)
-  {
-    platform_gpio_mode(pin, PLATFORM_GPIO_OUTPUT, PLATFORM_GPIO_FLOAT);  // disable gpio interrupt first
-    if(!pwm_add(pin)) 
-      return 0;
-    // pwm_set_duty(DUTY(duty), pin);
-    pwm_set_duty(0, pin);
-    pwms_duty[pin] = duty;
-    pwm_set_freq((uint16_t)frequency, pin);
-  } else {
-    return 0;
-  }
-  clock = platform_pwm_get_clock( pin );
-  pwm_start();
-  return clock;*/
-  uint32_t pin_info_list[3] = {pin, pin, pin};
-  pwm_init(frequency, &duty, pin, &pin_info_list);
+  ledc_timer_config_t ledc_timer = {
+        //set timer counter bit number
+        .bit_num = LEDC_TIMER_13_BIT,
+        //set frequency of pwm
+        .freq_hz = frequency,
+        //timer mode,
+        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        //timer index
+        .timer_num = LEDC_TIMER_0
+  };
+  ledc_timer_config(&ledc_timer);
+
+  ledc_channel_config_t ledc_channel = {
+        //set LEDC channel 0
+        .channel = channel,
+        //set the duty for initialization.(duty range is 0 ~ ((2**bit_num)-1)
+        .duty = duty,
+        //GPIO number
+        .gpio_num = pin,
+        //GPIO INTR TYPE, as an example, we enable fade_end interrupt here.
+        .intr_type = LEDC_INTR_FADE_END,
+        //set LEDC mode, from ledc_mode_t
+        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        //set LEDC timer source, if different channel use one timer,
+        //the frequency and bit_num of these channels should be the same
+        .timer_sel = LEDC_TIMER_0
+  };
+  //set the configuration
+  ledc_channel_config(&ledc_channel);
+
+  return frequency;
 }
 
 void platform_pwm_close( unsigned pin )
 {
   // NODE_DBG("Function platform_pwm_stop() is called.\n");
-  if ( pin < NUM_PWM)
-  {
-    pwm_delete(pin);
-    pwm_start();
-  }
+  // deprecated
 }
 
 void platform_pwm_start(void)
 {
   // NODE_DBG("Function platform_pwm_start() is called.\n");
-  pwm_start();
+  //deprecated
 }
 
-void platform_pwm_stop( unsigned pin )
+void platform_pwm_stop( unsigned channel )
 {
   // NODE_DBG("Function platform_pwm_stop() is called.\n");
-  if ( pin < NUM_PWM)
-  {
-    if(!pwm_exist(pin))
-      return;
-    pwm_set_duty(0, pin);
-    pwm_start();
-  }
+  int output_idle_level = 0;
+  ledc_stop(LEDC_HIGH_SPEED_MODE, channel, output_idle_level);
 }
 
 // *****************************************************************************

@@ -163,14 +163,14 @@ int platform_s_uart_set_flow_control( unsigned id, int type );
 
 // The platform PWM functions
 int platform_pwm_exists( unsigned id );
-uint32_t platform_pwm_setup( unsigned id, uint32_t frequency, unsigned duty );
+uint32_t platform_pwm_setup( unsigned pin, uint32_t frequency, unsigned duty, unsigned channel );
 void platform_pwm_close( unsigned id );
 void platform_pwm_start(void);
-void platform_pwm_stop( unsigned id );
+void platform_pwm_stop( unsigned channel );
 uint32_t platform_pwm_set_clock( unsigned id, uint32_t data );
 uint32_t platform_pwm_get_clock( void );
-uint32_t platform_pwm_set_duty( unsigned id, uint32_t data );
-uint32_t platform_pwm_get_duty( unsigned id );
+uint32_t platform_pwm_set_duty( unsigned channel, uint32_t duty );
+uint32_t platform_pwm_get_duty( unsigned channel );
 
 
 // *****************************************************************************

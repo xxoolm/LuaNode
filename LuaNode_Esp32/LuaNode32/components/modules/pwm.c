@@ -6,12 +6,15 @@
 #include "c_types.h"
 #include "lualib.h"
 
+#define MAX_DUTY		(8192-1)
+
 // Lua: realfrequency = setup( id, frequency, duty )
 static int lpwm_setup( lua_State* L )
 {
   s32 freq;	  // signed, to error check for negative values
   unsigned duty;
   unsigned id;
+  unsigned channel;
   
   id = luaL_checkinteger( L, 1 );
   if(id==0)
@@ -21,10 +24,13 @@ static int lpwm_setup( lua_State* L )
   if ( freq <= 0 )
     return luaL_error( L, "wrong arg range" );
   duty = luaL_checkinteger( L, 3 );
-  if ( duty > NORMAL_PWM_DEPTH )
+  if ( duty > MAX_DUTY )
     // Negative values will turn out > 100, so will also fail.
-    return luaL_error( L, "wrong arg range" );
-  freq = platform_pwm_setup( id, (u32)freq, duty );
+    return luaL_error( L, "duty should lower than 8192" );
+  channel = luaL_checkinteger( L, 4 );
+  if (channel > 7)
+    return luaL_error( L, "channel range from 0 to 7" );
+  freq = platform_pwm_setup( id, (u32)freq, duty, channel );
   if(freq==0)
     return luaL_error( L, "too many pwms." );
   lua_pushinteger( L, freq );
@@ -50,7 +56,7 @@ static int lpwm_start( lua_State* L )
   return 0;  
 }
 
-// Lua: stop( id )
+// Lua: stop( channel )
 static int lpwm_stop( lua_State* L )
 {
   unsigned id;
@@ -61,36 +67,36 @@ static int lpwm_stop( lua_State* L )
   return 0;  
 }
 
-// Lua: realclock = setclock( id, clock )
-static int lpwm_setclock( lua_State* L )
+// Lua: realclock = setfreq( freq )
+static int lpwm_setfreq( lua_State* L )
 {
   unsigned id;
-  s32 clk;	// signed to error-check for negative values
+  s32 freq;	// signed to error-check for negative values
   
-  id = luaL_checkinteger( L, 1 );
+  //id = luaL_checkinteger( L, 1 );
   //MOD_CHECK_ID( pwm, id );
-  clk = luaL_checkinteger( L, 2 );
-  if ( clk <= 0 )
+  freq = luaL_checkinteger( L, 1 );
+  if ( freq <= 0 )
     return luaL_error( L, "wrong arg range" );
-  clk = platform_pwm_set_clock( id, (u32)clk );
-  lua_pushinteger( L, clk );
+  freq = platform_pwm_set_clock( 0, (u32)freq );
+  lua_pushinteger( L, freq );
   return 1;
 }
 
-// Lua: clock = getclock( id )
-static int lpwm_getclock( lua_State* L )
+// Lua: clock = getfreq( )
+static int lpwm_getfreq( lua_State* L )
 {
   unsigned id;
   u32 clk;
   
-  id = luaL_checkinteger( L, 1 );
+  //id = luaL_checkinteger( L, 1 );
   //MOD_CHECK_ID( pwm, id );
   clk = platform_pwm_get_clock();
   lua_pushinteger( L, clk );
   return 1;
 }
 
-// Lua: realduty = setduty( id, duty )
+// Lua: realduty = setduty( channel, duty )
 static int lpwm_setduty( lua_State* L )
 {
   unsigned id;
@@ -99,8 +105,8 @@ static int lpwm_setduty( lua_State* L )
   id = luaL_checkinteger( L, 1 );
   //MOD_CHECK_ID( pwm, id );
   duty = luaL_checkinteger( L, 2 );
-  if ( duty > NORMAL_PWM_DEPTH )
-    return luaL_error( L, "wrong arg range" );
+  if ( duty > MAX_DUTY )
+    return luaL_error( L, "max duty is 8191" );
   duty = platform_pwm_set_duty( id, (u32)duty );
   lua_pushinteger( L, duty );
   return 1;
@@ -125,8 +131,8 @@ const LUA_REG_TYPE pwm_map[] = {
   { LSTRKEY( "close" ),    LFUNCVAL( lpwm_close ) },
   { LSTRKEY( "start" ),    LFUNCVAL( lpwm_start ) },
   { LSTRKEY( "stop" ),     LFUNCVAL( lpwm_stop ) },
-  { LSTRKEY( "setclock" ), LFUNCVAL( lpwm_setclock ) },
-  { LSTRKEY( "getclock" ), LFUNCVAL( lpwm_getclock ) },
+  { LSTRKEY( "setfreq" ), LFUNCVAL( lpwm_setfreq ) },
+  { LSTRKEY( "getfreq" ), LFUNCVAL( lpwm_getfreq ) },
   { LSTRKEY( "setduty" ),  LFUNCVAL( lpwm_setduty ) },
   { LSTRKEY( "getduty" ),  LFUNCVAL( lpwm_getduty ) },
   { LNILKEY, LNILVAL }
