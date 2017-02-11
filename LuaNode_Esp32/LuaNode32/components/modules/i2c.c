@@ -5,15 +5,39 @@
 #include "lualib.h"
 #include "platform.h"
 #include "esp32-hal-i2c.h"
+#include "driver/i2c.h"
 
-// Lua: speed = i2c.setup( mode, slave_addr, addr_10bit_en )
+// Lua: speed = i2c.setup( mode, port, scl, sda )
 static int i2c_setup( lua_State *L )
 {
   unsigned mode = luaL_checkinteger( L, 1 );
-  unsigned slave_addr = luaL_checkinteger( L, 2 );
-  unsigned addr_10bit_en = luaL_checkinteger( L, 3 );
+  if (mode != I2C_MODE_MASTER && mode != I2C_MODE_SLAVE) {
+	return luaL_error( L, "invalid mode" );
+  }
+  unsigned port = luaL_checkinteger( L, 2 );
+  if (port != I2C_NUM_0 && port != I2C_NUM_1) {
+	return luaL_error( L, "valid port is 0 or 1" );
+  }
+  unsigned scl = luaL_checkinteger( L, 3 );
+  unsigned sda = luaL_checkinteger( L, 4 );
 
-  lua_pushinteger( L, platform_i2c_setup(mode, slave_addr, addr_10bit_en) );
+  if (mode == I2C_MODE_SLAVE && lua_gettop(L) < 5) {
+    return luaL_error( L, "lack of argument: addr" );
+  }
+
+  if (lua_gettop( L ) > 4) {	// SLAVE mode
+	unsigned addr = luaL_checkinteger( L, 5 );
+	if (addr < 0 || addr > 127) {
+	  return luaL_error( L, "invalid addr (addr < 127)" );
+	}
+    platform_i2c_setup(mode, port, scl, sda, addr);
+	printf("I2C %d set as SLAVE\n", port);
+  } else {
+    platform_i2c_setup(mode, port, scl, sda, 0);
+	printf("I2C %d set as MASTER\n", port);
+  }
+
+  
   return 1;
 }
 
@@ -23,7 +47,7 @@ static int i2c_start( lua_State *L )
   unsigned id = luaL_checkinteger( L, 1 );
 
   //MOD_CHECK_ID( i2c, id );
-  //platform_i2c_send_start( id );
+  platform_i2c_send_start( id );
   return 0;
 }
 
@@ -33,7 +57,7 @@ static int i2c_stop( lua_State *L )
   unsigned id = luaL_checkinteger( L, 1 );
 
   //MOD_CHECK_ID( i2c, id );
-  //platform_i2c_send_stop( id );
+  platform_i2c_send_stop( id );
   return 0;
 }
 
@@ -51,22 +75,25 @@ static int i2c_address( lua_State *L )
   return 1;
 }
 
-// Lua: wrote = i2c.write( id, data1, [data2], ..., [datan] )
+// Lua: wrote = i2c.write( mode, port, addr, data1, [data2], ..., [datan] )
 // data can be either a string, a table or an 8-bit number
 static int i2c_write( lua_State *L )
 {
-#if 0
-  unsigned id = luaL_checkinteger( L, 1 );
+  unsigned mode = luaL_checkinteger( L, 1 );
+  unsigned port = luaL_checkinteger( L, 2 );
+  unsigned addr = luaL_checkinteger( L, 3 );
   const char *pdata;
   size_t datalen, i;
-  int numdata;
+  int numdata = 0;
   u32 wrote = 0;
   unsigned argn;
+  unsigned char buf[256];
+  memset(buf, 0, 256);
 
   //MOD_CHECK_ID( i2c, id );
-  if( lua_gettop( L ) < 2 )
+  if( lua_gettop( L ) < 4 )
     return luaL_error( L, "wrong arg type" );
-  for( argn = 2; argn <= lua_gettop( L ); argn ++ )
+  for( argn = 4; argn <= lua_gettop( L ); argn ++ )
   {
     // lua_isnumber() would silently convert a string of digits to an integer
     // whereas here strings are handled separately.
@@ -75,8 +102,9 @@ static int i2c_write( lua_State *L )
       numdata = ( int )luaL_checkinteger( L, argn );
       if( numdata < 0 || numdata > 255 )
         return luaL_error( L, "wrong arg range" );
-      if( platform_i2c_send_byte( id, numdata ) != 1 )
-        break;
+      //if( platform_i2c_send_byte( mode, port, numdata ) == 0 )
+      //  break;
+	  buf[wrote] = numdata;
       wrote ++;
     }
     else if( lua_istable( L, argn ) )
@@ -89,42 +117,58 @@ static int i2c_write( lua_State *L )
         lua_pop( L, 1 );
         if( numdata < 0 || numdata > 255 )
           return luaL_error( L, "wrong arg range" );
-        if( platform_i2c_send_byte( id, numdata ) == 0 )
-          break;
+        buf[wrote] = numdata;
+        wrote ++;
+        //if( platform_i2c_send_byte( mode, port, numdata ) == 0 )
+        //  break;
       }
-      wrote += i;
-      if( i < datalen )
-        break;
     }
     else
     {
       pdata = luaL_checklstring( L, argn, &datalen );
-      for( i = 0; i < datalen; i ++ )
-        if( platform_i2c_send_byte( id, pdata[ i ] ) == 0 )
-          break;
-      wrote += i;
-      if( i < datalen )
-        break;
+      for( i = 0; i < datalen; i ++ ) {
+	    buf[wrote] = pdata[i];
+        wrote ++;
+	  }
+        //if( platform_i2c_send_byte( mode, port, pdata[ i ] ) == 0 )
+        //  break;
     }
   }
+
+  int ret = platform_i2c_send_byte( mode, port, addr, buf, wrote );
+  if (mode == I2C_MODE_MASTER && ret != ESP_OK) {
+	printf("Master write slave error, IO not connected....\n");
+  }
   lua_pushinteger( L, wrote );
-#endif
   return 1;
 }
 
-// Lua: read = i2c.read( id, size )
+// Lua: read = i2c.read( mode, port, addr, len )
 static int i2c_read( lua_State *L )
 {
-  unsigned id = luaL_checkinteger( L, 1 );
-  u32 size = ( u32 )luaL_checkinteger( L, 2 ), i;
+  unsigned mode = luaL_checkinteger( L, 1 );
+  unsigned port = luaL_checkinteger( L, 2 );
+  if (port != I2C_NUM_0 && port != I2C_NUM_1) {
+	return luaL_error( L, "valid port is 0 or 1" );
+  }
+  unsigned addr = luaL_checkinteger( L, 3 );
+  unsigned len = luaL_checkinteger( L, 4 ); 
+  if (len < 0) {
+	return luaL_error( L, "read len must greater than 0" );
+  } else if (len == 0) {
+	luaL_pushresult( 0 );
+	return 1;
+  }
   luaL_Buffer b;
-  int data;
 
   //MOD_CHECK_ID( i2c, id );
-  if( size == 0 )
-    return 0;
   luaL_buffinit( L, &b );
-  //platform_i2c_recv_byte( 0, 1, &b, 256, 1 );
+  uint8_t data_rw[1024] = {0};
+  int r_size = platform_i2c_recv_byte( mode, port, addr, data_rw, len );
+  if (mode == I2C_MODE_MASTER && r_size != ESP_OK) {
+	printf("Master read slave error....\n");
+  }
+  luaL_addlstring(&b, data_rw, strlen(data_rw));
   luaL_pushresult( &b );
   return 1;
 }
@@ -137,10 +181,10 @@ const LUA_REG_TYPE i2c_map[] = {
   { LSTRKEY( "address" ),     LFUNCVAL( i2c_address ) },
   { LSTRKEY( "write" ),       LFUNCVAL( i2c_write ) },
   { LSTRKEY( "read" ),        LFUNCVAL( i2c_read ) },
- //{ LSTRKEY( "FAST" ),       LNUMVAL( PLATFORM_I2C_SPEED_FAST ) },
-  //{ LSTRKEY( "SLOW" ),        LNUMVAL( PLATFORM_I2C_SPEED_SLOW ) },
-  //{ LSTRKEY( "TRANSMITTER" ), LNUMVAL( PLATFORM_I2C_DIRECTION_TRANSMITTER ) },
-  //{ LSTRKEY( "RECEIVER" ),    LNUMVAL( PLATFORM_I2C_DIRECTION_RECEIVER ) },
+  { LSTRKEY( "MASTER" ),      LNUMVAL( I2C_MODE_MASTER ) },
+  { LSTRKEY( "SLAVE" ),       LNUMVAL( I2C_MODE_SLAVE ) },
+  { LSTRKEY( "I2C_0" ),		  LNUMVAL( I2C_NUM_0 ) },
+  { LSTRKEY( "I2C_1" ),       LNUMVAL( I2C_NUM_1 ) },
   { LNILKEY, LNILVAL }
 };
 

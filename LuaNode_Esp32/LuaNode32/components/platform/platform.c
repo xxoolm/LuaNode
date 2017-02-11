@@ -16,6 +16,7 @@
 #include "extras/soc_ext.h"
 #include "platform_partition.h"
 #include "driver/ledc.h"
+#include "driver/i2c.h"
 // Platform specific includes
 
 #include "rom.h"
@@ -33,6 +34,16 @@ uint16_t flash_safe_get_sec_num(void);
 #define FLASH_SEC_NUM		(flash_safe_get_sec_num())
 #define SYS_PARAM_SEC_NUM	4
 #define SYS_PARAM_SEC_START	(FLASH_SEC_NUM - SYS_PARAM_SEC_NUM)
+
+#define DATA_LENGTH          512  /*!<Data buffer length for test buffer*/
+#define I2C_MASTER_FREQ_HZ    100000     /*!< I2C master clock frequency */
+#define I2C_SLAVE_TX_BUF_LEN  (2*DATA_LENGTH) /*!<I2C slave tx buffer size */
+#define I2C_SLAVE_RX_BUF_LEN  (2*DATA_LENGTH) /*!<I2C slave rx buffer size */
+#define I2C_MASTER_TX_BUF_DISABLE   0   /*!< I2C master do not need buffer */
+#define I2C_MASTER_RX_BUF_DISABLE   0   /*!< I2C master do not need buffer */
+#define ACK_CHECK_EN   0x1     /*!< I2C master will check ack from slave*/
+#define ACK_VAL    0x0         /*!< I2C ack value */
+#define NACK_VAL   0x1         /*!< I2C nack value */
 
 //static void pwms_init();
 
@@ -344,21 +355,41 @@ void platform_pwm_stop( unsigned channel )
 
 // *****************************************************************************
 // I2C platform interface
-uint32_t platform_i2c_setup( uint8_t i2c_num, uint16_t slave_addr, bool addr_10bit_en ){
-  i2c = i2cInit(i2c_num, slave_addr, addr_10bit_en);
-  if (i2c == NULL) {return 1;}
-  return 0;
+void platform_i2c_setup( uint8_t mode, uint8_t port, uint8_t scl, uint8_t sda, uint8_t addr ){
+  i2c_config_t conf;
+  conf.mode = mode;
+  conf.sda_io_num = sda;
+  conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+  conf.scl_io_num = scl;
+  conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+  if (mode == I2C_MODE_MASTER) {
+    conf.master.clk_speed = I2C_MASTER_FREQ_HZ;
+  } else {
+    conf.slave.addr_10bit_en = 0;
+	conf.slave.slave_addr = addr;
+  }
+  
+  i2c_param_config(port, &conf);
+
+  if (mode == I2C_MODE_MASTER) {
+    i2c_driver_install(port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+  } else {
+    i2c_driver_install(port, conf.mode, I2C_SLAVE_RX_BUF_LEN, I2C_SLAVE_TX_BUF_LEN, 0);
+  }
+  
 }
-#if 0
+
 void platform_i2c_send_start( unsigned id ){
-  i2c_master_start();
+  i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+  i2c_master_start(cmd);
 }
 
 void platform_i2c_send_stop( unsigned id ){
-  i2c_master_stop();
+  i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+  i2c_master_stop(cmd);
 }
 
-
+#if 0
 int platform_i2c_send_address( unsigned id, uint16_t address, int direction ){
   // Convert enum codes to R/w bit value.
   // If TX == 0 and RX == 1, this test will be removed by the compiler
@@ -371,16 +402,44 @@ int platform_i2c_send_address( unsigned id, uint16_t address, int direction ){
   // Low-level returns nack (0=acked); we return ack (1=acked).
   return ! i2c_master_getAck();
 }
-
-int platform_i2c_send_byte( unsigned id, uint8_t data ){
-  i2c_master_writeByte(data);
-  // Low-level returns nack (0=acked); we return ack (1=acked).
-  return ! i2c_master_getAck();
-}
 #endif
-int platform_i2c_recv_byte( uint16_t address, bool addr_10bit, uint8_t * data, uint8_t len, bool sendStop ){
-  uint8_t r = i2cRead(i2c, address, addr_10bit, data, len, sendStop);
-  return r;
+
+int platform_i2c_send_byte( unsigned mode, unsigned port, unsigned addr, uint8_t *data, uint32_t len ){
+  if (mode == I2C_MODE_SLAVE) {
+	size_t d_size = i2c_slave_write_buffer(port, data, len, 1000 / portTICK_RATE_MS);
+	return d_size;
+  } else {
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( addr << 1 ) | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    i2c_master_write(cmd, data, len, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd); 
+	return ret;
+  }
+  return 999;
+}
+
+
+int platform_i2c_recv_byte( uint8_t mode, uint8_t port, uint8_t addr, uint8_t * data, uint32_t len ){
+  if (mode == I2C_MODE_SLAVE) {
+    int size = i2c_slave_read_buffer( port, data, len, 1000 / portTICK_RATE_MS);
+	return size;
+  } else {
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( addr << 1 ) | I2C_MASTER_READ, ACK_CHECK_EN);
+    if (len > 1) {
+        i2c_master_read(cmd, data, len - 1, ACK_VAL);
+    }
+    i2c_master_read_byte(cmd, data + len - 1, NACK_VAL);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+	return ret;
+  }
+  return len;
 }
 
 

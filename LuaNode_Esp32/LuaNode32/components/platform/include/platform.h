@@ -210,15 +210,15 @@ enum
 };
 
 // The platform UART functions
-uint32_t platform_i2c_setup( uint8_t i2c_num, uint16_t slave_addr, bool addr_10bit_en );
+void platform_i2c_setup( uint8_t mode, uint8_t port, uint8_t scl, uint8_t sda, uint8_t addr );
 void platform_uart_alt( int set );
 
 int platform_i2c_exists( unsigned id );
-//void platform_i2c_send_start( unsigned id );
-//void platform_i2c_send_stop( unsigned id );
+void platform_i2c_send_start( unsigned id );
+void platform_i2c_send_stop( unsigned id );
 //int platform_i2c_send_address( unsigned id, uint16_t address, int direction );
-//int platform_i2c_send_byte( unsigned id, uint8_t data );
-int platform_i2c_recv_byte( uint16_t address, bool addr_10bit, uint8_t * data, uint8_t len, bool sendStop );
+int platform_i2c_send_byte( unsigned mode, unsigned port, unsigned addr, uint8_t *data, uint32_t len );
+int platform_i2c_recv_byte( uint8_t mode, uint8_t port, uint8_t addr, uint8_t * data, uint32_t len );
 
 // *****************************************************************************
 // Ethernet specific functions
