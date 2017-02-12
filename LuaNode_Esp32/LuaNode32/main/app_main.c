@@ -22,7 +22,6 @@ extern nodemcu_esp_event_reg_t esp_event_cb_table;
 
 static task_handle_t esp_event_task;
 static QueueHandle_t esp_event_queue;
-static task_handle_t input_task;
 
 void init_task(void *pvParameters)
 {

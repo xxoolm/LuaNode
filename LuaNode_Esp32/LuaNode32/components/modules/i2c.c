@@ -173,6 +173,17 @@ static int i2c_read( lua_State *L )
   return 1;
 }
 
+// Lua: i2c.uninstall( i2c_num )
+static int i2c_uninstall(lua_State *L)
+{
+  unsigned num = luaL_checkinteger( L, 1 );
+  if (num != I2C_NUM_0 && num != I2C_NUM_1) {
+    return luaL_error(L, "invalid argument");
+  }
+  platform_i2c_uninstall(num);
+  return 0;
+}
+
 // Module function map
 const LUA_REG_TYPE i2c_map[] = {
   { LSTRKEY( "setup" ),       LFUNCVAL( i2c_setup ) },
@@ -181,6 +192,7 @@ const LUA_REG_TYPE i2c_map[] = {
   { LSTRKEY( "address" ),     LFUNCVAL( i2c_address ) },
   { LSTRKEY( "write" ),       LFUNCVAL( i2c_write ) },
   { LSTRKEY( "read" ),        LFUNCVAL( i2c_read ) },
+  { LSTRKEY( "uninstall" ),   LFUNCVAL( i2c_uninstall ) },
   { LSTRKEY( "MASTER" ),      LNUMVAL( I2C_MODE_MASTER ) },
   { LSTRKEY( "SLAVE" ),       LNUMVAL( I2C_MODE_SLAVE ) },
   { LSTRKEY( "I2C_0" ),		  LNUMVAL( I2C_NUM_0 ) },

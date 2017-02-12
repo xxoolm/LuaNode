@@ -6,9 +6,14 @@
 #include "platform.h"
 #include "lrotable.h"
 #include "lrodefs.h"
-
+#include "driver/uart.h"
 #include "c_types.h"
 #include "c_string.h"
+
+#define DEFAULT_TXD  (4)
+#define DEFAULT_RXD  (5)
+#define DEFAULT_RTS  (18)
+#define DEFAULT_CTS  (19)
 
 static lua_State *gL = NULL;
 static int uart_receive_rf = LUA_NOREF;
@@ -91,11 +96,10 @@ static int uart_on( lua_State* L )
 }
 
 bool uart0_echo = true;
-// Lua: actualbaud = setup( id, baud, databits, parity, stopbits, echo )
+// Lua: actualbaud = setup( id, baud, databits, parity, stopbits, flow_ctl, txd, rxd, rts, cts )
 static int uart_setup( lua_State* L )
 {
-#if 0
-  unsigned id, databits, parity, stopbits, echo = 1;
+  unsigned id, databits, parity, stopbits, flow, txd=DEFAULT_TXD, rxd=DEFAULT_RXD, rts=DEFAULT_CTS, cts=DEFAULT_RTS;
   u32 baud, res;
   
   id = luaL_checkinteger( L, 1 );
@@ -104,21 +108,35 @@ static int uart_setup( lua_State* L )
   databits = luaL_checkinteger( L, 3 );
   parity = luaL_checkinteger( L, 4 );
   stopbits = luaL_checkinteger( L, 5 );
-  if(lua_isnumber(L,6)){
-    echo = lua_tointeger(L,6);
-    if(echo!=0)
-      uart0_echo = true;
-    else
-      uart0_echo = false;
+  flow = luaL_checkinteger( L, 6 );
+  int params_num = lua_gettop( L );
+  if (params_num > 6) {
+	int i;
+	for (i=7; i<params_num; i++) {
+	  switch (i)
+	  {
+	  case 7:
+		txd = luaL_checkinteger( L, 7 );
+	    break;
+	  case 8:
+		rxd = luaL_checkinteger( L, 8 );
+	    break;
+	  case 9:
+		rts = luaL_checkinteger( L, 9 );
+	    break;
+	  case 10:
+		cts = luaL_checkinteger( L, 10 );
+	    break;
+	  }
+	}
   }
 
-  res = platform_uart_setup( id, baud, databits, parity, stopbits );
+  res = platform_uart_setup( id, baud, databits, parity, stopbits, flow, txd, rxd, rts, cts );
   lua_pushinteger( L, res );
   return 1;
-#endif
-	return 0;
 }
 
+#if 0
 // Lua: alt( set )
 static int uart_alt( lua_State* L )
 {
@@ -129,6 +147,7 @@ static int uart_alt( lua_State* L )
   //platform_uart_alt( set );
   return 0;
 }
+#endif
 
 // Lua: write( id, string1, [string2], ..., [stringn] )
 static int uart_write( lua_State* L )
@@ -147,16 +166,28 @@ static int uart_write( lua_State* L )
       len = lua_tointeger( L, s );
       if( len > 255 )
         return luaL_error( L, "invalid number" );
-      platform_uart_send( id, ( u8 )len );
+      platform_uart_send( id, &len, 1 );
     }
     else
     {
       luaL_checktype( L, s, LUA_TSTRING );
       buf = lua_tolstring( L, s, &len );
-      for( i = 0; i < len; i ++ )
-        platform_uart_send( id, buf[ i ] );
+	  printf("data to write: %s\n", buf);
+      platform_uart_send( id, buf, len );
     }
   }
+  return 0;
+}
+
+// Lua: uart.uninstall( uart_num )
+static int uart_uninstall(lua_State *L)
+{
+  int num;
+  num = luaL_checkinteger( L, 1 );
+  if (num < 0 || num >2) {
+    return luaL_error( L, "invalid argument" );
+  }
+  platform_uart_uninstall(num);
   return 0;
 }
 
@@ -165,13 +196,24 @@ const LUA_REG_TYPE uart_map[] =  {
   { LSTRKEY( "setup" ), LFUNCVAL( uart_setup ) },
   { LSTRKEY( "write" ), LFUNCVAL( uart_write ) },
   { LSTRKEY( "on" ),    LFUNCVAL( uart_on ) },
-  { LSTRKEY( "alt" ),   LFUNCVAL( uart_alt ) },
-  { LSTRKEY( "STOPBITS_1" ),   LNUMVAL( PLATFORM_UART_STOPBITS_1 ) },
-  { LSTRKEY( "STOPBITS_1_5" ), LNUMVAL( PLATFORM_UART_STOPBITS_1_5 ) },
-  { LSTRKEY( "STOPBITS_2" ),   LNUMVAL( PLATFORM_UART_STOPBITS_2 ) },
-  { LSTRKEY( "PARITY_NONE" ),  LNUMVAL( PLATFORM_UART_PARITY_NONE ) },
-  { LSTRKEY( "PARITY_EVEN" ),  LNUMVAL( PLATFORM_UART_PARITY_EVEN ) },
-  { LSTRKEY( "PARITY_ODD" ),   LNUMVAL( PLATFORM_UART_PARITY_ODD ) },
+  //{ LSTRKEY( "alt" ),   LFUNCVAL( uart_alt ) },
+  { LSTRKEY( "uninstall" ),    LFUNCVAL( uart_uninstall ) },
+  { LSTRKEY( "UART_1" ),	   LNUMVAL( UART_NUM_1 ) },
+  { LSTRKEY( "UART_2" ),       LNUMVAL( UART_NUM_2 ) },
+  { LSTRKEY( "DATA_5_BITS" ), LNUMVAL( UART_DATA_5_BITS ) },
+  { LSTRKEY( "DATA_6_BITS" ),  LNUMVAL( UART_DATA_6_BITS ) },
+  { LSTRKEY( "DATA_7_BITS" ),  LNUMVAL( UART_DATA_7_BITS ) },
+  { LSTRKEY( "DATA_8_BITS" ),   LNUMVAL( UART_DATA_8_BITS ) },
+  { LSTRKEY( "FLOWCTRL_DISABLE" ),   LNUMVAL( UART_HW_FLOWCTRL_DISABLE ) },
+  { LSTRKEY( "FLOWCTRL_RTS" ),   LNUMVAL( UART_HW_FLOWCTRL_RTS ) },
+  { LSTRKEY( "FLOWCTRL_CTS" ),   LNUMVAL( UART_HW_FLOWCTRL_CTS ) },
+  { LSTRKEY( "FLOWCTRL_CTS_RTS" ),   LNUMVAL( UART_HW_FLOWCTRL_CTS_RTS ) },
+  { LSTRKEY( "STOPBITS_1" ),   LNUMVAL( UART_STOP_BITS_1 ) },
+  { LSTRKEY( "STOPBITS_1_5" ), LNUMVAL( UART_STOP_BITS_1_5 ) },
+  { LSTRKEY( "STOPBITS_2" ),   LNUMVAL( UART_STOP_BITS_2 ) },
+  { LSTRKEY( "PARITY_NONE" ),  LNUMVAL( UART_PARITY_DISABLE ) },
+  { LSTRKEY( "PARITY_EVEN" ),  LNUMVAL( UART_PARITY_EVEN ) },
+  { LSTRKEY( "PARITY_ODD" ),   LNUMVAL( UART_PARITY_ODD ) },
   { LNILKEY, LNILVAL }
 };
 

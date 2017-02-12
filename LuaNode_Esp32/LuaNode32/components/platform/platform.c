@@ -17,6 +17,11 @@
 #include "platform_partition.h"
 #include "driver/ledc.h"
 #include "driver/i2c.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "esp_log.h"
+#include "soc/uart_struct.h"
 // Platform specific includes
 
 #include "rom.h"
@@ -44,6 +49,12 @@ uint16_t flash_safe_get_sec_num(void);
 #define ACK_CHECK_EN   0x1     /*!< I2C master will check ack from slave*/
 #define ACK_VAL    0x0         /*!< I2C ack value */
 #define NACK_VAL   0x1         /*!< I2C nack value */
+
+#define BUF_SIZE (1024)
+
+static xTaskHandle xHandle;
+static QueueHandle_t uart1_queue;
+static const char *TAG = "platform";
 
 //static void pwms_init();
 
@@ -159,74 +170,100 @@ int platform_gpio_intr_init( unsigned pin, GPIO_INT_TYPE type )
 // UART
 // TODO: Support timeouts.
 
-// UartDev is defined and initialized in rom code.
-//extern UartDevice UartDev;
-uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int parity, int stopbits )
+static void my_uart_task(void *pvParameters)
 {
-	UartDevice UartDev;
-  switch( baud )
-  {
-    case BIT_RATE_9600:
-    case BIT_RATE_19200:
-    case BIT_RATE_38400:
-    case BIT_RATE_57600:
-    case BIT_RATE_115200:
-    case BIT_RATE_230400:
-    case BIT_RATE_460800:
-    case BIT_RATE_921600:
-      UartDev.baut_rate = baud;
-      break;
-    default:
-      UartDev.baut_rate = BIT_RATE_9600;
-      break;
-  }
+    int uart_num = (int) pvParameters;
+    uart_event_t event;
+    size_t buffered_size;
+    uint8_t* dtmp = (uint8_t*) malloc(BUF_SIZE);
+    for(;;) {
+        //Waiting for UART event.
+        if(xQueueReceive(uart1_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
+            ESP_LOGI(TAG, "uart[%d] event:", uart_num);
+            switch(event.type) {
+                //Event of UART receving data
+                /*We'd better handler data event fast, there would be much more data events than
+                other types of events. If we take too much time on data event, the queue might
+                be full.
+                in this example, we don't process data in event, but read data outside.*/
+                case UART_DATA:
+                    uart_get_buffered_data_len(uart_num, &buffered_size);
+                    ESP_LOGI(TAG, "data, len: %d; buffered len: %d", event.size, buffered_size);
 
-  switch( databits )
-  {
-    case 5:
-      UartDev.data_bits = FIVE_BITS;
-      break;
-    case 6:
-      UartDev.data_bits = SIX_BITS;
-      break;
-    case 7:
-      UartDev.data_bits = SEVEN_BITS;
-      break;
-    case 8:
-      UartDev.data_bits = EIGHT_BITS;
-      break;
-    default:
-      UartDev.data_bits = EIGHT_BITS;
-      break;
-  }
+					uint8_t data[512] = {0};
+					int len = uart_read_bytes(uart_num, data, BUF_SIZE, 100 / portTICK_RATE_MS);
+					if(len > 0) {
+						ESP_LOGI(TAG, "uart read : %d", len);
+						uart_write_bytes(uart_num, (const char*)data, len);
+					}
+                    break;
+                //Event of HW FIFO overflow detected
+                case UART_FIFO_OVF:
+                    ESP_LOGI(TAG, "hw fifo overflow\n");
+                    //If fifo overflow happened, you should consider adding flow control for your application.
+                    //We can read data out out the buffer, or directly flush the rx buffer.
+                    uart_flush(uart_num);
+                    break;
+                //Event of UART ring buffer full
+                case UART_BUFFER_FULL:
+                    ESP_LOGI(TAG, "ring buffer full\n");
+                    //If buffer full happened, you should consider encreasing your buffer size
+                    //We can read data out out the buffer, or directly flush the rx buffer.
+                    uart_flush(uart_num);
+                    break;
+                //Event of UART RX break detected
+                case UART_BREAK:
+                    ESP_LOGI(TAG, "uart rx break\n");
+                    break;
+                //Event of UART parity check error
+                case UART_PARITY_ERR:
+                    ESP_LOGI(TAG, "uart parity error\n");
+                    break;
+                //Event of UART frame error
+                case UART_FRAME_ERR:
+                    ESP_LOGI(TAG, "uart frame error\n");
+                    break;
+                //UART_PATTERN_DET
+                case UART_PATTERN_DET:
+                    ESP_LOGI(TAG, "uart pattern detected\n");
+                    break;
+                //Others
+                default:
+                    ESP_LOGI(TAG, "uart event type: %d\n", event.type);
+                    break;
+            }
+        }
+    }
+    free(dtmp);
+    dtmp = NULL;
+    vTaskDelete(NULL);
+}
 
-  switch (stopbits)
-  {
-    case ONE_STOP_BIT:
-      UartDev.stop_bits = ONE_STOP_BIT;
-      break;
-    case TWO_STOP_BIT:
-      UartDev.stop_bits = TWO_STOP_BIT;
-      break;
-    default:
-      UartDev.stop_bits = ONE_STOP_BIT;
-      break;
-  }
+uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int parity, int stopbits, int flow, int txd, int rxd, int rts, int cts )
+{
+  int uart_num = id;
+  uart_config_t uart_config;
 
-  switch (parity)
-  {
-    case EVEN_BITS:
-      UartDev.parity = EVEN_BITS;
-      break;
-    case ODD_BITS:
-      UartDev.parity = ODD_BITS;
-      break;
-    default:
-      UartDev.parity = NONE_BITS;
-      break;
-  }
+  uart_config.baud_rate = baud;
+  uart_config.data_bits = databits;
+  uart_config.parity = parity;
+  uart_config.stop_bits = stopbits;
+  uart_config.flow_ctrl = flow;
+  uart_config.rx_flow_ctrl_thresh = 122;
 
-  //uart_config(id, &UartDev);
+  //Configure UART1 parameters
+  uart_param_config(uart_num, &uart_config);
+  //Set UART1 pins(TX: IO4, RX: I05, RTS: IO18, CTS: IO19)
+  uart_set_pin(uart_num, txd, rxd, rts, cts);
+  //Install UART driver( We don't need an event queue here)
+  //In this example we don't even use a buffer for sending data.
+  uart_driver_install(uart_num, BUF_SIZE * 2, BUF_SIZE * 2, 10, &uart1_queue, 0);
+
+  uart_enable_pattern_det_intr(uart_num, '+', 3, 10000, 10, 10);
+  //Create a task to handler UART event from ISR
+  xTaskCreate(my_uart_task, "my_uart_task", 2048, (void*)uart_num, 16, &xHandle );
+  //xTaskCreate(my_recv_task, "my_recv_task", 2048, (void*)uart_num, 16, &recvHandle );
+  //process data
 
   return baud;
 }
@@ -234,16 +271,31 @@ uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int pari
 // if set=1, then alternate serial output pins are used. (15=rx, 13=tx)
 void platform_uart_alt( int set )
 {
-    //uart0_alt( set );
+    // deprecated
     return;
 }
 
 
 // Send: version with and without mux
-void platform_uart_send( unsigned id, u8 data ) 
+void platform_uart_send( unsigned id, u8 *data, unsigned len ) 
 {
-  uart_tx_one_char(data);
+  //uart_tx_one_char(data);
+  uart_write_bytes(id, (const char*)data, len);
   //printf("%c", data);
+}
+
+void platform_uart_uninstall( uint8_t uart_num )
+{
+  uart_driver_delete(uart_num);
+  vTaskDelete( xHandle );
+}
+
+int platform_uart_exists( unsigned id )
+{
+  if (id < 0 || id > 3) {
+	return 0;
+  }
+  return 1;
 }
 
 // ****************************************************************************
@@ -442,6 +494,10 @@ int platform_i2c_recv_byte( uint8_t mode, uint8_t port, uint8_t addr, uint8_t * 
   return len;
 }
 
+void platform_i2c_uninstall( uint8_t i2c_num )
+{
+  i2c_driver_delete(i2c_num);
+}
 
 // *****************************************************************************
 // SPI platform interface

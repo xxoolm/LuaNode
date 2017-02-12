@@ -7,6 +7,7 @@
 #include "mygpio.h"
 #include "c_types.h"
 #include "pwm.h"
+#include "driver/uart.h"
 // Error / status codes
 enum
 {
@@ -141,14 +142,15 @@ enum
 
 // The platform UART functions
 int platform_uart_exists( unsigned id );
-//uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int parity, int stopbits );
+uint32_t platform_uart_setup( unsigned id, uint32_t baud, int databits, int parity, int stopbits, int flow, int txd, int rxd, int rts, int cts );
 int platform_uart_set_buffer( unsigned id, unsigned size );
-void platform_uart_send( unsigned id, uint8_t data );
+void platform_uart_send( unsigned id, u8 *data, unsigned len ) ;
 void platform_s_uart_send( unsigned id, uint8_t data );
 int platform_uart_recv( unsigned id, unsigned timer_id, timer_data_type timeout );
 int platform_s_uart_recv( unsigned id, timer_data_type timeout );
 int platform_uart_set_flow_control( unsigned id, int type );
 int platform_s_uart_set_flow_control( unsigned id, int type );
+void platform_uart_uninstall( uint8_t uart_num );
 
 // *****************************************************************************
 // PWM subsection
@@ -219,6 +221,7 @@ void platform_i2c_send_stop( unsigned id );
 //int platform_i2c_send_address( unsigned id, uint16_t address, int direction );
 int platform_i2c_send_byte( unsigned mode, unsigned port, unsigned addr, uint8_t *data, uint32_t len );
 int platform_i2c_recv_byte( uint8_t mode, uint8_t port, uint8_t addr, uint8_t * data, uint32_t len );
+void platform_i2c_uninstall( uint8_t i2c_num );
 
 // *****************************************************************************
 // Ethernet specific functions

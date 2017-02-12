@@ -14,7 +14,7 @@
 #define USE_NODE_MODULE
 #define USE_LPEG_MODULE
 #define USE_FILE_MODULE
-//#define USE_UART_MODULE
+#define USE_UART_MODULE
 #define USE_UTILS_MODULE
 #define USE_MQTT_MODULE
 #define USE_TMR_MODULE
