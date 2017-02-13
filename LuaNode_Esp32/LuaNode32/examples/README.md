@@ -29,6 +29,7 @@ The examples show you how to use LuaNode.
 * **telnet_server**: A simple telnet server sample. When you connect with ESP32 using telnet, and then 
 		input command `hello`, it will echo `hello back`.
 * **lwip_raw_api**: A RAW API sample. Show you how to use LwIP RAW API.
+* **easy_mem**: A sample show you to use _easy_mem_, the memory manager.
 
 ## HOW TO BUILD THE EXAMPLES
 
