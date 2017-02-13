@@ -18,13 +18,13 @@ void app_main()
 	memset(addr1, 0, BUF_SIZE);
 	memcpy(addr1, "hello", 5);
 	printf("%s\n", addr1);
-	free(addr1);
+	easy_heap_free(addr1);
 
 	unsigned char *addr2 = (unsigned char*)easy_mem_alloc(BUF_SIZE);
 	memset(addr2, 0, BUF_SIZE);
 	memcpy(addr2, "world", 5);
 	printf("%s\n", addr2);
-	free(addr2);
+	easy_mem_free(addr2);
 
 	// print statistics
 	easy_heap_statistics();
