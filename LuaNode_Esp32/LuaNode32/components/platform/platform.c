@@ -567,6 +567,20 @@ uint32_t platform_get_flash_size(uint32_t phy_start_addr)
   return ((SYS_PARAM_SEC_START * INTERNAL_FLASH_SECTOR_SIZE) - phy_start_addr);
 }
 
+static uint32_t flashh_find_sector( uint32_t address, uint32_t *pstart, uint32_t *pend )
+{
+  // All the sectors in the flash have the same size, so just align the address
+  uint32_t sect_id = address / INTERNAL_FLASH_SECTOR_SIZE;
+
+  if( pstart ) {
+    *pstart = sect_id * INTERNAL_FLASH_SECTOR_SIZE ;
+  }
+  if( pend ) {
+    *pend = ( sect_id + 1 ) * INTERNAL_FLASH_SECTOR_SIZE - 1;
+  }
+  return sect_id;
+}
+
 uint32_t platform_flash_mapped2phys (uint32_t mapped_addr)
 {
   uint32_t cache_ctrl = READ_PERI_REG(CACHE_FLASH_CTRL_REG);
@@ -576,4 +590,25 @@ uint32_t platform_flash_mapped2phys (uint32_t mapped_addr)
   bool b1 = (cache_ctrl & CACHE_FLASH_MAPPED1) ? 1 : 0;
   uint32_t meg = (b1 << 1) | b0;
   return mapped_addr - INTERNAL_FLASH_MAPPED_ADDRESS + meg * 0x100000;
+}
+
+uint32_t platform_flash_get_first_free_block_address( uint32_t *psect )
+{
+  // Round the total used flash size to the closest flash block address
+  uint32_t start, end, sect;
+  uint32_t _flash_used_end = 0x110000;
+  printf("_flash_used_end:%08x\n", (uint32_t)_flash_used_end);
+  if(_flash_used_end>0){ // find the used sector
+    sect = flashh_find_sector( platform_flash_mapped2phys ( (uint32_t)_flash_used_end - 1), NULL, &end );
+    if( psect ) {
+      *psect = sect + 1;
+    }
+    return end + 1;
+  }else{
+    sect = flashh_find_sector( 0, &start, NULL ); // find the first free sector
+    if( psect ) {
+      *psect = sect;
+    }
+    return start;
+  }
 }

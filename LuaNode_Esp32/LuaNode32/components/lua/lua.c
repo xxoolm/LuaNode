@@ -7,7 +7,7 @@
 
 #include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include "c_stdlib.h"
 #include "c_string.h"
 
 #define lua_c
@@ -369,16 +369,18 @@ static int dofsfile (lua_State *L, const char *name) {
 }
 
 static int handle_luainit (lua_State *L) {
-  const char *init = getenv(LUA_INIT);
-  if (init == NULL) return 0;  /* status OK */
-  else if (init[0] == '@')
+  const char *init = c_getenv(LUA_INIT);
+  if (init == NULL) {
+	return 0;  /* status OK */
+  } else if (init[0] == '@') {
 #if 0
     return dofile(L, init+1);
 #else
 	return dofsfile(L, init+1);
 #endif
-  else
+  } else {
     return dostring(L, init, "=" LUA_INIT);
+  }
 }
 
 
@@ -579,7 +581,6 @@ static bool readline(lua_Load *load){
   }
   return need_dojob;
 }
-
 
 int lua_main (int argc, char **argv) {
   lua_State *L = lua_open();
