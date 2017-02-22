@@ -1,9 +1,5 @@
 
-/** 
- * mqtt module for Lua
- *
- * Nicholas3388
- * 2017. 02.22
+ /* mqtt.c
  */
 #include "lua.h"
 #include "lauxlib.h"
@@ -19,8 +15,6 @@
 #define MQTT_YIELD_TMIE         1000  // 1s
 
 #define MAX_MQTT_NUM 3
-#define TOPIC_BUFF_SIZE	64
-#define DATA_BUFF_SIZE	768
 
 #define QOS0	0
 #define QOS1	1
@@ -43,8 +37,7 @@ static mqtt_t handle[MAX_MQTT_NUM];
 bool mqtt_thread_is_started = false;
 
 static lua_State *gL = NULL;
-static char topic_buf[TOPIC_BUFF_SIZE] = {0};
-static char data_buf[DATA_BUFF_SIZE] = {0};
+
 
 static void messageArrived(/*MessageData* md*/)
 {
@@ -73,46 +66,16 @@ static void closeMqtt(int id)
 
 void connected_cb(void *self, void *params)
 {
-	int i;
-	mqtt_client *client = (mqtt_client *)self;
-	for (i=0; i<MAX_MQTT_NUM; i++) {
-		if (handle[i].pClient == client) {
-			if(handle[i].cb_ref_connect != LUA_NOREF) {
-				lua_rawgeti(gL, LUA_REGISTRYINDEX, handle[i].cb_ref_connect);
-				lua_call(gL, 0, 0);
-			}
-			return;
-		}
-	}
+	
 }
 
 void disconnected_cb(void *self, void *params)
 {
-	int i;
-	mqtt_client *client = (mqtt_client *)self;
-	for (i=0; i<MAX_MQTT_NUM; i++) {
-		if (handle[i].pClient == client) {
-			if(handle[i].cb_ref_disconnect != LUA_NOREF) {
-				lua_rawgeti(gL, LUA_REGISTRYINDEX, handle[i].cb_ref_disconnect);
-				lua_call(gL, 0, 0);
-			}
-			return;
-		}
-	}
+
 }
 void reconnect_cb(void *self, void *params)
 {
-	int i;
-	mqtt_client *client = (mqtt_client *)self;
-	for (i=0; i<MAX_MQTT_NUM; i++) {
-		if (handle[i].pClient == client) {
-			if(handle[i].cb_ref_reconnect != LUA_NOREF) {
-				lua_rawgeti(gL, LUA_REGISTRYINDEX, handle[i].cb_ref_reconnect);
-				lua_call(gL, 0, 0);
-			}
-			return;
-		}
-	}
+
 }
 
 void subscribe_cb(void *self, void *params)
@@ -132,68 +95,36 @@ void subscribe_cb(void *self, void *params)
 
 void publish_cb(void *self, void *params)
 {
-	mqtt_client *client = (mqtt_client *)self;
-    mqtt_event_data_t *event_data = (mqtt_event_data_t *)params;
 
-    if (event_data->data_offset == 0) {
-        memcpy(topic_buf, event_data->topic, event_data->topic_length);
-        topic_buf[event_data->topic_length] = 0;
-    }
-
-    memcpy(data_buf, event_data->data, event_data->data_length);
-    data_buf[event_data->data_length] = 0;
-
-	int i;
-	for (i=0; i<MAX_MQTT_NUM; i++) {
-		if (handle[i].pClient == client) {
-			if(handle[i].cb_ref_publish != LUA_NOREF) {
-				lua_rawgeti(gL, LUA_REGISTRYINDEX, handle[i].cb_ref_publish);
-				lua_pushlstring(gL,(char const*)topic_buf,(int)(event_data->topic_length));
-				lua_pushlstring(gL,(char const*)data_buf,(int)(event_data->data_length));
-				lua_call(gL, 2, 0);
-			}
-			return;
-		}
-	}
 }
-
 void data_cb(void *self, void *params)
 {
 	mqtt_client *client = (mqtt_client *)self;
     mqtt_event_data_t *event_data = (mqtt_event_data_t *)params;
 
     if (event_data->data_offset == 0) {
-        memcpy(topic_buf, event_data->topic, event_data->topic_length);
-        topic_buf[event_data->topic_length] = 0;
-        printf("[APP] Publish topic: %s\n", topic_buf);
-        
+
+        char *topic = malloc(event_data->topic_length + 1);
+        memcpy(topic, event_data->topic, event_data->topic_length);
+        topic[event_data->topic_length] = 0;
+        printf("[APP] Publish topic: %s\n", topic);
+        free(topic); 
     }
 
-    memcpy(data_buf, event_data->data, event_data->data_length);
-    data_buf[event_data->data_length] = 0;
+	char *data = malloc(event_data->data_length + 1);
+    memcpy(data, event_data->data, event_data->data_length);
+    data[event_data->data_length] = 0;
     printf("[APP] Publish data[%d/%d bytes], content: %s\n",
          event_data->data_length + event_data->data_offset,
          event_data->data_total_length,
-         data_buf);
+         data);
 
-	int i;
-	for (i=0; i<MAX_MQTT_NUM; i++) {
-		if (handle[i].pClient == client) {
-			if(handle[i].cb_ref_data != LUA_NOREF) {
-				lua_rawgeti(gL, LUA_REGISTRYINDEX, handle[i].cb_ref_data);
-				lua_pushlstring(gL,(char const*)topic_buf,(int)(event_data->topic_length));
-				lua_pushlstring(gL,(char const*)data_buf,(int)(event_data->data_length));
-				lua_call(gL, 2, 0);
-			}
-			return;
-		}
-	}
+    free(data);
 }
 
-//mqttClt = mqtt.new(host,client_id,keepalive,connect_cb,[user],[pass])
+//mqttClt = mqtt.new(host,client_id,keepalive,[user],[pass])
 static int lmqtt_new( lua_State* L )
 {
-  int i=0, idx=0;
   char *host = NULL;
   char *user = NULL;
   char *pass = NULL;
@@ -207,38 +138,9 @@ static int lmqtt_new( lua_State* L )
   unsigned keepalive;
   keepalive = luaL_checkinteger( L, 3 );
   
-  for (i=0; i<MAX_MQTT_NUM; i++) {
-    if (handle[i].pClient == NULL) {
-	  idx = i;
-	  break;
-	}
-  }
-  if (i >= MAX_MQTT_NUM) {
-    return luaL_error( L, "Max MQTT Number is reached" );
-  }
-
-  handle[idx].cb_ref_data = LUA_NOREF;
-  handle[idx].cb_ref_connect = LUA_NOREF;
-  handle[idx].cb_ref_disconnect = LUA_NOREF;
-  handle[idx].cb_ref_publish = LUA_NOREF;
-  handle[idx].cb_ref_reconnect = LUA_NOREF;
-  handle[idx].cb_ref_subscribe = LUA_NOREF; 
-
-  // get connect callback 
-  if (lua_type(L, 4) == LUA_TFUNCTION || lua_type(L, 4) == LUA_TLIGHTFUNCTION) {
-      lua_pushvalue(L, 4);
-	  if( handle[idx].cb_ref_connect!= LUA_NOREF) {
-        luaL_unref(L, LUA_REGISTRYINDEX, handle[idx].cb_ref_connect);
-      }
-      handle[idx].cb_ref_connect = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else {
-	  handle[idx].cb_ref_connect = LUA_NOREF;
-      //return luaL_error( L, "callback function needed" );
-  }
-
-  if (lua_gettop(L) > 4) {
-    user = luaL_checklstring( L, 5, &sl );
-    pass = luaL_checklstring( L, 6, &sl );
+  if (lua_gettop(L) > 3) {
+    user = luaL_checklstring( L, 4, &sl );
+    pass = luaL_checklstring( L, 5, &sl );
   }
   int k=0;
   for(k=0;k<MAX_MQTT_NUM;k++){
@@ -285,9 +187,20 @@ static int lmqtt_new( lua_State* L )
   }
   
   gL = L;
-  handle[idx].pClient = mqtt_start(settings);
+  mqtt_client *clientCtrl = mqtt_start(settings);
+  int i;
+  for (i=0; i<MAX_MQTT_NUM; i++) {
+    if (handle[i].pClient == NULL) {
+      handle[i].pClient = clientCtrl;
+      break;
+    }
+  }
 
-  lua_pushinteger(L, idx);
+  if (i >= MAX_MQTT_NUM) {
+    return luaL_error( L, "Max MQTT Number is reached" );
+  }
+
+  lua_pushinteger(L, i);
   return 1;
 }
 
@@ -384,7 +297,7 @@ static int lmqtt_publish( lua_State* L )
 
 //mqtt.on(handle,'connect',function())
 //mqtt.on(handle,'disconnect',function())
-//mqtt.on(handle,'data',function(topic, data))     // the callback is different from the others
+//mqtt.on(handle,'data',function(data))     // the callback is different from the others
 //mqtt.on(handle,'reconnect',function())
 //mqtt.on(handle,'subscribe',function())
 //mqtt.on(handle,'publish',function())

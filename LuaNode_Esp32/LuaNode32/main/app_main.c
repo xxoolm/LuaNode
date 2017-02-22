@@ -37,7 +37,7 @@ void init_task(void *pvParameters)
 
 void led_blink(void) 
 {
-	int res = platform_gpio_mode(2, 2);		// pin mode: OUTPUT
+	int res = platform_gpio_mode(2, PLATFORM_GPIO_OUTPUT, 0);		// pin mode: OUTPUT
 	if(res < 0) {
 		printf("Led lightup failed\n");
 		return;
@@ -124,6 +124,7 @@ void app_main()
 	
 	nvs_flash_init();
 	tcpip_adapter_init();
+	platform_init();
 
 #if ENABLE_SOCK2UART
 	//sock2uart_server_start();
@@ -138,7 +139,7 @@ void app_main()
     lua_main(2, lua_argv);
 
 	_pthread_init();
-	led_blink();	// led flashing
+	//led_blink();	// led flashing
 	task_pump_messages();
 }
 

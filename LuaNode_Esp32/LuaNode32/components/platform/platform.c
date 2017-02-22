@@ -11,12 +11,11 @@
 #include "rom/spi_flash.h"
 #include "rom/ets_sys.h"
 #include "soc/soc.h"
-#include "esp32-hal-gpio.h"
-#include "esp32-hal-i2c.h"
 #include "extras/soc_ext.h"
 #include "platform_partition.h"
 #include "driver/ledc.h"
 #include "driver/i2c.h"
+#include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -32,7 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-i2c_t *i2c;
 
 uint16_t flash_safe_get_sec_num(void);
 
@@ -54,19 +52,19 @@ uint16_t flash_safe_get_sec_num(void);
 
 static xTaskHandle xHandle;
 static QueueHandle_t uart1_queue;
+static xQueueHandle gpio_evt_queue = NULL;
 static const char *TAG = "platform";
+bool isr_installed = false;
 
 //static void pwms_init();
+void platform_gpio_init();
 
-/*int platform_init()
+int platform_init()
 {
-  // Setup PWMs
-  pwms_init();
-
-  cmn_platform_init();
-  // All done
+  // gpio init
+  platform_gpio_init();
   return PLATFORM_OK;
-}*/
+}
 
 // ****************************************************************************
 // KEY_LED functions
@@ -84,47 +82,70 @@ uint8_t platform_key_led( uint8_t level){
 // GPIO functions
 #ifdef GPIO_INTERRUPT_ENABLE
 extern void lua_gpio_unref(unsigned pin);
+extern void gpio_intr_callback( unsigned pin, unsigned level );
 #endif
 
-
-int platform_gpio_mode( unsigned pin, unsigned mode )
+void gpio_task(void* arg)
 {
-  // NODE_DBG("Function platform_gpio_mode() is called. pin_mux:%d, func:%d\n",pin_mux[pin],pin_func[pin]);
-  pinMode(pin, mode);
-  return 1;
+    uint32_t io_num;
+    for(;;) {
+        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num));
+			gpio_intr_callback((int)io_num, gpio_get_level(io_num));
+        }
+    }
 }
 
+void IRAM_ATTR gpio_isr_handler(void* arg)
+{
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+
+int platform_gpio_mode( unsigned pin, unsigned mode, unsigned type )
+{
+    gpio_config_t io_conf;
+    //disable interrupt
+    io_conf.intr_type = (mode == PLATFORM_GPIO_INT ? type : GPIO_PIN_INTR_DISABLE);
+    //set as output mode        
+    io_conf.mode = mode;
+    //bit mask of the pins that you want to set,e.g.GPIO18/19
+    io_conf.pin_bit_mask = (1 << pin);
+    //disable pull-down mode
+    io_conf.pull_down_en = 0;
+    //disable pull-up mode
+	io_conf.pull_up_en = (mode == PLATFORM_GPIO_INT ? 1 : 0);
+	//io_conf.pull_up_en = 0;
+    //configure GPIO with the given settings
+    gpio_config(&io_conf);
+
+	if (mode == PLATFORM_GPIO_INT) {
+		//change gpio intrrupt type for one pin
+		gpio_set_intr_type(pin, type);
+		//install gpio isr service
+		if (!isr_installed) {
+			gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+			isr_installed = true;
+		}
+		//hook isr handler for specific gpio pin
+		gpio_isr_handler_add(pin, gpio_isr_handler, (void*) pin);
+	}
+    return 1;
+}
+
+void platform_gpio_isr_uninstall(void)
+{
+	isr_installed = false;
+}
 
 int platform_gpio_write( unsigned pin, unsigned level )
 {
-  // NODE_DBG("Function platform_gpio_write() is called. pin:%d, level:%d\n",GPIO_ID_PIN(pin_num[pin]),level);
-  /*if (pin >= NUM_GPIO)
-    return -1;
-  if(pin == 0){
-    gpio16_output_conf();
-    gpio16_output_set(level);
-    return 1;
-  }
-
-  GPIO_OUTPUT_SET(GPIO_ID_PIN(pin_num[pin]), level);
-  GPIO_OUTPUT(GPIO_ID_PIN(pin_num[pin]), level);*/
-  digitalWrite(pin, level);
+	return gpio_set_level(pin, level);
 }
 
 int platform_gpio_read( unsigned pin )
 {
-  // NODE_DBG("Function platform_gpio_read() is called. pin:%d\n",GPIO_ID_PIN(pin_num[pin]));
-  /*if (pin >= NUM_GPIO)
-    return -1;
-
-  if(pin == 0){
-    // gpio16_input_conf();
-    return 0x1 & gpio16_input_get();
-  }
-
-  // GPIO_DIS_OUTPUT(pin_num[pin]);
-  return 0x1 & GPIO_INPUT_GET(GPIO_ID_PIN(pin_num[pin]));*/
-  return digitalRead(pin);
+  return gpio_get_level(pin);
 }
 
 #ifdef GPIO_INTERRUPT_ENABLE
@@ -146,10 +167,13 @@ static void platform_gpio_intr_dispatcher( platform_gpio_intr_handler_fn_t cb){
   }
 }
 
-void platform_gpio_init( platform_gpio_intr_handler_fn_t cb )
+void platform_gpio_init(void)
 {
   //ETS_GPIO_INTR_ATTACH(platform_gpio_intr_dispatcher, cb);
   //ETS_GPIO_INTR_ATTACH(cb, NULL);
+  gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+  //start gpio task
+  xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
 }
 
 int platform_gpio_intr_init( unsigned pin, GPIO_INT_TYPE type )
@@ -163,6 +187,7 @@ int platform_gpio_intr_init( unsigned pin, GPIO_INT_TYPE type )
   //enable interrupt
   gpio_pin_intr_state_set(GPIO_ID_PIN(pin_num[pin]), type);
   ETS_GPIO_INTR_ENABLE();
+  return 0;
 }
 #endif
 

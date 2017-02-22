@@ -5,8 +5,9 @@
 #include "c_types.h"
 #include "user_config.h"
 #include "mygpio.h"
+#include "driver/gpio.h"
 
-#define GPIO_PIN_NUM 13
+#define GPIO_PIN_NUM GPIO_PIN_COUNT
 
 extern uint8_t pin_num[GPIO_PIN_NUM];
 extern uint8_t pin_func[GPIO_PIN_NUM];

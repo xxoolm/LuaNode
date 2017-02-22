@@ -3,7 +3,6 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
-//#include "cpu_esp8266.h"
 #include "mygpio.h"
 #include "c_types.h"
 #include "pwm.h"
@@ -29,21 +28,25 @@ uint8_t platform_key_led( uint8_t level);
 #define PLATFORM_GPIO_FLOAT 0
 #define PLATFORM_GPIO_PULLUP 1
 
-#define PLATFORM_GPIO_INT 2
-#define PLATFORM_GPIO_OUTPUT 1
-#define PLATFORM_GPIO_INPUT 0
+#define PLATFORM_GPIO_INT 		17
+#define PLATFORM_GPIO_OUTPUT 	GPIO_MODE_OUTPUT
+#define PLATFORM_GPIO_INPUT 	GPIO_MODE_INPUT
+#define PLATFORM_GPIO_INOUT		GPIO_MODE_INPUT_OUTPUT
 
 #define PLATFORM_GPIO_HIGH 1
 #define PLATFORM_GPIO_LOW 0
 
+#define ESP_INTR_FLAG_DEFAULT 0
+
 /* GPIO interrupt handler */
 typedef void (* platform_gpio_intr_handler_fn_t)( unsigned pin, unsigned level );
 
-int platform_gpio_mode( unsigned pin, unsigned mode );
+int platform_gpio_mode( unsigned pin, unsigned mode, unsigned type );
 int platform_gpio_write( unsigned pin, unsigned level );
 int platform_gpio_read( unsigned pin );
-void platform_gpio_init( platform_gpio_intr_handler_fn_t cb );
+void platform_gpio_init( void );
 int platform_gpio_intr_init( unsigned pin, GPIO_INT_TYPE type );
+void platform_gpio_isr_uninstall(void);
 // *****************************************************************************
 // Timer subsection
 

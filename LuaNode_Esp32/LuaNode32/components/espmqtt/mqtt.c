@@ -167,7 +167,7 @@ void mqtt_sending_task(void *pvParameters)
                 client->mqtt_state.pending_msg_type = mqtt_get_type(client->mqtt_state.outbound_message->data);
                 client->mqtt_state.pending_msg_id = mqtt_get_id(client->mqtt_state.outbound_message->data,
                                                     client->mqtt_state.outbound_message->length);
-                mqtt_info("Sending pingreq");
+                //mqtt_info("Sending pingreq");
                 write(client->socket,
                       client->mqtt_state.outbound_message->data,
                       client->mqtt_state.outbound_message->length);
@@ -201,9 +201,13 @@ void deliver_publish(mqtt_client *client, uint8_t *message, int length)
         event_data.data_length = mqtt_len;
 
         mqtt_info("Data received: %d/%d bytes ", mqtt_len, total_mqtt_len);
+	
         if(client->settings->data_cb) {
             client->settings->data_cb(client, &event_data);
         }
+		if(client->settings->publish_cb) {
+			client->settings->publish_cb(client, &event_data);
+		}
         mqtt_offset += mqtt_len;
         if (client->mqtt_state.message_length_read >= client->mqtt_state.message_length)
             break;
@@ -221,7 +225,7 @@ void mqtt_start_receive_schedule(mqtt_client *client)
 
     while (1) {
         read_len = read(client->socket, client->mqtt_state.in_buffer, CONFIG_MQTT_BUFFER_SIZE_BYTE);
-        mqtt_info("Read len %d", read_len);
+        //mqtt_info("Read len %d", read_len);
         if (read_len == 0)
             break;
 
@@ -262,6 +266,7 @@ void mqtt_start_receive_schedule(mqtt_client *client)
 
                 deliver_publish(client, client->mqtt_state.in_buffer, client->mqtt_state.message_length_read);
                 // deliver_publish(client, client->mqtt_state.in_buffer, client->mqtt_state.message_length_read);
+
                 break;
             case MQTT_MSG_TYPE_PUBACK:
                 if (client->mqtt_state.pending_msg_type == MQTT_MSG_TYPE_PUBLISH && client->mqtt_state.pending_msg_id == msg_id) {
@@ -288,10 +293,11 @@ void mqtt_start_receive_schedule(mqtt_client *client)
                 mqtt_queue(client);
                 break;
             case MQTT_MSG_TYPE_PINGRESP:
-                mqtt_info("MQTT_MSG_TYPE_PINGRESP");
+                //mqtt_info("MQTT_MSG_TYPE_PINGRESP");
                 // Ignore
                 break;
         }
+		vTaskDelay(5 / portTICK_RATE_MS);
     }
     mqtt_info("network disconnected");
 }
@@ -316,7 +322,7 @@ void mqtt_task(void *pvParameters)
             //return;
         }
         mqtt_info("Connected to MQTT broker, create sending thread before call connected callback");
-        xTaskCreate(&mqtt_sending_task, "mqtt_sending_task", 2048, client, CONFIG_MQTT_PRIORITY + 1, &xMqttSendingTask);
+        xTaskCreate(&mqtt_sending_task, "mqtt_sending_task", 4096, client, CONFIG_MQTT_PRIORITY + 1, &xMqttSendingTask);
         if (client->settings->connected_cb) {
             client->settings->connected_cb(client, NULL);
         }
@@ -385,7 +391,7 @@ mqtt_client *mqtt_start(mqtt_settings *settings)
                   client->mqtt_state.out_buffer,
                   client->mqtt_state.out_buffer_length);
 
-    xTaskCreate(&mqtt_task, "mqtt_task", 2048, client, CONFIG_MQTT_PRIORITY, &xMqttTask);
+    xTaskCreate(&mqtt_task, "mqtt_task", 6144, client, CONFIG_MQTT_PRIORITY, &xMqttTask);
     return client;
 }
 
@@ -396,6 +402,11 @@ void mqtt_subscribe(mqtt_client *client, char *topic, uint8_t qos)
                                           &client->mqtt_state.pending_msg_id);
     mqtt_info("Queue subscribe, topic\"%s\", id: %d", topic, client->mqtt_state.pending_msg_id);
     mqtt_queue(client);
+}
+
+void mqtt_unsubscribe(mqtt_client *client, char *topic) 
+{
+	mqtt_msg_unsubscribe(&client->mqtt_state.mqtt_connection, topic, &client->mqtt_state.pending_msg_id);
 }
 
 void mqtt_publish(mqtt_client* client, char *topic, char *data, int len, int qos, int retain)

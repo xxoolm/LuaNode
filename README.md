@@ -20,6 +20,7 @@ The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
 
+Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtufgwg0ex/esp32_Schematic%20Prints.pdf?dl=0 "schematic")
 
 ### How To Build LuaNode32
 * Download prebuild toolchain [Here](https://github.com/jmattsson/nodemcu-prebuilt-toolchains "toolchains"), you 

@@ -18,6 +18,7 @@
 #define FLOAT PLATFORM_GPIO_FLOAT
 #define OUTPUT PLATFORM_GPIO_OUTPUT
 #define INPUT PLATFORM_GPIO_INPUT
+#define INOUT PLATFORM_GPIO_INOUT
 #define PLATFORM_INTERRUPT PLATFORM_GPIO_INT
 #define HIGH PLATFORM_GPIO_HIGH
 #define LOW PLATFORM_GPIO_LOW
@@ -47,66 +48,73 @@ void gpio_intr_callback( unsigned pin, unsigned level )
   lua_call(gL, 1, 0);
 }
 
-// Lua: trig( pin, type, function )
-static int lgpio_trig( lua_State* L )
+// Lua: remove( pin )
+static int lgpio_remove_isr( lua_State* L )
 {
-  unsigned type;
-  unsigned pin;
-  size_t sl;
-  
-  pin = luaL_checkinteger( L, 1 );
-  //MOD_CHECK_ID( gpio, pin );
-  if(pin==0)
-    return luaL_error( L, "no interrupt for D0" );
-
-  const char *str = luaL_checklstring( L, 2, &sl );
-  if (str == NULL)
-    return luaL_error( L, "wrong arg type" );
-
-  if(sl == 2 && c_strcmp(str, "up") == 0){
-    type = GPIO_PIN_INTR_POSEDGE;
-  }else if(sl == 4 && c_strcmp(str, "down") == 0){
-    type = GPIO_PIN_INTR_NEGEDGE;
-  }else if(sl == 4 && c_strcmp(str, "both") == 0){
-    type = GPIO_INTR_ANYEDGE;
-  }else if(sl == 3 && c_strcmp(str, "low") == 0){
-    type = GPIO_PIN_INTR_LOLEVEL;
-  }else if(sl == 4 && c_strcmp(str, "high") == 0){
-    type = GPIO_PIN_INTR_HILEVEL;
-  }else{
-    type = GPIO_PIN_INTR_DISABLE;
-  }
-
-  // luaL_checkanyfunction(L, 3);
-  if (lua_type(L, 3) == LUA_TFUNCTION || lua_type(L, 3) == LUA_TLIGHTFUNCTION){
-    lua_pushvalue(L, 3);  // copy argument (func) to the top of stack
-    if(gpio_cb_ref[pin] != LUA_NOREF)
-      luaL_unref(L, LUA_REGISTRYINDEX, gpio_cb_ref[pin]);
-    gpio_cb_ref[pin] = luaL_ref(L, LUA_REGISTRYINDEX);
-  }
-
-  platform_gpio_intr_init(pin, type);
-  return 0;  
+	unsigned pin;
+	pin = luaL_checkinteger( L, 1 );
+	esp_err_t err = gpio_isr_handler_remove( pin );
+	if (err != ESP_OK) {
+		lua_pushinteger( L, pin );
+		return 1;
+	}
+	lua_pushinteger( L, ESP_OK );
+	return 1;
 }
+
+// Lua: uninstall()
+static int lgpio_uninstall( lua_State* L )
+{
+	gpio_uninstall_isr_service();
+	platform_gpio_isr_uninstall();
+	return 0;
+}
+
 #endif
 
-// Lua: mode( pin, mode, pullup )
+// Lua: mode( pin, mode, type, function )
 static int lgpio_mode( lua_State* L )
 {
-  unsigned mode, pullup = FLOAT;
+  unsigned mode;
   unsigned pin;
+  size_t sl;
+  int type = GPIO_INTR_DISABLE;
 
   pin = luaL_checkinteger( L, 1 );
   //MOD_CHECK_ID( gpio, pin );
   mode = luaL_checkinteger( L, 2 );
-  /*if ( mode!=OUTPUT && mode!=INPUT && mode!=PLATFORM_INTERRUPT)
+  if ( mode!=OUTPUT && mode!=INPUT && mode!=PLATFORM_INTERRUPT && mode!= INOUT)
     return luaL_error( L, "wrong arg type" );
   if(pin==0 && mode==PLATFORM_INTERRUPT)
     return luaL_error( L, "no interrupt for D0" );
-  if(lua_isnumber(L, 3))
-    pullup = lua_tointeger( L, 3 );
-  if(pullup!=FLOAT)
-    pullup = PULLUP;
+  if(lua_gettop(L) > 2) {
+	const char *str = luaL_checklstring( L, 3, &sl );
+	if (str == NULL) {
+	  return luaL_error( L, "wrong arg type" );
+	}
+	if(sl == 2 && strcmp(str, "up") == 0){
+		type = GPIO_INTR_POSEDGE; 
+	}else if(sl == 4 && strcmp(str, "down") == 0){
+		type = GPIO_INTR_NEGEDGE; 
+	}else if(sl == 4 && strcmp(str, "both") == 0){
+		type = GPIO_INTR_ANYEDGE;
+	}else if(sl == 3 && strcmp(str, "low") == 0){
+		type = GPIO_INTR_LOW_LEVEL;
+	}else if(sl == 4 && strcmp(str, "high") == 0){
+		type = GPIO_INTR_HIGH_LEVEL;
+	}else{
+		type = GPIO_INTR_DISABLE; printf("==> 6\n");
+	}
+  }
+  
+  if (lua_gettop(L) > 3) {
+	if (lua_type(L, 4) == LUA_TFUNCTION || lua_type(L, 4) == LUA_TLIGHTFUNCTION){
+		lua_pushvalue(L, 4);  // copy argument (func) to the top of stack
+		if(gpio_cb_ref[pin] != LUA_NOREF)
+			luaL_unref(L, LUA_REGISTRYINDEX, gpio_cb_ref[pin]);
+		gpio_cb_ref[pin] = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+  }
 #ifdef GPIO_INTERRUPT_ENABLE
   gL = L;   // save to local gL, for callback function
   if (mode!=PLATFORM_INTERRUPT){     // disable interrupt
@@ -115,8 +123,8 @@ static int lgpio_mode( lua_State* L )
     }
     gpio_cb_ref[pin] = LUA_NOREF;
   }
-#endif*/
-  int r = platform_gpio_mode( pin, mode );
+#endif
+  int r = platform_gpio_mode( pin, mode, type );
   if( r<0 )
     return luaL_error( L, "wrong pin num." );
 
@@ -171,7 +179,7 @@ static int lgpio_serout( lua_State* L )
   unsigned level;
   unsigned pin;
   unsigned table_len = 0;
-  unsigned repeat = 0;
+  int repeat = 0;
   int delay_table[DELAY_TABLE_MAX_LEN];
   
   pin = luaL_checkinteger( L, 1 );
@@ -234,11 +242,13 @@ const LUA_REG_TYPE gpio_map[] = {
   { LSTRKEY( "write" ),  LFUNCVAL( lgpio_write ) },
   { LSTRKEY( "serout" ), LFUNCVAL( lgpio_serout ) },
 #ifdef GPIO_INTERRUPT_ENABLE
-  { LSTRKEY( "trig" ),   LFUNCVAL( lgpio_trig ) },
-  //{ LSTRKEY( "INT" ),    LNUMVAL( PLATFORM_INTERRUPT ) },
+  { LSTRKEY( "remove" ),   LFUNCVAL( lgpio_remove_isr ) },
+  { LSTRKEY( "uninstall" ),   LFUNCVAL( lgpio_uninstall ) },
+  { LSTRKEY( "INT" ),    LNUMVAL( PLATFORM_INTERRUPT ) },
 #endif
   { LSTRKEY( "OUTPUT" ), LNUMVAL( OUTPUT ) },
   { LSTRKEY( "INPUT" ),  LNUMVAL( INPUT ) },
+  { LSTRKEY( "INOUT" ),  LNUMVAL( INOUT ) },
   { LSTRKEY( "HIGH" ),   LNUMVAL( HIGH ) },
   { LSTRKEY( "LOW" ),    LNUMVAL( LOW ) },
   { LSTRKEY( "FLOAT" ),  LNUMVAL( FLOAT ) },

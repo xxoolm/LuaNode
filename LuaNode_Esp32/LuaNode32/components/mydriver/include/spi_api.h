@@ -9,7 +9,11 @@
 #include "c_types.h"
 #include "soc/soc.h"
 #include "soc/io_mux_reg.h"
-#include "esp32-hal-spi.h"
+//#include "esp32-hal-spi.h"
+
+#define FSPI  1 //SPI bus attached to the flash (can use the same data lines but different SS)
+#define HSPI  2 //SPI bus normally mapped to pins 12 - 15, but can be matrixed to any pins
+#define VSPI  3 //SPI bus normally attached to pins 5, 18, 19 and 23, but can be matrixed to any pins
 
 /*SPI number define*/
 #define SPI 			0

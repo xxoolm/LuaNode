@@ -1,10 +1,9 @@
 // Module for interfacing with the I2C interface
-
+#include <string.h>
 #include "modules.h"
 #include "lauxlib.h"
 #include "lualib.h"
 #include "platform.h"
-#include "esp32-hal-i2c.h"
 #include "driver/i2c.h"
 
 // Lua: speed = i2c.setup( mode, port, scl, sda )

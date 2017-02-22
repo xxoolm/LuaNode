@@ -73,6 +73,8 @@ typedef struct  {
 mqtt_client *mqtt_start(mqtt_settings *mqtt_info);
 void mqtt_task(void *pvParameters);
 void mqtt_subscribe(mqtt_client *client, char *topic, uint8_t qos);
+void mqtt_unsubscribe(mqtt_client *client, char *topic);
 void mqtt_publish(mqtt_client* client, char *topic, char *data, int len, int qos, int retain);
 void mqtt_detroy();
+void mqtt_destroy(mqtt_client *client);
 #endif
