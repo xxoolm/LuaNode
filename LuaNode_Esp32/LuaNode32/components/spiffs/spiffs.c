@@ -483,7 +483,7 @@ static vfs_file *myspiffs_vfs_open( const char *name, const char *mode ) {
     }
   }
 
-  test_spiffs();
+  //test_spiffs();
 
   return NULL;
 }
