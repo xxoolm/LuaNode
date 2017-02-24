@@ -30,6 +30,10 @@ The examples show you how to use LuaNode.
 		input command `hello`, it will echo `hello back`.
 * **lwip_raw_api**: A RAW API sample. Show you how to use LwIP RAW API.
 * **easy_mem**: A sample show you to use _easy_mem_, the memory manager.
+* **bluetooth_scanner** *: A sample show you how to scan BLE device. To test this sample, you 
+		can use two ESP32 device, say A and B. A flashed the _ble_adv_ which is an example contained in _esp-idf_, 
+		B flashed this sample. Then you can see B output the scan results, which list A. The other available 
+		BLE device will be also listed in the results.
 
 ## HOW TO BUILD THE EXAMPLES
 

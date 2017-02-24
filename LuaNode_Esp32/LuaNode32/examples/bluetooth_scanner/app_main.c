@@ -1,3 +1,10 @@
+/**
+ * A bluetooth scanner sample
+ * 
+ * Nicholas3388
+ * 2017.02.24
+ */
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
