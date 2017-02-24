@@ -9,6 +9,8 @@
 
 -- mqtt.on(handle, event, callback): the method is used to register callback to monitor the following event: 'data'/'publish'/'subscribe'/'disconnect'
 
+-- mqtt.unsubscribe(handle, topic): unsubscribe a topic
+
 -- mqtt.close(handle): use this method to close an mqtt connection
 
 -- Note: 
