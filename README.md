@@ -110,6 +110,28 @@ since the lua command handler will be called in this task, more memory is requir
 APPLICATIONS:
 --------------------------------------
 
+### ESP32-Camera
+This simple application is to use ESP32 to controll a Camera. You can find the source code from the following diretory: _LuaNode_Esp32/LuaNode32/examples/camera_
+
+There is another ESP32 camera demo create by _igrr_, find it from the link: https://github.com/igrr/esp32-cam-demo. 
+We also utilize OV7725 for our camera test, but the hardware is a little different from _igrr_'s project. 
+My camera is extended with a RAM, which is AL422B, with 390KB RAM. So the camera can cache 2 frames, if the 
+resolution is set to 320x240 pixel. The following figure is my camera, called "Yehuo", a Chinese name.
+
+![github](http://img2.ph.126.net/MdqGO0DRTakEUyYiGUw8Lg==/6632360791372792649.jpg "Yehuo Camera")
+
+The following figures is my ESP32-Camera.
+
+![github](http://img2.ph.126.net/z5YqIBznWy0Ha0YUbZ8uCw==/6631869309677845517.jpg "ESP32-Camera")
+
+![github](http://img2.ph.126.net/4ImKqI0vy7uPq_DGjUmk9w==/6632299218721636202.jpg "ESP32-Camera")
+
+I learn _igrr_'s project, and do the same test as _igrr_'s. For instance, I use the camera to scan the board, and then 
+you can see the output from the uart terminal.
+
+
+![github](http://img1.ph.126.net/n_FzfADuecVypWxR494Gyg==/6632216755352253574.jpg "Esp32 camera test")
+
 ### Wifilister
 
 Another interesting application is the `Wifilister` app. The app scans all APs along with the clients connected to them around device, and scan results are sent to

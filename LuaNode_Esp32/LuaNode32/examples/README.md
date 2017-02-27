@@ -34,6 +34,8 @@ The examples show you how to use LuaNode.
 		can use two ESP32 device, say A and B. A flashed the _ble_adv_ which is an example contained in _esp-idf_, 
 		B flashed this sample. Then you can see B output the scan results, which list A. The other available 
 		BLE device will be also listed in the results.
+* **test_spiffs** *: A test sample for SPIFFS.
+* **camera** *: A sample to show you how to use ESP32 to control a camera
 
 ## HOW TO BUILD THE EXAMPLES
 
