@@ -142,6 +142,7 @@ don't even need to use SPI to drive the LCD. The LCD is very cheap, and easy to 
 ![github](http://img0.ph.126.net/Q6iCqZjeYXfvXKGZcNB6NA==/6632275029465872805.jpg "another test")
 
 Pin connections:
+--------
 | Interface | Nokia5110 Pin | DOIT ESP32 dev-board Pin |
 | --- | --- | --- |
 | RESET | RST | D4 |
