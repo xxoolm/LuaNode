@@ -20,6 +20,8 @@ The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
 
+![github](http://img0.ph.126.net/f_6UDZFsGiwGHKbavparEg==/6632536713233283288.png "dimension")
+
 Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtufgwg0ex/esp32_Schematic%20Prints.pdf?dl=0 "schematic")
 
 ### How To Build LuaNode32
@@ -131,6 +133,27 @@ you can see the output from the uart terminal.
 
 
 ![github](http://img1.ph.126.net/n_FzfADuecVypWxR494Gyg==/6632216755352253574.jpg "Esp32 camera test")
+
+### ESP32 Drives Nokia5110 LCD
+This is an application to show how to drive Nokia5110 LCD. It is easy for ESP32 to drive the LCD. You 
+don't even need to use SPI to drive the LCD. The LCD is very cheap, and easy to buy from taobao or eBay.
+
+![github](http://img1.ph.126.net/LarB1NHu7wveHtygQpiDlw==/6632551006884443383.jpg "output hello world")
+![github](http://img0.ph.126.net/Q6iCqZjeYXfvXKGZcNB6NA==/6632275029465872805.jpg "another test")
+
+Pin connections:
+| Interface | Nokia5110 Pin | DOIT ESP32 dev-board Pin |
+| --- | --- | --- |
+| RESET | RST | D4 |
+| LCD Enable | CE | D2 |
+| DC | DC | D5 |
+| Data Input | Din | D18 |
+| Clock | Clk | D19 |
+| Back Light | BL | D21 |
+| Power Supply 3.3V | Vcc | 3V3 |
+| Ground | Gnd | GND | 
+
+For more details, view the _lcd_nokia5110_driver_ sample within the **examples** folder.
 
 ### Wifilister
 
