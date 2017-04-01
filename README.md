@@ -20,6 +20,10 @@ The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
 
+New version of ESP32 dev-board is coming! The new board will be ready for retail in few days.
+![github](http://img0.ph.126.net/MtZjJGGCEhZxOwMZaZidKw==/6632542210791796437.jpg "New ESP32 dev-board")
+![github](http://img0.ph.126.net/WDeMLnrZEmu8aJNCu3352A==/6632200262678235081.jpg "New ESP32 dev-board back")
+
 ![github](http://img0.ph.126.net/f_6UDZFsGiwGHKbavparEg==/6632536713233283288.png "dimension")
 
 Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtufgwg0ex/esp32_Schematic%20Prints.pdf?dl=0 "schematic")
@@ -156,6 +160,19 @@ Pin connections:
 
 For more details, view the _lcd_nokia5110_driver_ sample within the **examples** folder.
 
+### ESP32 BLE LED controller
+This is a sample to show how to create BLE client and BLE server, and create connection between them. 
+To test this sample, you have to prepare two 
+ESP32 dev-board. Then build the sources within the `LuaNode_ESP32/examples/ble_led_controller`, and flash 
+the client and server firmware to the two ESP32 dev-boards, respectively. you will see the blue LED on the 
+server board is turned on/off each 2 seconds. You can see the test from the following video: https://youtu.be/UnzXCB5EYGU
+
+In this sample, when the client connect to server, it will send BLE notify to the server each 2 seconds. 
+When the server recieves the notification, 
+the server will turn on/off the blue LED on board according to the notification value. If the value is 0x1, the server 
+will turn on the LED, otherwise, the LED will be turned off.
+
+
 ### Wifilister
 
 Another interesting application is the `Wifilister` app. The app scans all APs along with the clients connected to them around device, and scan results are sent to
@@ -195,7 +212,7 @@ CONTACT ME:
 
 If you have any question, you can contact me via Email/QQ list below, Thanks:) 
 
-  - `Email`: 535873968@qq.com
+  - `Email`: wangwei@doit.com
   - `QQ`: 535873968
 
 

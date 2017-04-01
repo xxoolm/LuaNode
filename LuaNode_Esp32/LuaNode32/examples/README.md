@@ -39,6 +39,11 @@ The examples show you how to use LuaNode.
 * **lcd_nokia5110_driver**: A sample to show how to drive _Nokia5110_ LCD. The sample output some 
 		characters to LCD.
 
+* **ble_led_control**: A sample to show how to create BLE client and BLE server. In this sample, the 
+		client send notify to server each 2 seconds. When the server receives the notification, 
+		the server will turn on/off the blue LED on board according to the notification value. 
+		To test this sample, you have to prepare two ESP32 dev-board.
+
 ## HOW TO BUILD THE EXAMPLES
 
 Copy the app_main.c within each example to the `main` folder within LuaNode32,
