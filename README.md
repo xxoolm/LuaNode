@@ -20,8 +20,9 @@ The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
 
-New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. 
-The new board is smaller than the old one, and the new one has more pins.
+New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. The new board is smaller than the old one, and the new one has more pins.
+
+
 ![github](http://img0.ph.126.net/MtZjJGGCEhZxOwMZaZidKw==/6632542210791796437.jpg "New ESP32 dev-board")
 ![github](http://img0.ph.126.net/WDeMLnrZEmu8aJNCu3352A==/6632200262678235081.jpg "New ESP32 dev-board back")
 
