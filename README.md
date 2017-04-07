@@ -20,7 +20,8 @@ The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
 
-New version of ESP32 dev-board is coming! The new board will be ready for retail in few days.
+New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. 
+The new board is smaller than the old one, and the new one has more pins.
 ![github](http://img0.ph.126.net/MtZjJGGCEhZxOwMZaZidKw==/6632542210791796437.jpg "New ESP32 dev-board")
 ![github](http://img0.ph.126.net/WDeMLnrZEmu8aJNCu3352A==/6632200262678235081.jpg "New ESP32 dev-board back")
 
@@ -146,6 +147,7 @@ don't even need to use SPI to drive the LCD. The LCD is very cheap, and easy to 
 ![github](http://img0.ph.126.net/Q6iCqZjeYXfvXKGZcNB6NA==/6632275029465872805.jpg "another test")
 
 Pin connections:
+
 --------
 | Interface | Nokia5110 Pin | DOIT ESP32 dev-board Pin |
 | --- | --- | --- |
@@ -172,6 +174,20 @@ When the server recieves the notification,
 the server will turn on/off the blue LED on board according to the notification value. If the value is 0x1, the server 
 will turn on the LED, otherwise, the LED will be turned off.
 
+### ESP32 communicate with nRF51822 via BLE
+
+This is a example to show how to create BLE connection between ESP32 and nRF51 device (nRF51822 inside). In this sample, 
+ESP32 write "on"/"off" string to the characteristic `6e400002-b5a3-f393-e0a9-e50e24dcca9e`, which provided 
+by nRF51 device. When the nRF51 device receives the content sent by ESP32, the nRF51 will turn on/off the LED on board 
+according to the received string. The ESP32 will write "on"/"off" to the characteristic each 2 seconds, so you 
+will see that the LED on nRF51 device blink each 2 seconds.
+
+![github](http://img1.ph.126.net/sZL3L3s6LrBEsWyjxJZZ8g==/6632431160117483785.jpg "nRF51_ESP32")
+
+The folloing video is a test for this example: https://youtu.be/hXuCXh5lEew
+
+The nRF51 device is a nRF51822 dev-board, you can buy it from Taobao China. You can download the sources and build firmware 
+for the nRF51 device from the following link: https://github.com/Nicholas3388/nRF51822_ESP32_communicate 
 
 ### Wifilister
 

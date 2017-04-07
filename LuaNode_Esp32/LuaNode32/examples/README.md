@@ -44,6 +44,12 @@ The examples show you how to use LuaNode.
 		the server will turn on/off the blue LED on board according to the notification value. 
 		To test this sample, you have to prepare two ESP32 dev-board.
 
+* **esp32_nrf51822_ble_conn**: A sample to show how to create BLE connection between ESP32 and nRF51822 device. 
+		The nRF51 device will be server and provide a characteristic for client to write data, the characteristic 
+		UUID is `6e400002-b5a3-f393-e0a9-e50e24dcca9e`. ESP32 will act as client and connect to nRF51, 
+		and then write "on"/"off" to the characteristic each 2 seconds. The nRF51 device will turn on/off 
+		the LED on board according to the received string. You will see the LED on nRF51 device blink each 2 seconds.
+
 ## HOW TO BUILD THE EXAMPLES
 
 Copy the app_main.c within each example to the `main` folder within LuaNode32,
