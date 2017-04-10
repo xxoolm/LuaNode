@@ -86,6 +86,9 @@ LUALIB_API int (luaopen_net) ( lua_State *L );
 #define LUA_THREADLIBNAME	"thread"
 LUALIB_API int (luaopen_thread) ( lua_State *L );
 
+#define LUA_NVSLIBNAME	"nvs"
+LUALIB_API int (luaopen_nvs) ( lua_State *L );
+
 #ifndef lua_assert
 #define lua_assert(x)	((void)0)
 #endif

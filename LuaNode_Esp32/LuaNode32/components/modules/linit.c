@@ -14,6 +14,7 @@
 
 #include "c_string.h"
 
+extern const LUA_REG_TYPE nvs_map[];
 extern const LUA_REG_TYPE mqtt_map[];
 extern const LUA_REG_TYPE thread_map[];
 extern const LUA_REG_TYPE gpio_map[];
@@ -76,6 +77,9 @@ const luaL_Reg lua_libs[] = {
 #ifdef USE_MQTT_MODULE
 	{LUA_MQTTLIBNAME, luaopen_mqtt},
 #endif
+#ifdef USE_NVS_MODULE
+	{LUA_NVSLIBNAME, luaopen_nvs},
+#endif
 	{NULL, NULL},
 };
 
@@ -120,6 +124,9 @@ const luaR_table lua_rotable[] =
 #endif
 #ifdef USE_MQTT_MODULE
 	{LUA_MQTTLIBNAME, mqtt_map},
+#endif
+#ifdef USE_NVS_MODULE
+	{LUA_NVSLIBNAME, nvs_map},
 #endif
 	{NULL, NULL}
 };

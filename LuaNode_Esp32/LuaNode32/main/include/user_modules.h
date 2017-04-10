@@ -24,5 +24,6 @@
 #define USE_WIFI_MODULE
 #define USE_NET_MODULE
 #define USE_THREAD_MODULE
+#define USE_NVS_MODULE
 
 #endif	/* __USER_MODULES_H__ */
