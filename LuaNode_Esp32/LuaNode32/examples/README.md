@@ -49,6 +49,9 @@ The examples show you how to use LuaNode.
 		UUID is `6e400002-b5a3-f393-e0a9-e50e24dcca9e`. ESP32 will act as client and connect to nRF51, 
 		and then write "on"/"off" to the characteristic each 2 seconds. The nRF51 device will turn on/off 
 		the LED on board according to the received string. You will see the LED on nRF51 device blink each 2 seconds.
+* **ble_to_udp_server**: In this example, ESP32 scan BLE devices and then send the scan results to UDP server. User can 
+		setup SSID, password, server IP and server port via uart. For more details, read the README doc in the 
+		example's directory.
 
 ## HOW TO BUILD THE EXAMPLES
 
