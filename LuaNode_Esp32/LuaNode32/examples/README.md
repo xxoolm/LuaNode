@@ -53,6 +53,8 @@ The examples show you how to use LuaNode.
 		setup SSID, password, server IP and server port via uart. For more details, read the README doc in the 
 		example's directory.
 
+* **free80211send**: A sample to show how to send 80211 package. The 80211 component is from https://github.com/Jeija/esp32free80211
+
 ## HOW TO BUILD THE EXAMPLES
 
 Copy the app_main.c within each example to the `main` folder within LuaNode32,
