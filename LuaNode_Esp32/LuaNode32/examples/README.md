@@ -55,6 +55,9 @@ The examples show you how to use LuaNode.
 
 * **free80211send**: A sample to show how to send 80211 package. The 80211 component is from https://github.com/Jeija/esp32free80211
 
+* **esp32_ble_gatt_server_led_control_for_phone**: A sample to show how to connect ESP32 with phone (including iOS & Android) 
+		via BLE. Once connection established, you can controll LED on board via phone. Download the App here: https://github.com/Nicholas3388/LuaNode_BLE_Client
+
 ## HOW TO BUILD THE EXAMPLES
 
 Copy the app_main.c within each example to the `main` folder within LuaNode32,

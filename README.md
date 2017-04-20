@@ -190,6 +190,19 @@ The folloing video is a test for this example: https://youtu.be/hXuCXh5lEew
 The nRF51 device is a nRF51822 dev-board, you can buy it from Taobao China. You can download the sources and build firmware 
 for the nRF51 device from the following link: https://github.com/Nicholas3388/nRF51822_ESP32_communicate 
 
+### BLE debug tool (LuaNode_BLE_Client)
+
+This is an App (including iOS & Android) for ESP32 as well as other BLE device. The app named `LuaNode_BLE_Client`.
+ You can use this app to connect to ESP32 
+and then control the LED on DOIT ESP32 dev board. Plus, you can scan BLE devices around your phone and then view the 
+services, characteristics, and descriptors provided by the devices.
+
+![github](http://img0.ph.126.net/bkAy4S4RKoCPetX5AKTV3g==/6631971564259914150.png "LuaNode_BLE_Client")
+
+To control the LED on ESP32 board, you have to build the example `esp32_ble_gatt_server_led_control_for_phone`, and then 
+download the firmware. Run the `LuaNode_BLE_Client` and then toggle the LED switch on app to turn on/off the LED on board. 
+The following video is a test for ESP32: https://www.youtube.com/watch?v=LhvA33yf7P8
+
 ### Wifilister
 
 Another interesting application is the `Wifilister` app. The app scans all APs along with the clients connected to them around device, and scan results are sent to
