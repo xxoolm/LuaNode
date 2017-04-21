@@ -193,7 +193,8 @@ for the nRF51 device from the following link: https://github.com/Nicholas3388/nR
 This is an App (including iOS & Android) for ESP32 as well as other BLE device. The app named `LuaNode_BLE_Client`.
  You can use this app to connect to ESP32 
 and then control the LED on DOIT ESP32 dev board. Plus, you can scan BLE devices around your phone and then view the 
-services, characteristics, and descriptors provided by the devices.
+services, characteristics, and descriptors provided by the devices. Download LuaNode_BLE_Client sources from the 
+following repository: https://github.com/Nicholas3388/LuaNode_BLE_Client
 
 ![github](http://img0.ph.126.net/bkAy4S4RKoCPetX5AKTV3g==/6631971564259914150.png "LuaNode_BLE_Client")
 
