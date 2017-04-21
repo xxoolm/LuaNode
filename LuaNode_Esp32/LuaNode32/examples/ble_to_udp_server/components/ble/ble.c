@@ -35,6 +35,50 @@ static esp_ble_scan_params_t ble_scan_params = {
 extern void wifi_init_task(void);
 extern void initialise_wifi(void);
 
+static void get_uuid(const char *data, char *res)
+{
+	int j = 0;
+	char k[4] = {0x0};
+	k[3] = 0x00;
+	int uuid_len = 16;
+	/*for (j = 9; j < 9+uuid_len; j++) {
+		sprintf(k, "%02X ", data[j]);
+		strcat(res, k);
+	}*/
+	for (j = 9; j < 9+4; j++) {
+		sprintf(k, "%02X", data[j]);
+		strcat(res, k);
+	}
+	strcat(res, "-");
+	for (j = 9+4; j < 9+4+2; j++) {
+		sprintf(k, "%02X", data[j]);
+		strcat(res, k);
+	}
+	strcat(res, "-");
+	for (j = 9+4+2; j < 9+4+2+2; j++) {
+		sprintf(k, "%02X", data[j]);
+		strcat(res, k);
+	}
+	strcat(res, "-");
+	for (j = 9+4+2+2; j < 9+4+2+2+2; j++) {
+		sprintf(k, "%02X", data[j]);
+		strcat(res, k);
+	}
+	strcat(res, "-");
+	for (j = 9+4+2+2+2; j < 9+uuid_len; j++) {
+		sprintf(k, "%02X", data[j]);
+		strcat(res, k);
+	}
+}
+
+static bool is_valid_ibeacon(const char *package)
+{
+	if (package[0] != 0x02) {
+		return false;
+	}
+	return true;
+}
+
 static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     uint8_t *adv_name = NULL;
@@ -50,6 +94,7 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
         esp_ble_gap_cb_param_t *scan_result = (esp_ble_gap_cb_param_t *)param;
         switch (scan_result->scan_rst.search_evt) {
         case ESP_GAP_SEARCH_INQ_RES_EVT:
+#ifdef ENABLE_SCAN_OUTPUT
 			switch (scan_result->scan_rst.dev_type) {
 				case ESP_BT_DEVICE_TYPE_BREDR:
 					ESP_LOGI(TAG, "==> Connected Device type BREDR");
@@ -67,13 +112,28 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
             		scan_result->scan_rst.bda[1],scan_result->scan_rst.bda[2],
 					scan_result->scan_rst.bda[3],scan_result->scan_rst.bda[4],
 					scan_result->scan_rst.bda[5]);
+#endif
             /*for (int i = 0; i < 6; i++) {
                 server_dba[i]=scan_result->scan_rst.bda[i];
             }*/
+			if (!is_valid_ibeacon((const char *) scan_result->scan_rst.ble_adv)) {
+#ifdef ENABLE_SCAN_OUTPUT
+				ESP_LOGI(TAG, "not an ibeacon package");
+#endif
+				break;
+			}
+
             adv_name = esp_ble_resolve_adv_data(scan_result->scan_rst.ble_adv,
                                                 ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
+#ifdef ENABLE_SCAN_OUTPUT
             ESP_LOGI(TAG, "adv_name_len=%x\n", adv_name_len);
 			ESP_LOGI(TAG, "rssi: %d", scan_result->scan_rst.rssi); 
+#endif
+			char uuid[64] = {0};
+			get_uuid((const char *)scan_result->scan_rst.ble_adv, uuid);
+#ifdef ENABLE_SCAN_OUTPUT
+			ESP_LOGI(TAG, "%s", uuid);
+#endif
 
 			char buff[BDA_SIZE] = {0};
 			scan_list_t *tmp = list_new_item();
@@ -87,6 +147,8 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 					scan_result->scan_rst.bda[5]);
 			memcpy(tmp->bda, buff, 12);
 			tmp->bda[12] = 0;
+			memcpy(tmp->uuid, uuid, 48);
+			tmp->uuid[48] = 0;
 			tmp->rssi = scan_result->scan_rst.rssi;
 			list_insert_to_head(tmp);
 
@@ -106,12 +168,16 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
             break;
         case ESP_GAP_SEARCH_INQ_CMPL_EVT:
 			//esp_ble_gap_cb_param_t *scan_result = (esp_ble_gap_cb_param_t *)param;
+#ifdef ENABLE_SCAN_OUTPUT
 			ESP_LOGI(TAG, "=========================");
 			ESP_LOGI(TAG, "Scan over");
 			ESP_LOGI(TAG, "=========================");
+#endif
+			esp_ble_gap_stop_scanning();
 			wifi_init_task();
 			initialise_wifi();
 
+#ifdef ENABLE_SCAN_OUTPUT
 			switch (scan_result->scan_rst.ble_evt_type) {
 				 case ESP_BLE_EVT_CONN_ADV:
 					 ESP_LOGI(TAG, "==> CONN_ADV");
@@ -139,6 +205,7 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 												 scan_result->scan_rst.bda[5]);
 					 break;
 			}
+#endif
             break;
         default:
             break;
@@ -180,4 +247,9 @@ void ble_init(void)
     }
     
 	//ble_client_app_register();
+}
+
+void ble_start_scanning(void)
+{
+	esp_ble_gap_start_scanning(SCAN_DURATION);
 }

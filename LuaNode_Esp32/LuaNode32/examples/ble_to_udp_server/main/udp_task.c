@@ -8,9 +8,12 @@
 #include "esp_log.h"
 #include "utils.h"
 #include "my_list.h"
+#include "ble.h"
+#include "user_config.h"
 
 #define LOCAL_PORT		9999
 
+extern uint8_t wifi_mac[6];
 extern void ble_client_app_register(void);
 
 static const char *TAG = "udp_task";
@@ -33,6 +36,28 @@ static void ip_str2num(const char *ip, int *res)
 	*res = str2num((ip+start), (i-start));
 }
 
+void send_all_data(void)
+{
+	// send BLE scan results one by one 
+	char buff[94] = {0};
+	scan_list_t *h = list_get_head();
+	scan_list_t *iterator = h->pNext;
+	while (iterator != NULL) {
+		memset(buff, 0, 94);
+		sprintf(buff, "%02x%02x%02x%02x%02x%02x, %s, %s, %d\r\n", wifi_mac[0], wifi_mac[1], wifi_mac[2], wifi_mac[3], wifi_mac[4], wifi_mac[5], 
+			iterator->bda, iterator->uuid, iterator->rssi);
+		send_data((const char *)buff, 71);
+#ifdef ENABLE_SCAN_OUTPUT
+		ESP_LOGI(TAG, "%s", buff);
+#endif
+		iterator = iterator->pNext;
+		vTaskDelay(400 / portTICK_PERIOD_MS);
+		send_data((const char *)"\r\n", strlen("\r\n"));
+		vTaskDelay(200 / portTICK_PERIOD_MS);
+	}
+	list_destroy();
+}
+
 void connect_server(const char *ip, int port)
 {
 	conn = netconn_new(NETCONN_UDP);
@@ -50,27 +75,23 @@ void connect_server(const char *ip, int port)
 	err_t er;
 	while ((er = netconn_connect(conn, &serverip, port)) != ERR_OK) {
 		ESP_LOGE(TAG, "Connect server failed, error code: %d, try again 1 seconds", er);
+		set_panic();
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 
+	clear_panic();
 	ESP_LOGI(TAG, "Connected to UDP server");
-	send_data((const char *)"test", 4);
+	//send_data((const char *)"test", 4);
 
 	//ble_client_app_register();
 
-	// send BLE scan results one by one 
-	char buff[24] = {0};
-	scan_list_t *h = list_get_head();
-	scan_list_t *iterator = h->pNext;
-	while (iterator != NULL) {
-		memset(buff, 0, 24);
-		sprintf(buff, "%s, %d\n", iterator->bda, iterator->rssi);
-		send_data((const char *)buff, strlen((const char *)buff));
-		ESP_LOGI(TAG, "%s", buff);
-		iterator = iterator->pNext;
-		vTaskDelay(500 / portTICK_PERIOD_MS);
-	}
-	list_destroy();
+	send_all_data();
+
+	//restart scanning
+	ESP_LOGI(TAG, "###############################################");
+	ESP_LOGI(TAG, "restart scanning ......");
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	ble_start_scanning();
 }
 
 void send_data(const char *data, int len)

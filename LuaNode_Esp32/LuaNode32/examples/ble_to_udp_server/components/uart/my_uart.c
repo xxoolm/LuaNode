@@ -11,19 +11,13 @@
 #include "utils.h"
 #include "user_config.h"
 #include "esp_log.h"
+#include "esp_system.h"
 #include "driver/uart.h"
 #include "soc/uart_struct.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-
-#define CMD_SSID	"ssid"
-#define CMD_PASS	"pass"
-#define CMD_IP		"ip"
-#define CMD_PORT	"port"
-#define CMD_HELP	"help"
-#define CMD_WIFI	"wifi"
 
 static const char *TAG = "uart";
 QueueHandle_t uart0_queue;
@@ -36,6 +30,10 @@ extern unsigned char srv_ip[SRV_IP_MAX_LEN];
 extern int srv_port;
 
 extern void initialise_wifi(void);
+extern void clear_storage(void);
+extern void close_nvs(void);
+extern esp_err_t save_string(const char *key, const char *str);
+extern esp_err_t save_int32(const char *key, int data);
 
 void show_help_info()
 {
@@ -47,7 +45,8 @@ void show_help_info()
 	ESP_LOGI(TAG, "  ip   - set server ip");
 	ESP_LOGI(TAG, "  port - set server port");
 	ESP_LOGI(TAG, "  wifi - start connecting to wifi");
-	ESP_LOGI(TAG, "  help - show help info\n");
+	ESP_LOGI(TAG, "  quit - reset wifi parameters");
+	ESP_LOGI(TAG, "  help - show help info");
 	ESP_LOGI(TAG, "----------------------------------------");
 	ESP_LOGI(TAG, " ");
 }
@@ -108,18 +107,27 @@ static void uart_input_handler(const char *data, int len)
 					memcpy(wifi_ssid, rcvMsg.pRcvMsgBuff, length);
 					status = NONE;
 					ESP_LOGI(TAG, "you set ssid: %s", wifi_ssid);
+					esp_err_t er = save_string(CMD_SSID, (char *)wifi_ssid);
+					if (er != ESP_OK)
+						ESP_LOGE(TAG, "save ssid error");
 					goto set_end;
 				} else if (status == INPUT_PASS) {
 					memset(wifi_pass, 0, WIFI_PASS_MAX_LEN);
 					memcpy(wifi_pass, rcvMsg.pRcvMsgBuff, length);
 					status = NONE;
 					ESP_LOGI(TAG, "you set password: %s", wifi_pass);
+					esp_err_t er = save_string(CMD_PASS, (char *)wifi_pass);
+					if (er != ESP_OK)
+						ESP_LOGE(TAG, "save pass error");
 					goto set_end;
 				} else if (status == INPUT_IP) {
 					memset(srv_ip, 0, SRV_IP_MAX_LEN);
 					memcpy(srv_ip, rcvMsg.pRcvMsgBuff, length);
 					status = NONE;
 					ESP_LOGI(TAG, "you set server ip: %s", srv_ip);
+					esp_err_t er = save_string(CMD_IP, (char *)srv_ip);
+					if (er != ESP_OK)
+						ESP_LOGE(TAG, "save ip error");
 					goto set_end;
 				} else if (status == INPUT_PORT) {
 					if (!is_valid_port((const char *)rcvMsg.pRcvMsgBuff, length)) {
@@ -130,6 +138,10 @@ static void uart_input_handler(const char *data, int len)
 					srv_port = str2num((const char *)rcvMsg.pRcvMsgBuff, length);
 					status = NONE;
 					ESP_LOGI(TAG, "you set server port: %d", srv_port);
+					//esp_err_t er = save_int32(CMD_PORT, srv_port);
+					esp_err_t er = save_string(CMD_PORT, (char *)rcvMsg.pRcvMsgBuff);
+					if (er != ESP_OK)
+						ESP_LOGE(TAG, "save port error");
 					goto set_end;
 				}
 
@@ -149,8 +161,14 @@ static void uart_input_handler(const char *data, int len)
 					show_help_info();
 				} else if (strncmp((const char *)rcvMsg.pRcvMsgBuff, CMD_WIFI, length) == 0) {
 					ESP_LOGI(TAG, "BLE scanning ......");
+					close_nvs();
 					ble_client_app_register();
 					//initialise_wifi();
+				} else if (strncmp((const char *)rcvMsg.pRcvMsgBuff, CMD_QUIT, length) == 0) {
+					ESP_LOGI(TAG, "reset wifi info:");
+					clear_storage();
+					close_nvs();
+					system_restart();
 				} else {
 					ESP_LOGI(TAG, "invalid command %s", rcvMsg.pRcvMsgBuff);
 					show_help_info();

@@ -11,6 +11,7 @@ static scan_list_t head;
 void list_init(void)
 {
 	head.bda = NULL;
+	head.uuid = NULL;
 	head.rssi = 0;
 	head.pNext = NULL;
 }
@@ -30,6 +31,15 @@ scan_list_t *list_new_item(void)
 		free(newItem);
 		return NULL;
 	}
+
+	newItem->uuid = (char *)malloc(UUID_SIZE);
+	if (newItem->uuid == NULL) {
+		ESP_LOGE(TAG, "alloc for UUID failed!");
+		free(newItem->bda);
+		free(newItem);
+		return NULL;
+	}
+
 	return newItem;
 }
 
@@ -47,6 +57,7 @@ void list_destroy(void)
 	while (head.pNext != NULL) {
 		next = (head.pNext)->pNext;
 		free((head.pNext)->bda);
+		free((head.pNext)->uuid);
 		free(head.pNext);
 		head.pNext = next;
 	}

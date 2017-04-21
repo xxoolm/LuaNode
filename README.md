@@ -3,8 +3,9 @@ LuaNode
 
 This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266).
 
-As we know, there are some existing Lua SDK such as NodeMCU, esp-open-rtos, but they are not support for both Esp32 at this time, and
-some of them are not support multi-task.
+This project is developed by `DOIT` WiFi team.
+
+DOIT is a high-tech company, focus on IoT. Visit homepage: www.doit.am
 
 
 ![github](https://ksr-ugc.imgix.net/projects/2439759/photo-original.jpg?w=1024&h=576&fit=fill&bg=FFFFFF&v=1462164335&auto=format&q=92&s=e2d90d11a3fdbffa9d2b9ee5ac975d6a "Esp32 & Esp8266")
@@ -20,11 +21,8 @@ The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board 
 ![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
 ![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
 
-New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. The new board is smaller than the old one, and the new one has more pins.
+New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. The new board is smaller than the old one, and has more pins.
 
-
-![github](http://img0.ph.126.net/MtZjJGGCEhZxOwMZaZidKw==/6632542210791796437.jpg "New ESP32 dev-board")
-![github](http://img0.ph.126.net/WDeMLnrZEmu8aJNCu3352A==/6632200262678235081.jpg "New ESP32 dev-board back")
 
 ![github](http://img0.ph.126.net/f_6UDZFsGiwGHKbavparEg==/6632536713233283288.png "dimension")
 

@@ -3,6 +3,7 @@
 
 typedef struct scan_list {
     char				*bda;
+	char				*uuid;
 	int					rssi;
     struct scan_list	*pNext;
 } scan_list_t;
