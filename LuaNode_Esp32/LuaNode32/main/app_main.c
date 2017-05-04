@@ -17,7 +17,6 @@
 #include "nodemcu_esp_event.h"
 #include "pthreadx.h"
 #include "tmr.h"
-#include "sock2uart_server.h"
 
 extern nodemcu_esp_event_reg_t esp_event_cb_table;
 
