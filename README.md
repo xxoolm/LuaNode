@@ -120,7 +120,7 @@ APPLICATIONS:
 This is an awesome application that using Amazon Echo Dot to turn on/off the blue LED on DOIT ESP32 dev-board via voice 
 control service. You can find the source code, named `alexa_esp32`, within the `examples` directory. 
 
-![github](http://img1.ph.126.net/QU7qJAtW6u4h515fLSmD0A==/6632172774888380482.jpg "Amazon Echo Dot & ESP32 board")
+![github](https://thumbnail0.baidupcs.com/thumbnail/6fa21b9aacfeedaf8876dd8140e370d3?fid=1443503420-250528-799318689246471&time=1496412000&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-kzDcxbKBuEC1EOYkJsiEAMFmCQc%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=3547063589870307235&dp-callid=0&size=c710_u400&quality=100 "Amazon Echo Dot & ESP32 board")
 
 When you build the `alexa_esp32` within the examples folder and flash the firmware to ESP32 board, then you can ask 
 Echo Dot to discover device by telling her "Alexa, discover device". She will answer you "Discovery starting...". After about
