@@ -2,6 +2,10 @@
 
 The examples show you how to use LuaNode.
 
+* **alexa_esp32**: An awesome application that using Amazon Echo Dot (voice control service) to turn on/off the 
+		blue LED on DOIT ESP32 dev-board. Say "Alexa, turn on ESP" to Echo Dot to turn on the blue LED. 
+		When she finish turning on the LED, she'll answer "OK". Say "Alexa, turn off ESP" to turn off 
+		the LED. Have fun!
 * **wifi_scan**: Scan all APs around ESP32 device.
 * **raw_flash_rw**: Read write ESP32 flash directly without file system.
 * **simple_http_server**: Create a simple http server on ESP32. To test this 

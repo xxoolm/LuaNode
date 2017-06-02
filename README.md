@@ -116,6 +116,23 @@ since the lua command handler will be called in this task, more memory is requir
 APPLICATIONS:
 --------------------------------------
 
+### Amazon Alexa for ESP32
+This is an awesome application that using Amazon Echo Dot to turn on/off the blue LED on DOIT ESP32 dev-board via voice 
+control service. You can find the source code, named `alexa_esp32`, within the `examples` directory. 
+
+![github](http://img1.ph.126.net/QU7qJAtW6u4h515fLSmD0A==/6632172774888380482.jpg "Amazon Echo Dot & ESP32 board")
+
+When you build the `alexa_esp32` within the examples folder and flash the firmware to ESP32 board, then you can ask 
+Echo Dot to discover device by telling her "Alexa, discover device". She will answer you "Discovery starting...". After about
+20 seconds, if She does find device, she will answer you "I found 1 device...". Plus, you can search device via Alexa App or 
+via this page: `alexa.amazon.com`. When Echo Dot find ESP32, you will see the found device named "esp" on `alexa.amazon.com`, show 
+as the following figure:
+
+![github](http://img1.ph.126.net/RePwmcN1MQYP4Hc19Bee1w==/6632003450097703984.png "Alexa found ESP32 device")
+
+When Alexa find ESP32 device successfully, you can ask Echo Dot "Alexa, turn on ESP" to turn on the blue LED on ESP32 borad. Ask 
+"Alexa, turn off ESP" to turn off the LED. The following link is a video to show the ESP32 voice control via Amazon Echo Dot: https://youtu.be/Eg1dApUHIBc
+
 ### ESP32-Camera
 This simple application is to use ESP32 to controll a Camera. You can find the source code from the following diretory: _LuaNode_Esp32/LuaNode32/examples/camera_
 
