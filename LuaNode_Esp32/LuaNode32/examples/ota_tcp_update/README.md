@@ -12,9 +12,10 @@ send package again.
   package, request server to send previous package again.
 
 * The package sent by server will have the following format: `total: 123456\r\nlength: 321\r\n\r\n$#&*@#$......`, 
-  where "total: 123456\r\nlength: 321\r\n\r\n$#&*@#$......" is package header, there are two key and value. 
+  where "total: 123456\r\nlength: 321\r\n\r\n" is package header, there are two key and value. 
   the key "total" refers to the total length of this firmware, the other key "length" refers to current package 
-  length. With these information, we can show update progress to user.
+  length. With these information, we can show update progress to user. The package header end with "\r\n\r\n", 
+  and then follow by firmware data. 512 bytes of firmware data for each package.
 
 ## How to use
 
