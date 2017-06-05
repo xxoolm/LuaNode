@@ -18,8 +18,7 @@ New version of LuaNode32 is developed based on esp-idf and compatible with `Espl
 The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board click [Here](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-7420449993.9.yduA0V&id=542459608596)
 
  
-![github](https://img.alicdn.com/imgextra/i1/116050204/TB2jI_AfXOP.eBjSZFHXXXQnpXa_!!116050204.jpg "ESP32 dev-board")
-![github](https://img.alicdn.com/imgextra/i3/116050204/TB20VbCfhaK.eBjSZFwXXXjsFXa_!!116050204.jpg "ESP32 dev-board back")
+![github](https://thumbnail0.baidupcs.com/thumbnail/da43d523a49523bb0016bdd486b492a5?fid=1443503420-250528-714812340458945&time=1496674800&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-HEr2oD7EHU6KNZor9%2BV3KCxz%2Fdk%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=3617715987012731628&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video "ESP32 dev-board")
 
 New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. The new board is smaller than the old one, and has more pins.
 
@@ -258,7 +257,7 @@ CONTACT ME:
 
 If you have any question, you can contact me via Email/QQ list below, Thanks:) 
 
-  - `Email`: wangwei@doit.com
+  - `Email`: wangwei@doit.am
   - `QQ`: 535873968
 
 

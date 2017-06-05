@@ -62,6 +62,8 @@ The examples show you how to use LuaNode.
 * **esp32_ble_gatt_server_led_control_for_phone**: A sample to show how to connect ESP32 with phone (including iOS & Android) 
 		via BLE. Once connection established, you can controll LED on board via phone. Download the App here: https://github.com/Nicholas3388/LuaNode_BLE_Client
 
+* **ota_tcp_update**: A sample to demostrate how to update firmware utilizing OTA via TCP server
+
 * **json**: A sample to show how to use cJSON to encode/decode json string.
 
 ## HOW TO BUILD THE EXAMPLES
