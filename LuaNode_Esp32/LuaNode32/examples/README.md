@@ -6,6 +6,8 @@ The examples show you how to use LuaNode.
 		blue LED on DOIT ESP32 dev-board. Say "Alexa, turn on ESP" to Echo Dot to turn on the blue LED. 
 		When she finish turning on the LED, she'll answer "OK". Say "Alexa, turn off ESP" to turn off 
 		the LED. Have fun!
+* **alexa_multi_esp32**: A sample to show you how to use Amazon Echo Dot to control more than two ESP32 device. You 
+		can add as many ESP32 devices to be controlled as you wish.
 * **wifi_scan**: Scan all APs around ESP32 device.
 * **raw_flash_rw**: Read write ESP32 flash directly without file system.
 * **simple_http_server**: Create a simple http server on ESP32. To test this 
@@ -65,6 +67,7 @@ The examples show you how to use LuaNode.
 * **ota_tcp_update**: A sample to demostrate how to update firmware utilizing OTA via TCP server
 
 * **json**: A sample to show how to use cJSON to encode/decode json string.
+
 
 ## HOW TO BUILD THE EXAMPLES
 

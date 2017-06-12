@@ -117,7 +117,9 @@ APPLICATIONS:
 
 ### Amazon Alexa for ESP32
 This is an awesome application that using Amazon Echo Dot to turn on/off the blue LED on DOIT ESP32 dev-board via voice 
-control service. You can find the source code, named `alexa_esp32`, within the `examples` directory. 
+control service. You can find the source code, named `alexa_esp32`, within the `examples` directory. The `alexa_esp32` 
+sample can control only one pin, if you want to control more pins or to use more resource on ESP32 to do more things, 
+you can learn the `alexa_multi_esp32` sample. The sample will let Alexa to do more things with ESP32.
 
 ![github](https://thumbnail0.baidupcs.com/thumbnail/6fa21b9aacfeedaf8876dd8140e370d3?fid=1443503420-250528-799318689246471&time=1496412000&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-kzDcxbKBuEC1EOYkJsiEAMFmCQc%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=3547063589870307235&dp-callid=0&size=c710_u400&quality=100 "Amazon Echo Dot & ESP32 board")
 
