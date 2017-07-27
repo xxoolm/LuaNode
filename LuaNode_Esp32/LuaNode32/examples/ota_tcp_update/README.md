@@ -1,6 +1,6 @@
 ## Introduction
 
-![github](https://thumbnail0.baidupcs.com/thumbnail/14c9908d7b0bf51a453b4dc649fc39f4?fid=1443503420-250528-85189969679319&time=1496545200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-YuIdOTg93EQhO88w4Q16EKAXLEU%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=3582790967995923504&dp-callid=0&size=c710_u400&quality=100 "OTA TCP update")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/ota_tcp.jpg "OTA TCP update")
 
 Although there is an OTA example provided by esp-idf, the new firmware download from http server, I found
 that some times the connection is failed when firmware updating. In this sample, we provide a TCP method to 

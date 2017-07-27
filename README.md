@@ -8,7 +8,7 @@ This project is developed by `DOIT` WiFi team.
 DOIT is a high-tech company, focus on IoT. Visit homepage: www.doit.am
 
 
-![github](https://ksr-ugc.imgix.net/projects/2439759/photo-original.jpg?w=1024&h=576&fit=fill&bg=FFFFFF&v=1462164335&auto=format&q=92&s=e2d90d11a3fdbffa9d2b9ee5ac975d6a "Esp32 & Esp8266")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/logo.jpg "Esp32 & Esp8266")
 
 NEW UPDATE FOR ESP32:
 --------------------------------------
@@ -18,12 +18,12 @@ New version of LuaNode32 is developed based on esp-idf and compatible with `Espl
 The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board click [Here](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-7420449993.9.yduA0V&id=542459608596)
 
  
-![github](https://thumbnail0.baidupcs.com/thumbnail/da43d523a49523bb0016bdd486b492a5?fid=1443503420-250528-714812340458945&time=1496674800&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-HEr2oD7EHU6KNZor9%2BV3KCxz%2Fdk%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=3617715987012731628&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video "ESP32 dev-board")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp32_fig.png "ESP32 dev-board")
 
 New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. The new board is smaller than the old one, and has more pins.
 
 
-![github](http://img0.ph.126.net/f_6UDZFsGiwGHKbavparEg==/6632536713233283288.png "dimension")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/ESP32_dimension.png "dimension")
 
 Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtufgwg0ex/esp32_Schematic%20Prints.pdf?dl=0 "schematic")
 
@@ -121,7 +121,7 @@ control service. You can find the source code, named `alexa_esp32`, within the `
 sample can control only one pin, if you want to control more pins or to use more resource on ESP32 to do more things, 
 you can learn the `alexa_multi_esp32` sample. The sample will let Alexa to do more things with ESP32.
 
-![github](https://thumbnail0.baidupcs.com/thumbnail/6fa21b9aacfeedaf8876dd8140e370d3?fid=1443503420-250528-799318689246471&time=1496412000&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-kzDcxbKBuEC1EOYkJsiEAMFmCQc%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=3547063589870307235&dp-callid=0&size=c710_u400&quality=100 "Amazon Echo Dot & ESP32 board")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/alexa_esp32.jpg "Amazon Echo Dot & ESP32 board")
 
 When you build the `alexa_esp32` within the examples folder and flash the firmware to ESP32 board, then you can ask 
 Echo Dot to discover device by telling her "Alexa, discover device". She will answer you "Discovery starting...". After about
@@ -129,7 +129,7 @@ Echo Dot to discover device by telling her "Alexa, discover device". She will an
 via this page: `alexa.amazon.com`. When Echo Dot find ESP32, you will see the found device named "esp" on `alexa.amazon.com`, show 
 as the following figure:
 
-![github](http://img1.ph.126.net/RePwmcN1MQYP4Hc19Bee1w==/6632003450097703984.png "Alexa found ESP32 device")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/alexa_esp32_dev.png "Alexa found ESP32 device")
 
 When Alexa find ESP32 device successfully, you can ask Echo Dot "Alexa, turn on ESP" to turn on the blue LED on ESP32 borad. Ask 
 "Alexa, turn off ESP" to turn off the LED. The following link is a video to show the ESP32 voice control via Amazon Echo Dot: https://youtu.be/Eg1dApUHIBc
@@ -142,26 +142,24 @@ We also utilize OV7725 for our camera test, but the hardware is a little differe
 My camera is extended with a RAM, which is AL422B, with 390KB RAM. So the camera can cache 2 frames, if the 
 resolution is set to 320x240 pixel. The following figure is my camera, called "Yehuo", a Chinese name.
 
-![github](http://img2.ph.126.net/MdqGO0DRTakEUyYiGUw8Lg==/6632360791372792649.jpg "Yehuo Camera")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/camera_test.jpg "Yehuo Camera")
 
 The following figures is my ESP32-Camera.
 
-![github](http://img2.ph.126.net/z5YqIBznWy0Ha0YUbZ8uCw==/6631869309677845517.jpg "ESP32-Camera")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp32_cam.jpg "ESP32-Camera")
 
-![github](http://img2.ph.126.net/4ImKqI0vy7uPq_DGjUmk9w==/6632299218721636202.jpg "ESP32-Camera")
 
 I learn _igrr_'s project, and do the same test as _igrr_'s. For instance, I use the camera to scan the board, and then 
 you can see the output from the uart terminal.
 
 
-![github](http://img1.ph.126.net/n_FzfADuecVypWxR494Gyg==/6632216755352253574.jpg "Esp32 camera test")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp32_cam2.jpg "Esp32 camera test")
 
 ### ESP32 Drives Nokia5110 LCD
 This is an application to show how to drive Nokia5110 LCD. It is easy for ESP32 to drive the LCD. You 
 don't even need to use SPI to drive the LCD. The LCD is very cheap, and easy to buy from taobao or eBay.
 
-![github](http://img1.ph.126.net/LarB1NHu7wveHtygQpiDlw==/6632551006884443383.jpg "output hello world")
-![github](http://img0.ph.126.net/Q6iCqZjeYXfvXKGZcNB6NA==/6632275029465872805.jpg "another test")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp32_LCD.jpg "output hello world")
 
 Pin connections:
 
@@ -199,7 +197,7 @@ by nRF51 device. When the nRF51 device receives the content sent by ESP32, the n
 according to the received string. The ESP32 will write "on"/"off" to the characteristic each 2 seconds, so you 
 will see that the LED on nRF51 device blink each 2 seconds.
 
-![github](http://img1.ph.126.net/sZL3L3s6LrBEsWyjxJZZ8g==/6632431160117483785.jpg "nRF51_ESP32")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/nrf51822_esp32_communication.jpg "nRF51_ESP32")
 
 The folloing video is a test for this example: https://youtu.be/hXuCXh5lEew
 
@@ -214,7 +212,7 @@ and then control the LED on DOIT ESP32 dev board. Plus, you can scan BLE devices
 services, characteristics, and descriptors provided by the devices. Download LuaNode_BLE_Client sources from the 
 following repository: https://github.com/Nicholas3388/LuaNode_BLE_Client
 
-![github](http://img0.ph.126.net/bkAy4S4RKoCPetX5AKTV3g==/6631971564259914150.png "LuaNode_BLE_Client")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/ble_debug_tool.png "LuaNode_BLE_Client")
 
 To control the LED on ESP32 board, you have to build the example `esp32_ble_gatt_server_led_control_for_phone`, and then 
 download the firmware. Run the `LuaNode_BLE_Client` and then toggle the LED switch on app to turn on/off the LED on board. 
@@ -234,7 +232,7 @@ Download the `LuanodeUsbHost` source [Here](https://github.com/Nicholas3388/Luan
 Compile `Wifilister` provided in Luanode, flash it to ESP8266/ESP32, and then connect your ESP8266/ESP32 with Android phone.
 You can see the scanning results.
 
-![github](http://ww1.sinaimg.cn/mw690/999babe3jw1f6cwovhg2vj207i0dct9g.jpg "LuanodeUsbHost")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/luanode_host.jpg "LuanodeUsbHost")
 
 FAQ:
 --------------------------------------

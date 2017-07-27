@@ -59,6 +59,10 @@ The examples show you how to use LuaNode.
 		setup SSID, password, server IP and server port via uart. For more details, read the README doc in the 
 		example's directory.
 
+* **ble_notification**: An example to show how to send indication/notification between two ESP32 devices. The indication/notification
+		is sent from `server` to `client`. Build the `server` and `client` within `ble_notification` folder, and then
+		flash the generated firmware to two ESP32 respectively to test notifcation.
+
 * **free80211send**: A sample to show how to send 80211 package. The 80211 component is from https://github.com/Jeija/esp32free80211
 
 * **esp32_ble_gatt_server_led_control_for_phone**: A sample to show how to connect ESP32 with phone (including iOS & Android) 
