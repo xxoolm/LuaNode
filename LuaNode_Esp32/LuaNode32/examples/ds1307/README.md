@@ -8,12 +8,15 @@ To use DS1307 module, please remove R2 and R3 on the module.
 
 Pin connections:
 
+
 --------
 | DS1307 | ESP32 |
+| --- | --- |
 | SCL | GPIO19 |
 | SDA | GPIO18 |
 | Vcc | 3v3 |
 | GND | GND |
+
 
 Modified the SSID and password defined in `main.c`
 
