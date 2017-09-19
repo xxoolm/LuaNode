@@ -72,6 +72,7 @@ The examples show you how to use LuaNode.
 
 * **json**: A sample to show how to use cJSON to encode/decode json string.
 
+* **ds1307**: A sample show you how to use DS1307 (RTC module).
 
 ## HOW TO BUILD THE EXAMPLES
 
