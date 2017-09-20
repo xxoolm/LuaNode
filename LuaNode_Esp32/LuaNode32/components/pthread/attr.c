@@ -30,19 +30,19 @@
 #include <errno.h>
 #include "pthreadx.h"
 
-int pthread_attr_init(pthread_attr_t *attr) {
+int pthread_attr_init(_pthread_attr_t *attr) {
     attr->stack_size = PTHREAD_STACK_MIN;
     attr->initial_state = PTHREAD_INITIAL_STATE_RUN;
     
     return 0;
 }
 
-int pthread_attr_destroy(pthread_attr_t *attr) {
+int pthread_attr_destroy(_pthread_attr_t *attr) {
     return 0;
     
 }
 
-int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize) {
+int pthread_attr_setstacksize(_pthread_attr_t *attr, size_t stacksize) {
     if (stacksize < PTHREAD_STACK_MIN) {
         errno = EINVAL;
         return EINVAL;
@@ -53,7 +53,7 @@ int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize) {
     return 0;
 }
 
-int pthread_attr_setinitialstate(pthread_attr_t *attr, int initial_state) {
+int pthread_attr_setinitialstate(_pthread_attr_t *attr, int initial_state) {
     if ((initial_state != PTHREAD_INITIAL_STATE_RUN) && (initial_state != PTHREAD_INITIAL_STATE_SUSPEND)) {
         errno = EINVAL;
         return EINVAL;
@@ -64,13 +64,13 @@ int pthread_attr_setinitialstate(pthread_attr_t *attr, int initial_state) {
     return 0;
 }
 
-int pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stacksize) {
+int pthread_attr_getstacksize(const _pthread_attr_t *attr, size_t *stacksize) {
     *stacksize = attr->stack_size;
     
     return 0;
 }
 
-int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate) {
+int pthread_attr_setdetachstate(_pthread_attr_t *attr, int detachstate) {
     return 0;
 }
 

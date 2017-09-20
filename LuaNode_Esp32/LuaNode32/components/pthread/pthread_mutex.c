@@ -44,7 +44,7 @@ static int _check_attr(const pthread_mutexattr_t *attr) {
    return 0;
 }
 
-int pthread_mutex_extend_init(pthread_mutex_extend_t *mut, const pthread_mutexattr_t *attr) {
+int pthread_mutex_extend_init(pthread_mutex_extend_t *mut, const _pthread_mutexattr_t *attr) {
     struct pthread_mutex *mutex;
     int res;
 
@@ -203,7 +203,7 @@ int pthread_mutex_extend_destroy(pthread_mutex_extend_t *mut) {
     return 0;
 }
 
-int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int type) {
+int pthread_mutexattr_settype(_pthread_mutexattr_t *attr, int type) {
     pthread_mutexattr_t temp_attr;
     int res;
 
@@ -226,7 +226,7 @@ int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int type) {
     return 0;
 }
 
-int pthread_mutexattr_init(pthread_mutexattr_t *attr) {
+int pthread_mutexattr_init(_pthread_mutexattr_t *attr) {
     attr->type = PTHREAD_MUTEX_NORMAL;
     
     return 0;

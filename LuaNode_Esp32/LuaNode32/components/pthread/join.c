@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "pthreadx.h"
 
-int pthread_join(pthread_t thread, void **value_ptr) {
+int pthread_join(_pthread_t thread, void **value_ptr) {
     int res;
     
     res = _pthread_join(thread);

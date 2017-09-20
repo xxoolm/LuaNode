@@ -99,7 +99,7 @@ void uart0_rx_intr_handler(void *para)
         } else if (UART_RXFIFO_FULL_INT_ST == (uart_intr_status & UART_RXFIFO_FULL_INT_ST)) {
 			//uart_tx_one_char('$');
 			RcvChar = READ_PERI_REG(UART_FIFO(0)) & 0xFF;
-            WRITE_PERI_REG(UART_INT_CLR(0), UART_RXFIFO_FULL_INT_CLR);
+            WRITE_PERI_REG(UART_INT_CLR(0), UART_RXFIFO_FULL_INT_CLR); printf("=> %c\r\n", RcvChar);
 
 			*(rcvMsgBuff.pWritePos) = RcvChar;
 
@@ -172,6 +172,7 @@ void uart_putc(uint8_t TxChar)
 
 void uart_init(void)
 {
+	printf("UART init ...\r\n");
 	rcvMsgBuff.pRcvMsgBuff = malloc(RX_BUFF_SIZE);
 	memset(rcvMsgBuff.pRcvMsgBuff, 0, RX_BUFF_SIZE);
 	rcvMsgBuff.pWritePos = rcvMsgBuff.pRcvMsgBuff;

@@ -33,7 +33,7 @@
 
 extern struct list key_list;
 
-int pthread_key_create(pthread_key_t *k, void (*destructor)(void*)) {
+int pthread_key_create(_pthread_key_t *k, void (*destructor)(void*)) {
     struct pthread_key *key;
     int res;
     
@@ -60,7 +60,7 @@ int pthread_key_create(pthread_key_t *k, void (*destructor)(void*)) {
     return 0;
 }
 
-int pthread_setspecific(pthread_key_t k, const void *value) {
+int pthread_setspecific(_pthread_key_t k, const void *value) {
     struct pthread_key_specific *specific;
     struct pthread_key *key;    
     int res;
@@ -84,7 +84,7 @@ int pthread_setspecific(pthread_key_t k, const void *value) {
     return 0;
 }
 
-void *pthread_getspecific(pthread_key_t k) {
+void *pthread_getspecific(_pthread_key_t k) {
     struct pthread_key_specific *specific;
     struct pthread_key *key;
     pthread_t thread;

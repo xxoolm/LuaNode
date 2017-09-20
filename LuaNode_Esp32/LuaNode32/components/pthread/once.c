@@ -32,7 +32,7 @@
 
 extern struct mtx once_mtx;
 
-int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
+int pthread_once(_pthread_once_t *once_control, void (*init_routine)(void)) {
     // Init once_control, if not
     mtx_lock(&once_mtx);
 #if !MTX_USE_EVENTS

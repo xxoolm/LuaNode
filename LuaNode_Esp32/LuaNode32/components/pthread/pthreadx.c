@@ -44,6 +44,8 @@
 
 #include "lauxlib.h"
 
+#include "esp_err.h"
+
 struct list key_list;
 struct list mutex_list;
 struct list thread_list;
@@ -71,7 +73,7 @@ void _pthread_init() {
     list_init(&key_list, 1);
 }
 
-int _pthread_create(pthread_t *id, int stacksize, int initial_state,
+int _pthread_create(_pthread_t *id, int stacksize, int initial_state,
                     void *(*start_routine)(void *), void *args
 ) {
     xTaskHandle xCreatedTask;              // Related task
@@ -176,7 +178,7 @@ int _pthread_create(pthread_t *id, int stacksize, int initial_state,
     return 0;
 }
 
-int _pthread_join(pthread_t id) {
+int _pthread_join(_pthread_t id) {
     struct pthread_join *join;
     struct pthread *thread;
     int idx;
@@ -220,7 +222,7 @@ int _pthread_join(pthread_t id) {
     return 0;
 } 
 
-int _pthread_free(pthread_t id) {
+int _pthread_free(_pthread_t id) {
     struct pthread *thread;
     int res;
     
@@ -330,7 +332,7 @@ int _pthread_has_signal(int s) {
     return 0;
 }
 
-int _pthread_stop(pthread_t id) {
+int _pthread_stop(_pthread_t id) {
     struct pthread *thread;
     int res;
 
@@ -347,7 +349,7 @@ int _pthread_stop(pthread_t id) {
     return 0;
 }
 
-int _pthread_core(pthread_t id) {
+int _pthread_core(_pthread_t id) {
     struct pthread *thread;
     int res;
 
@@ -361,7 +363,7 @@ int _pthread_core(pthread_t id) {
     return (int)uxGetCoreID(thread->task);
 }
 
-int _pthread_suspend(pthread_t id) {
+int _pthread_suspend(_pthread_t id) {
     struct pthread *thread;
     int res;
 
@@ -378,7 +380,7 @@ int _pthread_suspend(pthread_t id) {
     return 0;
 }
 
-int _pthread_resume(pthread_t id) {
+int _pthread_resume(_pthread_t id) {
     struct pthread *thread;
     int res;
 
@@ -495,4 +497,9 @@ void pthreadTask(void *taskArgs) {
         
     // End related task
     vTaskDelete(NULL);
+}
+
+
+esp_err_t esp_pthread_init() {
+	return ESP_OK;
 }

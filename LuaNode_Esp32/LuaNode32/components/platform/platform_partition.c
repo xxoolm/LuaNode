@@ -37,7 +37,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../../bootloader/src/main/bootloader_config.h"
+//#include "../../bootloader/src/main/bootloader_config.h"
 #include "esp_spi_flash.h"
 #include "esp_flash_data_types.h"
 

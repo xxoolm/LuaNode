@@ -58,7 +58,7 @@ int c_stderr = 1001;
 
 #else
 
-#define FLOATINGPT 1
+//#define FLOATINGPT 1
 #define NEWFP 1
 #define ENDIAN_LITTLE 1234
 #define ENDIAN_BIG  4321

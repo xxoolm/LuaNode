@@ -38,7 +38,7 @@ unsigned sleep(unsigned int secs) {
     return 0;
 }
 
-int usleep(useconds_t usec) {
+int px_usleep(useconds_t usec) {
 	vTaskDelay(usec / ((TickType_t) 1000000 / configTICK_RATE_HZ));
 
 	return 0;

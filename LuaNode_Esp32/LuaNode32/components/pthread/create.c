@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "pthreadx.h"
 
-int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
+int pthread_create(_pthread_t *thread, const _pthread_attr_t *attr,
                           void *(*start_routine) (void *), void *args) {
     
     int stacksize; // Stack size

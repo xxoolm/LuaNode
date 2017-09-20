@@ -37,7 +37,7 @@ extern struct mtx cond_mtx;
 extern eventg_t eventg[MTX_EVENT_GROUPS];
 #endif
 
-int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr) {
+int pthread_cond_init(_pthread_cond_t *cond, const _pthread_condattr_t *attr) {
     // Init conf, if not
     mtx_lock(&cond_mtx);
 #if !MTX_USE_EVENTS
@@ -55,7 +55,7 @@ int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr) {
     return 0;
 }
 
-int pthread_cond_destroy(pthread_cond_t *cond) {
+int pthread_cond_destroy(_pthread_cond_t *cond) {
     // Destroy, if config
     mtx_lock(&cond_mtx);
 #if !MTX_USE_EVENTS
@@ -73,7 +73,7 @@ int pthread_cond_destroy(pthread_cond_t *cond) {
 	return 0; 
 }
 
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_extend_t *mutex) {    
+int pthread_cond_wait(_pthread_cond_t *cond, pthread_mutex_extend_t *mutex) {    
     // Init condition, if not
     pthread_cond_init(cond, NULL);
     
@@ -84,7 +84,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_extend_t *mutex) {
     return 0;
 }
   
-int pthread_cond_timedwait(pthread_cond_t *cond, 
+int pthread_cond_timedwait(_pthread_cond_t *cond, 
     pthread_mutex_extend_t *mutex, const struct timespec *abstime) { 
     
     // Init condition, if not
@@ -111,7 +111,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond,
     return 0;
 }
 
-int pthread_cond_signal(pthread_cond_t *cond) {
+int pthread_cond_signal(_pthread_cond_t *cond) {
     // Init condition, if not
     pthread_cond_init(cond, NULL);
 

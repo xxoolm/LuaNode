@@ -31,6 +31,6 @@
 
 extern UBaseType_t uxGetThreadId();
 
-pthread_t pthread_self(void) {
+_pthread_t pthread_self(void) {
     return (pthread_t)uxGetThreadId();
 }
