@@ -155,7 +155,8 @@ static const char *bt_event_type_to_string(uint32_t eventType) {
 
 void bt_task(void *ignore) {
 	int errRc;
-	esp_bt_controller_init();
+	esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+	esp_bt_controller_init(&bt_cfg);
 	int ret = esp_bluedroid_init();
     if (ret) {
         ESP_LOGE(tag, "init bluedroid failed\n");
