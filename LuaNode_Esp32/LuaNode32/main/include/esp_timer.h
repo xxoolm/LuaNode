@@ -35,8 +35,8 @@ typedef void os_timer_func_t(void *timer_arg);
 typedef struct _os_timer_t {
     struct _os_timer_t *timer_next;
     void               *timer_handle;
-    uint32             timer_expire;
-    uint32             timer_period;
+    uint32_t             timer_expire;
+    uint32_t             timer_period;
     os_timer_func_t    *timer_func;
     bool               timer_repeat_flag;
     void               *timer_arg;
@@ -79,7 +79,7 @@ void os_timer_setfn(os_timer_t *ptimer, os_timer_func_t *pfunction, void *parg);
   *
   * @return null
   */
-void os_timer_arm(os_timer_t *ptimer, uint32 msec, bool repeat_flag);
+void os_timer_arm(os_timer_t *ptimer, uint32_t msec, bool repeat_flag);
 
 /**
   * @brief  Disarm the timer

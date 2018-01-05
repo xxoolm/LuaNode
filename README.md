@@ -270,7 +270,10 @@ CHANGE LOG:
 	Modified code structure	
 
 2016.5.11
-    Replace libc
+	Replace libc
 
 2017.1.19
 	Update to the latest esp-idf
+
+2018.1.5
+	Update for the latest esp-idf

@@ -63,7 +63,7 @@
 
 #define ENABLE_SOCK2UART	1
 
-#define VERSION		"1.2.2"
+#define VERSION		"1.3.0"
 
 #define FLASH_READ_SIZE		1024
 

@@ -15,7 +15,9 @@
 #include "flash_api.h"
 #include "task/task.h"
 #include "nodemcu_esp_event.h"
+#ifdef USE_THREAD_MODULE
 #include "pthreadx.h"
+#endif
 #include "tmr.h"
 
 extern nodemcu_esp_event_reg_t esp_event_cb_table;
@@ -23,16 +25,6 @@ extern nodemcu_esp_event_reg_t esp_event_cb_table;
 static task_handle_t esp_event_task;
 static QueueHandle_t esp_event_queue;
 
-void init_task(void *pvParameters)
-{
-	printf("task init\n");
-	//int mount_res = fs_init();
-	//printf("mount result: %d\n", mount_res);
-	/** add your init code here **/
-
-	//do_luainit();
-    vTaskDelete(NULL);
-}
 
 void led_blink(void) 
 {
@@ -97,7 +89,6 @@ static void handle_esp_event (task_param_t param, task_prio_t prio)
 void app_main()
 {
 	uart_init();
-	//xTaskCreate(init_task, "init_task", 1024, NULL, 11, NULL);
 
 	esp_event_queue =
     xQueueCreate (CONFIG_SYSTEM_EVENT_QUEUE_SIZE, sizeof (system_event_t));
@@ -106,7 +97,7 @@ void app_main()
 	if(flash_safe_get_size_byte() != flash_rom_get_size_byte()) {
 		printf("Incorrect flash size reported, adjusting...\n");
 		flash_rom_set_size_byte(flash_safe_get_size_byte());
-		system_restart();
+		esp_restart();
 		return;
 	}
 
@@ -124,9 +115,8 @@ void app_main()
 	nvs_flash_init();
 	tcpip_adapter_init();
 	platform_init();
-
-#if ENABLE_SOCK2UART
-	//sock2uart_server_start();
+#ifdef USE_TMR_MODULE
+	tmr_init();
 #endif
 
 	printf("\n=======================================\n");
@@ -137,7 +127,10 @@ void app_main()
 	char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
     lua_main(2, lua_argv);
 
+#ifdef USE_THREAD_MODULE
 	_pthread_init();
+#endif
+
 	//led_blink();	// led flashing
 	task_pump_messages();
 }

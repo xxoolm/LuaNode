@@ -58,7 +58,9 @@ tmr.softwd(int)
 #include "lualib.h"
 #include "esp_timer.h"
 #include "esp_misc.h"
+#include "esp_system.h"
 #include "modules.h"
+#include "driver/timer.h"
 
 #define NUM_TMR	7
 
@@ -68,6 +70,14 @@ tmr.softwd(int)
 #define TIMER_MODE_AUTO 1
 #define TIMER_IDLE_FLAG (1<<7) 
 
+#define TIMER_DIVIDER         16  //  Hardware timer clock divider
+#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
+
+#define TIMER_INTERVAL0_SEC   (3.4179) // sample test interval for the first timer
+#define TEST_WITHOUT_RELOAD   0        // testing will be done without auto reload
+#define TEST_WITH_RELOAD      1        // testing will be done with auto reload
+
+
 //well, the following are my assumptions
 //why, oh why is there no good documentation
 //chinese companies should learn from Atmel
@@ -75,19 +85,25 @@ extern void ets_delay_us(uint32_t us);
 extern uint32_t system_get_time();
 //extern uint32_t system_rtc_clock_cali_proc();
 extern uint32_t system_get_rtc_time();
-extern void system_restart();
 extern void system_soft_wdt_feed();
 
 //in fact lua_State is constant, it's pointless to pass it around
 //but hey, whatever, I'll just pass it, still we waste 28B here
 typedef struct{
-	os_timer_t os;
+	//os_timer_t os;
 	lua_State* L;
 	sint32_t lua_ref;
 	uint32_t interval;
 	uint8_t mode;
 }timer_struct_t;
 typedef timer_struct_t* my_timer_t;
+
+typedef struct {
+    int type;  // the type of timer's event
+    int timer_group;
+    int timer_idx;
+    uint64_t timer_counter_value;
+} timer_event_t;
 
 //everybody just love unions! riiiiight?
 static union {
@@ -96,7 +112,8 @@ static union {
 } rtc_time;
 static sint32_t soft_watchdog  = -1;
 static timer_struct_t alarm_timers[NUM_TMR];
-static os_timer_t rtc_timer;
+//static os_timer_t rtc_timer;
+static xQueueHandle timer_queue;
 
 static void alarm_timer_common(void* arg){
 	my_timer_t tmr = &alarm_timers[(uint32_t)arg];
@@ -159,6 +176,80 @@ static int tmr_now(lua_State* L){
 	return 1; 
 }
 
+/*
+ * Timer group0 ISR handler
+ *
+ * Note:
+ * We don't call the timer API here because they are not declared with IRAM_ATTR.
+ * If we're okay with the timer irq not being serviced while SPI flash cache is disabled,
+ * we can allocate this interrupt without the ESP_INTR_FLAG_IRAM flag and use the normal API.
+ */
+void IRAM_ATTR timer_group0_isr(void *para)
+{
+    int timer_idx = (int) para;
+
+    /* Retrieve the interrupt status and the counter value
+       from the timer that reported the interrupt */
+    uint32_t intr_status = TIMERG0.int_st_timers.val;
+    TIMERG0.hw_timer[timer_idx].update = 1;
+    uint64_t timer_counter_value = 
+        ((uint64_t) TIMERG0.hw_timer[timer_idx].cnt_high) << 32
+        | TIMERG0.hw_timer[timer_idx].cnt_low;
+
+    /* Prepare basic event data
+       that will be then sent back to the main program task */
+    timer_event_t evt;
+    evt.timer_group = 0;
+    evt.timer_idx = timer_idx;
+    evt.timer_counter_value = timer_counter_value;
+
+    /* Clear the interrupt
+       and update the alarm time for the timer with without reload */
+    if ((intr_status & BIT(timer_idx)) && timer_idx == TIMER_0) {
+        evt.type = TEST_WITHOUT_RELOAD;
+        TIMERG0.int_clr_timers.t0 = 1;
+        timer_counter_value += (uint64_t) (TIMER_INTERVAL0_SEC * TIMER_SCALE);
+        TIMERG0.hw_timer[timer_idx].alarm_high = (uint32_t) (timer_counter_value >> 32);
+        TIMERG0.hw_timer[timer_idx].alarm_low = (uint32_t) timer_counter_value;
+    } else if ((intr_status & BIT(timer_idx)) && timer_idx == TIMER_1) {
+        evt.type = TEST_WITH_RELOAD;
+        TIMERG0.int_clr_timers.t1 = 1;
+    } else {
+        evt.type = -1; // not supported even type
+    }
+
+    /* After the alarm has been triggered
+      we need enable it again, so it is triggered the next time */
+    TIMERG0.hw_timer[timer_idx].config.alarm_en = TIMER_ALARM_EN;
+
+    /* Now just send the event data back to the main program task */
+    xQueueSendFromISR(timer_queue, &evt, NULL);
+}
+
+static void example_tg0_timer_init(int timer_idx, bool auto_reload, double timer_interval_sec) {
+    /* Select and initialize basic parameters of the timer */
+    timer_config_t config;
+    config.divider = TIMER_DIVIDER;
+    config.counter_dir = TIMER_COUNT_UP;
+    config.counter_en = TIMER_PAUSE;
+    config.alarm_en = TIMER_ALARM_EN;
+    config.intr_type = TIMER_INTR_LEVEL;
+    config.auto_reload = auto_reload;
+    timer_init(TIMER_GROUP_0, timer_idx, &config);
+
+    /* Timer's counter will initially start from value below.
+       Also, if auto_reload is set, this value will be automatically reload on alarm */
+    timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x00000000ULL);
+
+    /* Configure the alarm value and the interrupt on alarm. */
+    timer_set_alarm_value(TIMER_GROUP_0, timer_idx, timer_interval_sec * TIMER_SCALE);
+    timer_enable_intr(TIMER_GROUP_0, timer_idx);
+    timer_isr_register(TIMER_GROUP_0, timer_idx, timer_group0_isr, 
+        (void *) timer_idx, ESP_INTR_FLAG_IRAM, NULL);
+
+    timer_start(TIMER_GROUP_0, timer_idx);
+}
+
 // Lua: tmr.register( id, interval, mode, function )
 static int tmr_register(lua_State* L){
 	uint32_t id = luaL_checkinteger(L, 1);
@@ -175,8 +266,9 @@ static int tmr_register(lua_State* L){
 	lua_pushvalue(L, 4);
 	sint32_t ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	my_timer_t tmr = &alarm_timers[id];
-	if(!(tmr->mode & TIMER_IDLE_FLAG) && tmr->mode != TIMER_MODE_OFF)
-		os_timer_disarm(&tmr->os);
+	if(!(tmr->mode & TIMER_IDLE_FLAG) && tmr->mode != TIMER_MODE_OFF) {
+		//os_timer_disarm(&tmr->os);
+	}
 	//there was a bug in this part, the second part of the following condition was missing
 	if(tmr->lua_ref != LUA_NOREF && tmr->lua_ref != ref)
 		luaL_unref(L, LUA_REGISTRYINDEX, tmr->lua_ref);
@@ -184,7 +276,8 @@ static int tmr_register(lua_State* L){
 	tmr->mode = mode|TIMER_IDLE_FLAG;
 	tmr->interval = interval;
 	tmr->L = L; 
-	os_timer_setfn(&tmr->os, alarm_timer_common, (void*)id);
+	//os_timer_setfn(&tmr->os, alarm_timer_common, (void*)id);
+	example_tg0_timer_init(TIMER_0, TEST_WITHOUT_RELOAD, interval);
 	return 0;  
 }
 
@@ -198,7 +291,7 @@ static int tmr_start(lua_State* L){
 		lua_pushboolean(L, 0);
 	}else{
 		tmr->mode &= ~TIMER_IDLE_FLAG;
-		os_timer_arm(&tmr->os, tmr->interval, tmr->mode==TIMER_MODE_AUTO);
+		//os_timer_arm(&tmr->os, tmr->interval, tmr->mode==TIMER_MODE_AUTO);
 		lua_pushboolean(L, 1);
 	}
 	return 1;
@@ -218,7 +311,7 @@ static int tmr_stop(lua_State* L){
 	//we return false if the timer is idle (of not registered)
 	if(!(tmr->mode & TIMER_IDLE_FLAG) && tmr->mode != TIMER_MODE_OFF){
 		tmr->mode |= TIMER_IDLE_FLAG;
-		os_timer_disarm(&tmr->os);
+		//os_timer_disarm(&tmr->os);
 		lua_pushboolean(L, 1);
 	}else{
 		lua_pushboolean(L, 0);
@@ -231,8 +324,9 @@ static int tmr_unregister(lua_State* L){
 	uint8_t id = luaL_checkinteger(L, 1);
 	//MOD_CHECK_ID(tmr,id);
 	my_timer_t tmr = &alarm_timers[id];
-	if(!(tmr->mode & TIMER_IDLE_FLAG) && tmr->mode != TIMER_MODE_OFF)
-		os_timer_disarm(&tmr->os);
+	if(!(tmr->mode & TIMER_IDLE_FLAG) && tmr->mode != TIMER_MODE_OFF) {
+		//os_timer_disarm(&tmr->os);
+	}
 	if(tmr->lua_ref != LUA_NOREF)
 		luaL_unref(L, LUA_REGISTRYINDEX, tmr->lua_ref);
 	tmr->lua_ref = LUA_NOREF;
@@ -251,8 +345,8 @@ static int tmr_interval(lua_State* L){
 	if(tmr->mode != TIMER_MODE_OFF){	
 		tmr->interval = interval;
 		if(!(tmr->mode&TIMER_IDLE_FLAG)){
-			os_timer_disarm(&tmr->os);
-			os_timer_arm(&tmr->os, tmr->interval, tmr->mode==TIMER_MODE_AUTO);
+			//os_timer_disarm(&tmr->os);
+			//os_timer_arm(&tmr->os, tmr->interval, tmr->mode==TIMER_MODE_AUTO);
 		}
 	}
 	return 0;
@@ -313,7 +407,7 @@ void rtc_callback(void *arg){
 	if(soft_watchdog > 0){
 		soft_watchdog--;
 		if(soft_watchdog == 0)
-			system_restart();
+			esp_restart();
 	}
 }
 
@@ -364,4 +458,39 @@ LUALIB_API int luaopen_tmr(lua_State *L)
   luaL_register( L, LUA_TMRLIBNAME, tmr_map );
   return 1;
 #endif
+}
+
+
+static void timer_evt_task(void *arg) {
+    while (1) {
+        timer_event_t evt;
+        xQueueReceive(timer_queue, &evt, portMAX_DELAY);
+
+        /* Print information that the timer reported an event */
+        if (evt.type == TEST_WITHOUT_RELOAD) {
+            printf("\n    Example timer without reload\n");
+        } else if (evt.type == TEST_WITH_RELOAD) {
+            printf("\n    Example timer with auto reload\n");
+        } else {
+            printf("\n    UNKNOWN EVENT TYPE\n");
+        }
+        printf("Group[%d], timer[%d] alarm event\n", evt.timer_group, evt.timer_idx);
+
+        /* Print the timer values passed by event */
+        printf("------- EVENT TIME --------\n");
+        //print_timer_counter(evt.timer_counter_value);
+
+        /* Print the timer values as visible by this task */
+        printf("-------- TASK TIME --------\n");
+        uint64_t task_counter_value;
+        timer_get_counter_value(evt.timer_group, evt.timer_idx, &task_counter_value);
+        //print_timer_counter(task_counter_value);
+    }
+}
+
+void tmr_init(void) {
+	// timer task init
+	printf("timer task init\r\n");
+	timer_queue = xQueueCreate(10, sizeof(timer_event_t));
+	xTaskCreate(timer_evt_task, "timer_evt_task", 2048, NULL, 5, NULL);
 }

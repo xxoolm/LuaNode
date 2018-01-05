@@ -16,6 +16,7 @@
 #include "driver/ledc.h"
 #include "driver/i2c.h"
 #include "driver/gpio.h"
+#include "driver/timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -26,7 +27,7 @@
 #include "rom.h"
 #include "gpio16.h"
 #include "i2c_master.h"
-#include "spi_api.h"
+//#include "spi_api.h"
 #include "pin_map.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -528,7 +529,7 @@ void platform_i2c_uninstall( uint8_t i2c_num )
 // SPI platform interface
 uint32_t platform_spi_setup( uint8_t id, int mode, unsigned cpol, unsigned cpha, uint32_t clock_div)
 {
-  spi_master_init( id, cpol, cpha, clock_div );
+  //spi_master_init( id, cpol, cpha, clock_div );
   return 1;
 }
 
@@ -537,7 +538,7 @@ int platform_spi_send( uint8_t id, uint8_t bitlen, spi_data_type data )
   if (bitlen > 32)
     return PLATFORM_ERR;
 
-  spi_mast_transaction( id, 0, 0, bitlen, data, 0, 0, 0 );
+  //spi_mast_transaction( id, 0, 0, bitlen, data, 0, 0, 0 );
   return PLATFORM_OK;
 }
 
@@ -546,9 +547,10 @@ spi_data_type platform_spi_send_recv( uint8_t id, uint8_t bitlen, spi_data_type 
   if (bitlen > 32)
     return 0;
 
-  spi_mast_set_mosi( id, 0, bitlen, data );
-  spi_mast_transaction( id, 0, 0, 0, 0, bitlen, 0, -1 );
-  return spi_mast_get_miso( id, 0, bitlen );
+  //spi_mast_set_mosi( id, 0, bitlen, data );
+  //spi_mast_transaction( id, 0, 0, 0, 0, bitlen, 0, -1 );
+  //return spi_mast_get_miso( id, 0, bitlen );
+  return PLATFORM_OK;
 }
 
 int platform_spi_set_mosi( uint8_t id, uint8_t offset, uint8_t bitlen, spi_data_type data )
@@ -556,7 +558,7 @@ int platform_spi_set_mosi( uint8_t id, uint8_t offset, uint8_t bitlen, spi_data_
   if (offset + bitlen > 512)
     return PLATFORM_ERR;
 
-  spi_mast_set_mosi( id, offset, bitlen, data );
+  //spi_mast_set_mosi( id, offset, bitlen, data );
 
   return PLATFORM_OK;
 }
@@ -566,7 +568,8 @@ spi_data_type platform_spi_get_miso( uint8_t id, uint8_t offset, uint8_t bitlen 
   if (offset + bitlen > 512)
     return 0;
 
-  return spi_mast_get_miso( id, offset, bitlen );
+  //return spi_mast_get_miso( id, offset, bitlen );
+  return PLATFORM_OK;
 }
 
 int platform_spi_transaction( uint8_t id, uint8_t cmd_bitlen, spi_data_type cmd_data,
@@ -580,7 +583,7 @@ int platform_spi_transaction( uint8_t id, uint8_t cmd_bitlen, spi_data_type cmd_
       (miso_bitlen  > 512))
     return PLATFORM_ERR;
 
-  spi_mast_transaction( id, cmd_bitlen, cmd_data, addr_bitlen, addr_data, mosi_bitlen, dummy_bitlen, miso_bitlen );
+  //spi_mast_transaction( id, cmd_bitlen, cmd_data, addr_bitlen, addr_data, mosi_bitlen, dummy_bitlen, miso_bitlen );
 
   return PLATFORM_OK;
 }
@@ -608,7 +611,7 @@ static uint32_t flashh_find_sector( uint32_t address, uint32_t *pstart, uint32_t
 
 uint32_t platform_flash_mapped2phys (uint32_t mapped_addr)
 {
-  uint32_t cache_ctrl = READ_PERI_REG(CACHE_FLASH_CTRL_REG);
+  uint32_t cache_ctrl = DPORT_READ_PERI_REG(CACHE_FLASH_CTRL_REG);
   if (!(cache_ctrl & CACHE_FLASH_ACTIVE))
     return -1;
   bool b0 = (cache_ctrl & CACHE_FLASH_MAPPED0) ? 1 : 0;

@@ -1,7 +1,9 @@
 #include "my_uart.h"
 #include "esp_intr.h"
+#include "esp_log.h"
 #include "c_types.h"
 #include "rom/uart.h"
+#include "driver/uart.h"
 #include "soc/uart_register.h"
 #include "extras/esp_intr_ext.h"
 #include "c_string.h"
@@ -29,9 +31,13 @@
 #define UART_RXFIFO_OVF_INT_CLR (BIT(4))
 #define UART_RXFIFO_OVF_INT_ST (BIT(4))
 
+#define EX_UART_NUM UART_NUM_0
+
+#define TAG	"my_uart"
+
 enum {
     UART_EVENT_RX_CHAR,
-    UART_EVENT_MAX
+    //UART_EVENT_MAX
 };
 
 typedef struct _os_event_ {
@@ -43,110 +49,94 @@ xTaskHandle xUartTaskHandle;
 xQueueHandle xQueueUart;
 RcvMsgBuff rcvMsgBuff;
 
-static void fs_init0(void)
+static uint8_t pbuff[RX_BUFF_SIZE] = {0};
+
+
+static void uart_event_task(void *pvParameters)
 {
-	//int mount_res = fs_init();
-	//os_printf("mount result: %d\n", mount_res);
+    uart_event_t event;
+    size_t buffered_size;
+	memset(pbuff, 0, RX_BUFF_SIZE);
+    while (1) {
+        /* Waiting for UART event.
+           If it happens then print out information what is it */
+        if (xQueueReceive(xQueueUart, (void * )&event, (portTickType)portMAX_DELAY)) {
+            //ESP_LOGI(TAG, "uart[%d] event:", EX_UART_NUM);
+            switch (event.type) {
+            case UART_DATA: {
+                /* Event of UART receiving data
+                 * We'd better handler data event fast, there would be much more data events
+                 * than other types of events.
+                 * If we take too much time on data event, the queue might be full.
+                 * In this example, we don't process data in event, but read data outside.
+                 */
+                uart_get_buffered_data_len(EX_UART_NUM, &buffered_size);
+                //ESP_LOGI(TAG, "data, len: %d; buffered len: %d", event.size, buffered_size);
+				int len = uart_read_bytes(EX_UART_NUM, pbuff, RX_BUFF_SIZE, 100 / portTICK_RATE_MS);
+				if (len > 0) {
+					//ESP_LOGI(TAG, "data: %s", pbuff);
+					uint8 RcvChar;
+					for (int i = 0; i < len; i++) {
+						RcvChar = pbuff[i];
+						*(rcvMsgBuff.pWritePos) = RcvChar;
+						if (RcvChar == '\r' || RcvChar == '\n' ) {
+							rcvMsgBuff.BuffState = WRITE_OVER;
+						}
 
-	//int status = do_luainit();
-}
+						if (rcvMsgBuff.pWritePos == (rcvMsgBuff.pRcvMsgBuff + RX_BUFF_SIZE)) {
+							// overflow ...we may need more error handle here.
+							rcvMsgBuff.pWritePos = rcvMsgBuff.pRcvMsgBuff ;
+						} else {
+							rcvMsgBuff.pWritePos++;
+						}
 
-void uart_task(void *pvParameters)
-{
-	// Close wifi temporary
-	//char *appName = getenv("APP_NAME");
-	//wifi_station_disconnect();
-	//wifi_set_opmode(NULL_MODE);
-	
-	fs_init0();
+						if (rcvMsgBuff.pWritePos == rcvMsgBuff.pReadPos){   // overflow one byte, need push pReadPos one byte ahead
+							if (rcvMsgBuff.pReadPos == (rcvMsgBuff.pRcvMsgBuff + RX_BUFF_SIZE)) {
+								rcvMsgBuff.pReadPos = rcvMsgBuff.pRcvMsgBuff ; 
+							} else {
+								rcvMsgBuff.pReadPos++;
+							}
+						}
+					}
+					
 
-    os_event_t e;
-
-    for (;;) {
-		//vTaskDelay(2000 / portTICK_PERIOD_MS);
-        if (xQueueReceive(xQueueUart, &e, (portTickType)portMAX_DELAY)) {
-            switch (e.event) {
-                case UART_EVENT_RX_CHAR:
-				{
 					lua_handle_input(false);
 				}
-                    break;
-
-                default:
-                    break;
+                break;
+			}
+            case UART_FIFO_OVF: {
+                ESP_LOGE(TAG, "hw fifo overflow");
+                // If fifo overflow happened, you should consider adding flow control for your application.
+                // We can read data out out the buffer, or directly flush the Rx buffer.
+                uart_flush(EX_UART_NUM);
+                break;
+			}
+            case UART_BUFFER_FULL: {
+                ESP_LOGE(TAG, "ring buffer full");
+                // If buffer full happened, you should consider increasing your buffer size
+                // We can read data out out the buffer, or directly flush the Rx buffer.
+                uart_flush(EX_UART_NUM);
+                break;
+			}
+            case UART_BREAK:
+                ESP_LOGI(TAG, "uart rx break detected");
+                break;
+            case UART_PARITY_ERR:
+                ESP_LOGE(TAG, "uart parity error");
+                break;
+            case UART_FRAME_ERR:
+                ESP_LOGE(TAG, "uart frame error");
+                break;
+            case UART_PATTERN_DET:
+                ESP_LOGI(TAG, "uart pattern detected");
+                break;
+            default:
+                ESP_LOGE(TAG, "not serviced uart event type: %d\n", event.type);
+                break;
             }
         }
     }
-
-	////////////////////////////////
-	// program will never run here.
-
-	//fs_deinit();
-
     vTaskDelete(NULL);
-}
-
-void uart0_rx_intr_handler(void *para)
-{
-	uint8 RcvChar;
-	BaseType_t xHigherPriorityTaskWoken;
-	uint32 uart_intr_status = READ_PERI_REG(UART_INT_ST(0)) ;
-
-    while (uart_intr_status != 0x0) {
-        if (UART_FRM_ERR_INT_ST == (uart_intr_status & UART_FRM_ERR_INT_ST)) {
-            //uart_tx_one_char('!');
-            WRITE_PERI_REG(UART_INT_CLR(0), UART_FRM_ERR_INT_CLR);
-        } else if (UART_RXFIFO_FULL_INT_ST == (uart_intr_status & UART_RXFIFO_FULL_INT_ST)) {
-			//uart_tx_one_char('$');
-			RcvChar = READ_PERI_REG(UART_FIFO(0)) & 0xFF;
-            WRITE_PERI_REG(UART_INT_CLR(0), UART_RXFIFO_FULL_INT_CLR); printf("=> %c\r\n", RcvChar);
-
-			*(rcvMsgBuff.pWritePos) = RcvChar;
-
-			if (RcvChar == '\r' || RcvChar == '\n' ) {
-				rcvMsgBuff.BuffState = WRITE_OVER;
-			}
-
-			if (rcvMsgBuff.pWritePos == (rcvMsgBuff.pRcvMsgBuff + RX_BUFF_SIZE)) {
-				// overflow ...we may need more error handle here.
-				rcvMsgBuff.pWritePos = rcvMsgBuff.pRcvMsgBuff ;
-			} else {
-				rcvMsgBuff.pWritePos++;
-			}
-
-			if (rcvMsgBuff.pWritePos == rcvMsgBuff.pReadPos){   // overflow one byte, need push pReadPos one byte ahead
-				if (rcvMsgBuff.pReadPos == (rcvMsgBuff.pRcvMsgBuff + RX_BUFF_SIZE)) {
-					rcvMsgBuff.pReadPos = rcvMsgBuff.pRcvMsgBuff ; 
-				} else {
-					rcvMsgBuff.pReadPos++;
-				}
-			}
-
-			os_event_t e;
-			e.event = UART_EVENT_RX_CHAR;
-			e.param = '+';
-			xQueueSendFromISR(xQueueUart, &e, &xHigherPriorityTaskWoken);
-			if( xHigherPriorityTaskWoken ) {
-				// Actual macro used here is port specific.
-				portYIELD_FROM_ISR ();
-			}
-		} else if (UART_RXFIFO_TOUT_INT_ST == (uart_intr_status & UART_RXFIFO_TOUT_INT_ST)) {
-            //uart_tx_one_char('%');
-			RcvChar = READ_PERI_REG(UART_FIFO(0)) & 0xFF;
-            WRITE_PERI_REG(UART_INT_CLR(0), UART_RXFIFO_TOUT_INT_CLR);
-        } else if (UART_TXFIFO_EMPTY_INT_ST == (uart_intr_status & UART_TXFIFO_EMPTY_INT_ST)) {
-            //uart_tx_one_char('^');
-            WRITE_PERI_REG(UART_INT_CLR(0), UART_TXFIFO_EMPTY_INT_CLR);
-            CLEAR_PERI_REG_MASK(UART_INT_ENA(0), UART_TXFIFO_EMPTY_INT_ENA);
-        } else if (UART_RXFIFO_OVF_INT_ST  == (READ_PERI_REG(UART_INT_ST(0)) & UART_RXFIFO_OVF_INT_ST)) {
-            WRITE_PERI_REG(UART_INT_CLR(0), UART_RXFIFO_OVF_INT_CLR);
-            printf("RX OVF!!\r\n");
-        } else {
-            //skip
-        }
-
-        uart_intr_status = READ_PERI_REG(UART_INT_ST(0)) ;
-	}
 }
 
 void uart_sendStr(const char *str)
@@ -178,9 +168,21 @@ void uart_init(void)
 	rcvMsgBuff.pWritePos = rcvMsgBuff.pRcvMsgBuff;
 	rcvMsgBuff.pReadPos = rcvMsgBuff.pRcvMsgBuff;
 
-	ESP_UART0_INTR_DISABLE();
-	ESP_UART0_INTR_ATTACH(uart0_rx_intr_handler, NULL);
-	ESP_UART0_INTR_ENABLE();
-	xQueueUart = xQueueCreate(64, sizeof(os_event_t));
-	xTaskCreate(uart_task, "uart_task", 8192, NULL, 10, &xUartTaskHandle);
+	uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+    };
+    uart_param_config(EX_UART_NUM, &uart_config);
+    // Set UART pins using UART0 default pins i.e. no changes
+    uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_driver_install(EX_UART_NUM, RX_BUFF_SIZE * 2, RX_BUFF_SIZE * 2, 10, &xQueueUart, 0);
+
+    // Set uart pattern detection function
+    uart_enable_pattern_det_intr(EX_UART_NUM, '+', 3, 10000, 10, 10);
+
+    // Create a task to handle uart event from ISR
+    xTaskCreate(uart_event_task, "uart_event_task", 8192, NULL, 12, &xUartTaskHandle);
 }
