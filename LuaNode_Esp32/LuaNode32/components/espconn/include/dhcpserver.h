@@ -107,8 +107,8 @@ extern uint32 dhcps_lease_time;
 
 #define   dhcps_router_enabled(offer)	((offer & OFFER_ROUTER) != 0)
 
-void dhcps_start(struct ip_info *info);
-void dhcps_stop(void);
+void espconn_dhcps_start(struct ip_info *info);
+void espconn_dhcps_stop(void);
 
 #endif
 

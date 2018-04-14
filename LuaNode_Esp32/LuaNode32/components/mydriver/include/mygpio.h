@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+#if 0
 #define GPIO_Pin_0              (BIT(0))  /* Pin 0 selected */
 #define GPIO_Pin_1              (BIT(1))  /* Pin 1 selected */
 #define GPIO_Pin_2              (BIT(2))  /* Pin 2 selected */
@@ -119,6 +120,7 @@ extern "C" {
 
 #define GPIO_REGID_TO_PINIDX(reg_id) ((reg_id) - GPIO_ID_PIN0)
 
+#endif	// #if 0
 
 typedef enum {
     GPIO_Mode_Input = 0x0,          /**< GPIO mode : Input */

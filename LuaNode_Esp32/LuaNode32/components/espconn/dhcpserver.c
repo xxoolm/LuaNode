@@ -93,7 +93,7 @@ void ICACHE_FLASH_ATTR node_insert_to_list(list_node **phead, list_node* pinsert
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
 *******************************************************************************/
-void ICACHE_FLASH_ATTR node_remove_from_list(list_node **phead, list_node* pdelete)
+void ICACHE_FLASH_ATTR node_remove_from_list_0(list_node **phead, list_node* pdelete)
 {
 	list_node *plist = NULL;
 
@@ -693,7 +693,7 @@ static sint16_t ICACHE_FLASH_ATTR parse_msg(struct dhcps_msg *m, u16_t len)
 						if ((client_address.u_addr.ip4.addr > dhcps_lease.end_ip.u_addr.ip4.addr) || (ip_addr_isany(&client_address))){
                             printf("client_address_plus.addr %x\n", client_address_plus.u_addr.ip4.addr);
 						    if(pnode != NULL) {
-						        node_remove_from_list(&plist,pnode);
+						        node_remove_from_list_0(&plist,pnode);
 						        free(pnode);
 						        pnode = NULL;
 						    }
@@ -710,7 +710,7 @@ static sint16_t ICACHE_FLASH_ATTR parse_msg(struct dhcps_msg *m, u16_t len)
 
 						if(ret == DHCPS_STATE_RELEASE) {
 						    if(pnode != NULL) {
-						        node_remove_from_list(&plist,pnode);
+						        node_remove_from_list_0(&plist,pnode);
 						        free(pnode);
 						        pnode = NULL;
 						    }
@@ -893,7 +893,7 @@ static void ICACHE_FLASH_ATTR wifi_softap_init_dhcps_lease(uint32 ip)
 //	printf("start_ip = 0x%x, end_ip = 0x%x\n",dhcps_lease.start_ip, dhcps_lease.end_ip);
 }
 ///////////////////////////////////////////////////////////////////////////////////
-void ICACHE_FLASH_ATTR dhcps_start(struct ip_info *info)
+void ICACHE_FLASH_ATTR espconn_dhcps_start(struct ip_info *info)
 {
 	struct netif * apnetif = (struct netif *)eagle_lwip_getif(0x01);
     
@@ -923,7 +923,7 @@ void ICACHE_FLASH_ATTR dhcps_start(struct ip_info *info)
 		
 }
 
-void ICACHE_FLASH_ATTR dhcps_stop(void)
+void ICACHE_FLASH_ATTR espconn_dhcps_stop(void)
 {
 	struct netif * apnetif = (struct netif *)eagle_lwip_getif(0x01);
 
@@ -941,7 +941,7 @@ void ICACHE_FLASH_ATTR dhcps_stop(void)
 	while (pnode != NULL) {
 		pback_node = pnode;
 		pnode = pback_node->pnext;
-		node_remove_from_list(&plist, pback_node);
+		node_remove_from_list_0(&plist, pback_node);
 		free(pback_node->pnode);
 		pback_node->pnode = NULL;
 		free(pback_node);
@@ -1083,7 +1083,7 @@ void ICACHE_FLASH_ATTR dhcps_coarse_tmr(void)
 		if (pdhcps_pool->lease_timer == 0){
 			pback_node = pnode;
 			pnode = pback_node->pnext;
-			node_remove_from_list(&plist,pback_node);
+			node_remove_from_list_0(&plist,pback_node);
 			free(pback_node->pnode);
 			pback_node->pnode = NULL;
 			free(pback_node);
