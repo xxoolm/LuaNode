@@ -21,7 +21,7 @@
 #include "lstring.h"
 #include "lvm.h"
 #ifndef LUA_CROSS_COMPILER
-#include "flash_api.h"
+//#include "flash_api.h"
 #else
 #include <limits.h>
 #endif

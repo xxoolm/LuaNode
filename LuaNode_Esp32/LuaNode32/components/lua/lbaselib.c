@@ -339,11 +339,13 @@ static int luaB_load (lua_State *L) {
 
 static int luaB_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
+  char full_path[64] = {0};
+  sprintf(full_path, "%s/%s", LUA_INIT_FILE_DIR, fname);
   int n = lua_gettop(L);
 #ifdef LUA_CROSS_COMPILER
-  if (luaL_loadfile(L, fname) != 0) lua_error(L);
+  if (luaL_loadfile(L, full_path) != 0) lua_error(L);
 #else
-  if (luaL_loadfsfile(L, fname) != 0) lua_error(L);
+  if (luaL_loadfsfile(L, full_path) != 0) lua_error(L);
 #endif
   lua_call(L, 0, LUA_MULTRET);
   return lua_gettop(L) - n;

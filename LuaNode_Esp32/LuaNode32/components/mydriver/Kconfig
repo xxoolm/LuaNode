@@ -1,9 +1,0 @@
-menu "DRIVER"
-
-config DRIVER_ENABLE
-    bool "Enable driver"
-    default "y"
-    help
-        For driver.
-
-endmenu

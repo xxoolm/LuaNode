@@ -22,10 +22,11 @@ void* luaR_findglobal(const char *name, unsigned len) {
 
   if (strlen(name) > LUA_MAX_ROTABLE_NAME)
     return NULL;
-  for (i=0; lua_rotable[i].name; i ++)
+  for (i=0; lua_rotable[i].name; i ++) {
     if (*lua_rotable[i].name != '\0' && strlen(lua_rotable[i].name) == len && !strncmp(lua_rotable[i].name, name, len)) {
       return (void*)(lua_rotable[i].pentries);
     }
+  }
   return NULL;
 }
 

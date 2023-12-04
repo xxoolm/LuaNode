@@ -1,5 +1,5 @@
 //#include "user_interface.h"
-#include "user_config.h"
+//#include "user_config.h"
 
 #ifdef LUA_CROSS_COMPILER
 
