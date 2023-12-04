@@ -1,14 +1,11 @@
-# HOW TO BUILD
+# HOW TO BUILD LuaNode for ESP32
 ---------------------------------
 
-* Export ESP32 toolchains by running the following command in Linux terminal, 
-  `export PATH=/your_path/toolchains/esp32/bin:$PATH`
+* Download ESP-IDF souces from the link: [esp-idf](https://github.com/espressif/esp-idf), and then setup the environtment according to idf documents.
 
-* Export `IDF_PATH` by running the command, `export IDF_PATH=/your_path/LuaNode/LuaNode_Esp32/esp-idf/`,
-  where `your_path` is the path your save LuaNode.
+* Change directory to `LuaNode32`, and then compile the project by executing the command: `idf.py build`.
 
-* Change directory to `LuaNode32`, and then compile the project, `./build.sh`. If `build.sh` is not executable,
-  you need to change the file permissions, input `sudo chmod 777 build.sh`
+* If you want to utilize File System (SPIFFS) for LuaNode, you have to change the partition file for SPIFFS first. To setup SPIFFS, input command: `idf.py menuconfig`, then go to `Partition Table` menu to select the file named, `partition_luanode.csv`, on the `LuaNode32` directory as the used partition file.
 
 # FIRMWARE
 ---------------------------------

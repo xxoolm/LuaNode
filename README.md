@@ -7,8 +7,16 @@ This project is developed by `DOIT` WiFi team.
 
 DOIT is a high-tech company, focus on IoT. Visit homepage: www.doit.am
 
-
 ![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/logo.jpg "Esp32 & Esp8266")
+
+PLATFORM SUPPORTED:
+--------------------------------------
+
+LuaNode can be running on the following chip/module
+* ESP32
+* ESP8266
+* W800
+* STM32L4 (Coming soon)
 
 NEW UPDATE FOR ESP32:
 --------------------------------------
@@ -38,7 +46,7 @@ Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtuf
 
 For more details, view LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki")
 
-LUA PROGRAMMING
+LUA PROGRAMMING:
 --------------------------------------
 Programming with Lua is easy, some samples are as follow:
 
@@ -277,3 +285,6 @@ CHANGE LOG:
 
 2018.1.5
 	Update for the latest esp-idf
+
+2023.12.3
+	Compatible with latest ESP-IDF(5.x) for ESP32
