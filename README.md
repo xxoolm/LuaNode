@@ -1,7 +1,7 @@
 LuaNode
 ======================================
 
-This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266).
+This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266, W800, etc).
 
 This project is developed by `DOIT` WiFi team.
 
@@ -9,7 +9,7 @@ DOIT is a high-tech company, focus on IoT. Visit homepage: www.doit.am
 
 ![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/logo.jpg "Esp32 & Esp8266")
 
-PLATFORM SUPPORTED:
+PLATFORM SUPPORTED (NEW):
 --------------------------------------
 
 LuaNode can be running on the following chip/module
@@ -21,7 +21,7 @@ LuaNode can be running on the following chip/module
 NEW UPDATE FOR ESP32:
 --------------------------------------
 
-New version of LuaNode32 is developed based on esp-idf and compatible with `Esplorer`.
+New version of LuaNode32 is developed based on esp-idf and compatible with `Esplorer`. User can program with Lua, send and save Lua code to hardware via Esplorer.
 
 The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board click [Here](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-7420449993.9.yduA0V&id=542459608596)
 
@@ -242,6 +242,14 @@ You can see the scanning results.
 
 ![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/luanode_host.jpg "LuanodeUsbHost")
 
+OTHER NEW PLATFORM:
+--------------------------------------
+The latest LuaNode support new platform: w800 serial module. W800 is a WiFi+BLE SoC from WinnerMiro, for more details, refer to the official website: http://www.winnermicro.com/
+
+We developed LuaNode on W800 utilized the dev-board named: 润和Neptune, which shows as following figure:
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/w800.png "W800") 
+
 FAQ:
 --------------------------------------
 
@@ -269,7 +277,7 @@ If you have any question, you can contact me via Email/QQ list below, Thanks:)
   - `QQ`: 535873968
 
 
-CHANGE LOG:
+LOG:
 --------------------------------------
 2016.4.7 
 	Modified lbaselib.c
