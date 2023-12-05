@@ -13,7 +13,7 @@
 #include C_HEADER_STDLIB
 #include C_HEADER_STRING
 #ifndef LUA_CROSS_COMPILER
-#include "vfs.h"
+//#include "vfs.h"
 #else
 #endif
 
@@ -653,7 +653,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
 
 typedef struct LoadFSF {
   int extraline;
-  int f;
+  FILE* f;
   char buff[LUAL_BUFFERSIZE];
 } LoadFSF;
 
@@ -671,8 +671,8 @@ static const char *getFSF (lua_State *L, void *ud, size_t *size) {
     return "\n";
   }
 
-  if (vfs_eof(lf->f)) return NULL;
-  *size = vfs_read(lf->f, lf->buff, sizeof(lf->buff));
+  if (feof(lf->f)) return NULL;
+  *size = fread(lf->buff, 1, sizeof(lf->buff), lf->f);
 
   return (*size > 0) ? lf->buff : NULL;
 }
@@ -697,29 +697,29 @@ LUALIB_API int luaL_loadfsfile (lua_State *L, const char *filename) {
   }
   else {
     lua_pushfstring(L, "@%s", filename);
-    lf.f = vfs_open(filename, "r");
+    lf.f = fopen(filename, "r");
     if (!lf.f) return errfsfile(L, "open", fnameindex);
   }
   // if(vfs_size(lf.f)>LUAL_BUFFERSIZE)
   //   return luaL_error(L, "file is too big");
-  c = vfs_getc(lf.f);
+  c = fgetc(lf.f);
   if (c == '#') {  /* Unix exec. file? */
     lf.extraline = 1;
-    while ((c = vfs_getc(lf.f)) != EOF && c != '\n') ;  /* skip first line */
-    if (c == '\n') c = vfs_getc(lf.f);
+    while ((c = fgetc(lf.f)) != EOF && c != '\n') ;  /* skip first line */
+    if (c == '\n') c = fgetc(lf.f);
   }
   if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
-    vfs_close(lf.f);
-    lf.f = vfs_open(filename, "r");  /* reopen in binary mode */
+    fclose(lf.f);
+    lf.f = fopen(filename, "r");  /* reopen in binary mode */
     if (!lf.f) return errfsfile(L, "reopen", fnameindex);
     /* skip eventual `#!...' */
-   while ((c = vfs_getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
+    while ((c = fgetc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
     lf.extraline = 0;
   }
-  vfs_ungetc(c, lf.f);
+  ungetc(c, lf.f);
   status = lua_load(L, getFSF, &lf, lua_tostring(L, -1));
 
-  if (filename) vfs_close(lf.f);  /* close file (even in case of errors) */
+  if (filename) fclose(lf.f);  /* close file (even in case of errors) */
   lua_remove(L, fnameindex);
   return status;
 }

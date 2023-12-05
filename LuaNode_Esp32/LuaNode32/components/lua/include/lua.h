@@ -49,6 +49,8 @@
 #define LUA_ERRERR	5
 
 
+
+
 typedef struct lua_State lua_State;
 
 typedef int (*lua_CFunction) (lua_State *L);
@@ -380,6 +382,7 @@ typedef struct __lua_load{
   int firstline;
   char *line;
   int line_position;
+  int curr_position;
   size_t len;
   int done;
   const char *prmt;

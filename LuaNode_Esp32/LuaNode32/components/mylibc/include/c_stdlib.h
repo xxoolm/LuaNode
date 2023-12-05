@@ -46,6 +46,8 @@
 
 // void c_exit(int);
 
+#define ICACHE_STORE_ATTR __attribute__((aligned(4)))
+
 // c_getenv() get env "LUA_INIT" string for lua initialization.
 const char *c_getenv(const char *__string);
 

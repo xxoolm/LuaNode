@@ -70,6 +70,8 @@
 #define LUA_INIT	"LUA_INIT"
 
 
+#define LUA_INIT_FILE_DIR	"/spiffs"
+
 /*
 @@ LUA_PATH_DEFAULT is the default path that Lua uses to look for
 @* Lua libraries.

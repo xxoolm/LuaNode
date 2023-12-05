@@ -19,7 +19,7 @@
 #include <fcntl.h>
 
 #ifndef LUA_CROSS_COMPILER
-#include "vfs.h"
+//#include "esp_vfs.h"
 #include "c_stdlib.h" // for c_getenv
 #endif
 
@@ -341,9 +341,9 @@ static int readable (const char *filename) {
 }
 #else
 static int readable (const char *filename) {
-  int f = vfs_open(filename, "r");  /* try to open file */
+  FILE* f = fopen(filename, "r");  /* try to open file */
   if (!f) return 0;  /* open failed */
-  vfs_close(f);
+  fclose(f);
   return 1;
 }
 #endif

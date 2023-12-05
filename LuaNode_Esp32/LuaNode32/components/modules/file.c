@@ -1,38 +1,47 @@
 // Module for interfacing with file system
 
-#include "modules.h"
+#include <string.h>
+//#include "modules.h"
 #include "lauxlib.h"
 #include "platform.h"
 
 #include "c_types.h"
-#include "flash_fs.h"
 #include "c_string.h"
-#include "vfs.h"
+#include "esp_vfs.h"
+#include "esp_log.h"
+#include "lualib.h"
+#include "esp_spiffs.h"
+#include "utils.h"
+#include "lrodefs.h"
 
-static volatile int file_fd = FS_OPEN_OK - 1;
+#define TAG "file"
+
+static FILE* file_fd = NULL;
 
 // Lua: open(filename, mode)
 static int file_open( lua_State* L )
 {
   size_t len;
   if(file_fd){
-    vfs_close(file_fd);
-    file_fd = 0;
+    fclose(file_fd);
+    file_fd = NULL;
   }
 
   const char *fname = luaL_checklstring( L, 1, &len );
-  const char *basename = vfs_basename( fname );
-  luaL_argcheck(L, strlen(basename) <= 32 && strlen(fname) == len, 1, "filename invalid");
+  const char *name = basename( fname );
+  luaL_argcheck(L, strlen(name) <= 32 && strlen(fname) == len, 1, "filename invalid");
 
   const char *mode = luaL_optstring(L, 2, "r");
-
-  file_fd = vfs_open(fname, mode);
+  //ESP_LOGI(TAG, "Open file: %s", fname);
+  char full_path[64] = {0};
+  sprintf(full_path, "%s/%s", LUA_INIT_FILE_DIR, fname);
+  file_fd = fopen(full_path, mode);
 
   if(!file_fd){
     lua_pushnil(L);
   } else {
     lua_pushboolean(L, 1);
-  }
+  } 
   return 1; 
 }
 
@@ -40,9 +49,9 @@ static int file_open( lua_State* L )
 static int file_close( lua_State* L )
 {
   if(file_fd){
-    vfs_close(file_fd);
-    file_fd = 0;
-	NODE_DBG("file close successfully\n");
+    fclose(file_fd);
+    file_fd = NULL;
+	//ESP_LOGI(TAG, "file close successfully\n");
   }
   return 0;  
 }
@@ -51,14 +60,16 @@ static int file_close( lua_State* L )
 static int file_format( lua_State* L )
 {
   file_close(L);
-  if( !vfs_format() )
+  char *label = get_partition_label();
+  ESP_LOGW(TAG, "Start formating...");
+  if( ESP_OK != esp_spiffs_format(label) )
   {
-    NODE_ERR( "\n*** ERROR ***: unable to format. FS might be compromised.\n" );
-    NODE_ERR( "It is advised to re-flash the NodeMCU image.\n" );
+    ESP_LOGE(TAG, "\n*** ERROR ***: unable to format. FS might be compromised.\n" );
+    ESP_LOGE(TAG, "It is advised to re-flash the NodeMCU image.\n" );
     luaL_error(L, "Failed to format file system");
   }
   else{
-    NODE_ERR( "format done.\n" );
+    ESP_LOGI(TAG, "format done.\n" );
   }
   return 0;
 }
@@ -67,17 +78,16 @@ static int file_format( lua_State* L )
 // Lua: list()
 static int file_list( lua_State* L )
 {
-  vfs_dir  *dir;
-  vfs_item *item;
+  DIR  *dir;
+  struct dirent *item;
 
-  if ((dir = vfs_opendir(""))) {
+  if ((dir = opendir(""))) {
     lua_newtable( L );
-    while ((item = vfs_readdir(dir))) {
-      lua_pushinteger(L, vfs_item_size(item));
-      lua_setfield(L, -2, vfs_item_name(item));
-      vfs_closeitem(item);
+    while ((item = readdir(dir))) {
+      lua_pushinteger(L, strlen(item->d_name));
+      lua_setfield(L, -2, item->d_name);
     }
-    vfs_closedir(dir);
+    closedir(dir);
     return 1;
   }
   return 0;
@@ -85,17 +95,17 @@ static int file_list( lua_State* L )
 
 static int file_seek (lua_State *L) 
 {
-  static const int mode[] = {VFS_SEEK_SET, VFS_SEEK_CUR, VFS_SEEK_END};
+  static const int mode[] = {SEEK_SET, SEEK_CUR, SEEK_END};
   static const char *const modenames[] = {"set", "cur", "end", NULL};
   if(!file_fd)
     return luaL_error(L, "open a file first");
   int op = luaL_checkoption(L, 1, "cur", modenames);
   long offset = luaL_optlong(L, 2, 0);
-  op = vfs_lseek(file_fd, offset, mode[op]);
+  op = fseek(file_fd, offset, mode[op]);
   if (op < 0)
     lua_pushnil(L);  /* error */
   else
-    lua_pushinteger(L, vfs_tell(file_fd));
+    lua_pushinteger(L, ftell(file_fd));
   return 1;
 }
 
@@ -104,10 +114,10 @@ static int file_remove( lua_State* L )
 {
   size_t len;
   const char *fname = luaL_checklstring( L, 1, &len );    
-  const char *basename = vfs_basename( fname );
-  luaL_argcheck(L, strlen(basename) <= 32 && strlen(fname) == len, 1, "filename invalid");
+  const char *name = basename( fname );
+  luaL_argcheck(L, strlen(name) <= 32 && strlen(fname) == len, 1, "filename invalid");
   file_close(L);
-  vfs_remove((char *)fname);
+  remove((char *)fname);
   return 0; 
 }
 
@@ -116,7 +126,7 @@ static int file_flush( lua_State* L )
 {
   if(!file_fd)
     return luaL_error(L, "open a file first");
-  if(vfs_flush(file_fd) == 0)
+  if(fflush(file_fd) == 0)
     lua_pushboolean(L, 1);
   else
     lua_pushnil(L);
@@ -137,19 +147,19 @@ static int file_rename( lua_State* L )
 {
   size_t len;
   if(file_fd){
-    vfs_close(file_fd);
-    file_fd = 0;
+    fclose(file_fd);
+    file_fd = NULL;
   }
 
   const char *oldname = luaL_checklstring( L, 1, &len );
-  const char *basename = vfs_basename( oldname );
-  luaL_argcheck(L, strlen(basename) <= 32 && strlen(oldname) == len, 1, "filename invalid");
+  const char *name = basename( oldname );
+  luaL_argcheck(L, strlen(name) <= 32 && strlen(oldname) == len, 1, "filename invalid");
   
   const char *newname = luaL_checklstring( L, 2, &len );  
-  basename = vfs_basename( newname );
-  luaL_argcheck(L, strlen(basename) <= 32 && strlen(newname) == len, 2, "filename invalid");
+  name = basename( newname );
+  luaL_argcheck(L, strlen(name) <= 32 && strlen(newname) == len, 2, "filename invalid");
 
-  if(0 <= vfs_rename( oldname, newname )){
+  if(0 <= rename( oldname, newname )){
     lua_pushboolean(L, 1);
   } else {
     lua_pushboolean(L, 0);
@@ -160,11 +170,13 @@ static int file_rename( lua_State* L )
 // Lua: fsinfo()
 static int file_fsinfo( lua_State* L )
 {
-  u32_t total, used;
-  if (vfs_fsinfo("", &total, &used)) {
+  size_t total, used;
+  char *label = get_partition_label();
+  if (ESP_OK != esp_spiffs_info(NULL, &total, &used)) {
+	ESP_LOGE(TAG, "get spiffs info failed");
     return luaL_error(L, "file system failed");
   }
-  NODE_DBG("total: %d, used:%d\n", total, used);
+  //ESP_LOGI(TAG, "total: %d, used:%d", total, used);
   if(total>0x7FFFFFFF || used>0x7FFFFFFF || used > total)
   {
     return luaL_error(L, "file system error");
@@ -191,7 +203,7 @@ static int file_g_read( lua_State* L, int n, int16_t end_char )
   char *p = luaL_prepbuffer(&b);
   int i;
 
-  n = vfs_read(file_fd, p, n);
+  n = fread(p, 1, n, file_fd);
   for (i = 0; i < n; ++i)
     if (p[i] == end_char)
     {
@@ -204,7 +216,7 @@ static int file_g_read( lua_State* L, int n, int16_t end_char )
     return (lua_objlen(L, -1) > 0);  /* check whether read something */
   }
 
-  vfs_lseek(file_fd, -(n - i), VFS_SEEK_CUR);
+  fseek(file_fd, -(n - i), SEEK_CUR);
   luaL_addsize(&b, i);
   luaL_pushresult(&b);  /* close buffer */
   return 1;  /* read at least an `eol' */ 
@@ -251,7 +263,7 @@ static int file_write( lua_State* L )
     return luaL_error(L, "open a file first");
   size_t l, rl;
   const char *s = luaL_checklstring(L, 1, &l);
-  rl = vfs_write(file_fd, s, l);
+  rl = fwrite(s, 1, l, file_fd);
   if(rl==l)
     lua_pushboolean(L, 1);
   else
@@ -266,9 +278,9 @@ static int file_writeline( lua_State* L )
     return luaL_error(L, "open a file first");
   size_t l, rl;
   const char *s = luaL_checklstring(L, 1, &l);
-  rl = vfs_write(file_fd, s, l);
+  rl = fwrite(s, 1, l, file_fd);
   if(rl==l){
-    rl = vfs_write(file_fd, "\n", 1);
+    rl = fwrite("\n", 1, 1, file_fd);
     if(rl==1)
       lua_pushboolean(L, 1);
     else
@@ -290,7 +302,7 @@ const LUA_REG_TYPE file_map[] = {
   { LSTRKEY( "read" ),      LFUNCVAL( file_read ) },
   { LSTRKEY( "readline" ),  LFUNCVAL( file_readline ) },
   { LSTRKEY( "format" ),    LFUNCVAL( file_format ) },
-#if defined(BUILD_SPIFFS) && !defined(BUILD_WOFS)
+#if defined(BUILD_SPIFFS)
   { LSTRKEY( "remove" ),    LFUNCVAL( file_remove ) },
   { LSTRKEY( "seek" ),      LFUNCVAL( file_seek ) },
   { LSTRKEY( "flush" ),     LFUNCVAL( file_flush ) },

@@ -1,19 +1,32 @@
 // Module for interfacing with GPIO
 
-#include "modules.h"
+//#include "modules.h"
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lrotable.h"
 #include "lrodefs.h"
 #include "platform.h"
-#include "pin_map.h"
-#include "rom/gpio.h"
+#include "driver/gpio.h"
 #include "rom/ets_sys.h"
-#include "mydriver/gpio.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include "c_types.h"
 #include "c_string.h"
 
+
+#if (CURRENT_PLATFORM == NODE_PLATFORM_ESP32)
+#define OUTPUT 				GPIO_MODE_OUTPUT
+#define INPUT 				GPIO_MODE_INPUT
+#define PULLUP 				GPIO_PULLUP_ONLY
+#define FLOAT 				GPIO_FLOATING
+#define INOUT 				GPIO_MODE_INPUT_OUTPUT
+#define PLATFORM_INTERRUPT 	GPIO_INTR_POSEDGE
+#define HIGH 				1
+#define LOW 				0
+#define GPIO_PIN_NUM 		GPIO_NUM_MAX
+#else
 #define PULLUP PLATFORM_GPIO_PULLUP
 #define FLOAT PLATFORM_GPIO_FLOAT
 #define OUTPUT PLATFORM_GPIO_OUTPUT
@@ -22,7 +35,12 @@
 #define PLATFORM_INTERRUPT PLATFORM_GPIO_INT
 #define HIGH PLATFORM_GPIO_HIGH
 #define LOW PLATFORM_GPIO_LOW
+#endif
 
+
+#define GPIO_INTERRUPT_ENABLE
+
+#define TAG	"gpio"
 
 #ifdef GPIO_INTERRUPT_ENABLE
 static int gpio_cb_ref[GPIO_PIN_NUM];
@@ -38,7 +56,7 @@ void lua_gpio_unref(unsigned pin){
 
 void gpio_intr_callback( unsigned pin, unsigned level )
 {
-  NODE_DBG("pin:%d, level:%d \n", pin, level);
+  ESP_LOGI(TAG, "pin:%d, level:%d \n", pin, level);
   if(gpio_cb_ref[pin] == LUA_NOREF)
     return;
   if(!gL)
@@ -162,8 +180,7 @@ static int lgpio_write( lua_State* L )
 #define DELAY_TABLE_MAX_LEN 256
 #define noInterrupts ets_intr_lock
 #define interrupts ets_intr_unlock
-#define delayMicroseconds os_delay_us
-#define DIRECT_WRITE(pin, level)    (GPIO_OUTPUT_SET(GPIO_ID_PIN(pin_num[pin]), level))
+
 // Lua: serout( pin, firstLevel, delay_table, [repeatNum] )
 // -- serout( pin, firstLevel, delay_table, [repeatNum] )
 // gpio.mode(1,gpio.OUTPUT,gpio.PULLUP)
@@ -223,9 +240,9 @@ static int lgpio_serout( lua_State* L )
     for(j=0;j<table_len;j++){
       //noInterrupts();
       // platform_gpio_write(pin, level);
-      DIRECT_WRITE(pin, level);
+      platform_gpio_write(pin, level);
       //interrupts();
-      delayMicroseconds(delay_table[j]);
+	  vTaskDelay(delay_table[j] / portTICK_PERIOD_MS);
       level=!level;
     }
     repeat--;
@@ -244,15 +261,15 @@ const LUA_REG_TYPE gpio_map[] = {
 #ifdef GPIO_INTERRUPT_ENABLE
   { LSTRKEY( "remove" ),   LFUNCVAL( lgpio_remove_isr ) },
   { LSTRKEY( "uninstall" ),   LFUNCVAL( lgpio_uninstall ) },
-  { LSTRKEY( "INT" ),    LNUMVAL( PLATFORM_INTERRUPT ) },
+  //{ LSTRKEY( "INT" ),    LNUMVAL( PLATFORM_INTERRUPT ) },
 #endif
-  { LSTRKEY( "OUTPUT" ), LNUMVAL( OUTPUT ) },
+/*  { LSTRKEY( "OUTPUT" ), LNUMVAL( OUTPUT ) },
   { LSTRKEY( "INPUT" ),  LNUMVAL( INPUT ) },
   { LSTRKEY( "INOUT" ),  LNUMVAL( INOUT ) },
   { LSTRKEY( "HIGH" ),   LNUMVAL( HIGH ) },
   { LSTRKEY( "LOW" ),    LNUMVAL( LOW ) },
   { LSTRKEY( "FLOAT" ),  LNUMVAL( FLOAT ) },
-  { LSTRKEY( "PULLUP" ), LNUMVAL( PULLUP ) },
+  { LSTRKEY( "PULLUP" ), LNUMVAL( PULLUP ) },*/
   { LNILKEY, LNILVAL }
 };
 

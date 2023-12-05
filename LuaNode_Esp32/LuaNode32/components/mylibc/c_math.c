@@ -1,6 +1,7 @@
 #include "c_math.h"
 #include "c_types.h"
-#include "user_config.h"
+//#include "user_config.h"
+#include "c_stdlib.h"
 
 double floor(double x)
 {

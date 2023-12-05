@@ -1,6 +1,6 @@
 // Module for interfacing with system
-
-#include "modules.h"
+#include <stdio.h>
+//#include "modules.h"
 #include "lauxlib.h"
 
 #include "ldebug.h"
@@ -23,21 +23,26 @@
 //#include "romfs.h"
 #include "c_string.h"
 #include "rom/uart.h"
-#include "user_interface.h"
+//#include "user_interface.h"
 //#include "flash_api.h"
-#include "flash_fs.h"
-#include "user_version.h"
-#include "esp_misc.h"
+//#include "flash_fs.h"
+//#include "user_version.h"
+//#include "esp_misc.h"
 #include "esp_system.h"
-#include "vfs.h"
+#include "esp_vfs.h"
+#include "esp_log.h"
 
 #define CPU80MHZ 80
 #define CPU160MHZ 160
 
+#define TAG	"node"
+
+#define FS_NAME_MAX_LENGTH 255
+
 // Lua: restart()
 static int node_restart( lua_State* L )
 {
-  system_restart();
+  lua_node_restart();
   return 0;
 }
 
@@ -45,7 +50,7 @@ static int node_restart( lua_State* L )
 static int node_dsleep( lua_State* L )
 {
   uint64_t us = luaL_optinteger (L, 1, 0);
-  system_deep_sleep (us);
+  lua_node_sleep(us);
   return 0;
 }
 
@@ -71,7 +76,7 @@ static int node_info( lua_State* L )
 	uint32_t fs = 2;
 	uint8 id = 0;
 	//bool succeed = system_get_chip_id(&id);
-	uint32_t hs = system_get_free_heap_size();
+	uint32_t hs = lua_node_get_heap_size();
 	lua_getglobal(L, "print");
 	switch(fs) {
 	case 0:
@@ -94,7 +99,7 @@ static int node_info( lua_State* L )
 		break;
 	}
 	int err = lua_pcall(L, 1, 1, 0);
-	if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+	if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
 	lua_pop(L, 1) ;
 	return 0;
 }
@@ -107,7 +112,7 @@ static int node_chipid( lua_State* L )
   lua_getglobal(L, "print");
   lua_pushinteger(L, id);
   int err = lua_pcall(L, 1, 1, 0);
-  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
   lua_pop(L, 1) ;
   return 0;
 }
@@ -129,7 +134,7 @@ static int node_flashid( lua_State* L )
   lua_getglobal(L, "print");
   lua_pushinteger(L, 0);
   int err = lua_pcall(L, 1, 1, 0);
-  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
   lua_pop(L, 1) ;
   return 0;
 }
@@ -162,7 +167,7 @@ static int node_flashsize( lua_State* L )
   }
   //lua_pushinteger(L, sz);
   int err = lua_pcall(L, 1, 1, 0);
-  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
   lua_pop(L, 1) ;
   return 0;
 }
@@ -170,11 +175,11 @@ static int node_flashsize( lua_State* L )
 // Lua: heap()
 static int node_heap( lua_State* L )
 {
-  uint32_t sz = system_get_free_heap_size();
+  uint32_t sz = lua_node_get_heap_size();
   lua_getglobal(L, "print");
   lua_pushinteger(L, sz);
   int err = lua_pcall(L, 1, 1, 0);
-  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
   lua_pop(L, 1) ;
   return 0;
 }
@@ -185,7 +190,7 @@ static int node_memusage( lua_State* L )
   lua_getglobal(L, "print");
   lua_pushinteger(L, usage);
   int err = lua_pcall(L, 1, 1, 0);
-  if (err != 0) { os_printf("lua_pcall failed:%s", lua_tostring(L, -1)); }
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
   lua_pop(L, 1) ;
   return 0;
 }
@@ -203,7 +208,7 @@ static os_timer_t keyled_timer;
 static int long_key_ref = LUA_NOREF;
 static int short_key_ref = LUA_NOREF;
 
-static void default_long_press(void *arg) {
+static void default_long_press(void *arg) { 
   if (led_high_count == 12 && led_low_count == 12) {
     led_low_count = led_high_count = 6;
   } else {
@@ -219,7 +224,7 @@ static void default_short_press(void *arg) {
 }
 
 static void key_long_press(void *arg) {
-  NODE_DBG("key_long_press is called.\n");
+  ESP_LOGI(TAG, "key_long_press is called.");
   if (long_key_ref == LUA_NOREF) {
     default_long_press(arg);
     return;
@@ -231,7 +236,7 @@ static void key_long_press(void *arg) {
 }
 
 static void key_short_press(void *arg) {
-  NODE_DBG("key_short_press is called.\n");
+  ESP_LOGI(TAG, "key_short_press is called.");
   if (short_key_ref == LUA_NOREF) {
     default_short_press(arg);
     return;
@@ -363,9 +368,9 @@ static int node_input( lua_State* L )
       load->line[l + 1] = '\0';
       load->line_position = c_strlen(load->line) + 1;
       load->done = 1;
-      NODE_DBG("Get command:\n");
-      NODE_DBG(load->line); // buggy here
-      NODE_DBG("\nResult(if any):\n");
+      ESP_LOGI(TAG, "Get command:\n");
+      ESP_LOGI(TAG, "%s", load->line); // buggy here
+      ESP_LOGI(TAG, "\nResult(if any):\n");
       //system_os_post (LUA_TASK_PRIO, LUA_PROCESS_LINE_SIG, 0);
     }
   }
@@ -381,12 +386,12 @@ void output_redirect(const char *str) {
   // }
 
   if (output_redir_ref == LUA_NOREF || !gL) {
-    os_printf(str);
+    printf(str);
     return;
   }
 
   if (serial_debug != 0) {
-    os_printf(str);
+    printf(str);
   }
 
   lua_rawgeti(gL, LUA_REGISTRYINDEX, output_redir_ref);
@@ -427,14 +432,16 @@ static int node_output( lua_State* L )
 static int writer(lua_State* L, const void* p, size_t size, void* u)
 {
   UNUSED(L);
-  int file_fd = *( (int *)u );
-  if ((FS_OPEN_OK - 1) == file_fd)
+  FILE* file_fd = (FILE *)u;
+  if (NULL == file_fd) {
     return 1;
-  NODE_DBG("get fd:%d,size:%d\n", file_fd, size);
+  }
+  ESP_LOGI(TAG, "get fd:%p,size:%d\n", file_fd, size);
 
-  if (size != 0 && (size != vfs_write(file_fd, (const char *)p, size)) )
+  if (size != 0 && (size != fwrite((const char *)p, 1, size, file_fd)) ) {
     return 1;
-  NODE_DBG("write fd:%d,size:%d\n", file_fd, size);
+  }
+  ESP_LOGI(TAG, "write fd:%p,size:%d\n", file_fd, size);
   return 0;
 }
 
@@ -443,22 +450,24 @@ static int writer(lua_State* L, const void* p, size_t size, void* u)
 static int node_compile( lua_State* L )
 {
   Proto* f;
-  int file_fd = FS_OPEN_OK - 1;
+  FILE* file_fd = NULL;
   size_t len;
   const char *fname = luaL_checklstring( L, 1, &len );
-  if ( len > FS_NAME_MAX_LENGTH )
+  if ( len > FS_NAME_MAX_LENGTH ) {
     return luaL_error(L, "filename too long");
+  }
 
   char output[FS_NAME_MAX_LENGTH];
   c_strcpy(output, fname);
   // check here that filename end with ".lua".
-  if (len < 4 || (c_strcmp( output + len - 4, ".lua") != 0) )
+  if (len < 4 || (c_strcmp( output + len - 4, ".lua") != 0) ) {
     return luaL_error(L, "not a .lua file");
+  }
 
   output[c_strlen(output) - 2] = 'c';
   output[c_strlen(output) - 1] = '\0';
-  NODE_DBG(output);
-  NODE_DBG("\n");
+  ESP_LOGI(TAG, "%s", output);
+  ESP_LOGI(TAG, "\n");
   if (luaL_loadfsfile(L, fname) != 0) {
     return luaL_error(L, lua_tostring(L, -1));
   }
@@ -467,22 +476,21 @@ static int node_compile( lua_State* L )
 
   int stripping = 1;      /* strip debug information? */
 
-  file_fd = vfs_open(output, "w+");
-  if (file_fd < FS_OPEN_OK)
-  {
+  file_fd = fopen(output, "w+");
+  if (file_fd == NULL) {
     return luaL_error(L, "cannot open/write to file");
   }
 
   lua_lock(L);
-  int result = luaU_dump(L, f, writer, &file_fd, stripping);
+  int result = luaU_dump(L, f, writer, file_fd, stripping);
   lua_unlock(L);
 
-  if (vfs_flush(file_fd) < 0) {   // result codes aren't propagated by flash_fs.h
+  if (fflush(file_fd) < 0) {   // result codes aren't propagated by flash_fs.h
     // overwrite Lua error, like writer() does in case of a file io error
     result = 1;
   }
-  vfs_close(file_fd);
-  file_fd = FS_OPEN_OK - 1;
+  fclose(file_fd);
+  file_fd = NULL;
 
   if (result == LUA_ERR_CC_INTOVERFLOW) {
     return luaL_error(L, "value too big or small for target integer type");
@@ -529,7 +537,7 @@ static int node_restore (lua_State *L)
 {
   //flash_init_data_default();
   //flash_init_data_blank();
-  system_restore();
+  lua_node_system_restore();
   return 0;
 }
 
