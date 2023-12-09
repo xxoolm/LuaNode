@@ -41,16 +41,16 @@ static int luaB_print (lua_State *L) {
       return luaL_error(L, LUA_QL("tostring") " must return a string to "
                            LUA_QL("print"));
 #if defined(LUA_USE_STDIO)
-    if (i>1) c_fputs("\t", c_stdout);
-    c_fputs(s, c_stdout);
+    if (i>1) fputs("\t", stdout);
+    fputs(s, stdout);
 #else
     if (i>1)  luai_writestring("\t", 1);
-    luai_writestring(s, c_strlen(s));
+    luai_writestring(s, strlen(s));
 #endif
     lua_pop(L, 1);  /* pop result */
   }
 #if defined(LUA_USE_STDIO)
-  c_fputs("\n", c_stdout);
+  fputs("\n", stdout);
 #else
   luai_writeline();
 #endif
@@ -72,7 +72,7 @@ static int luaB_tonumber (lua_State *L) {
     char *s2;
     unsigned long n;
     luaL_argcheck(L, 2 <= base && base <= 36, 2, "base out of range");
-    n = c_strtoul(s1, &s2, base);
+    n = strtoul(s1, &s2, base);
     if (s1 != s2) {  /* at least one valid digit? */
       while (isspace((unsigned char)(*s2))) s2++;  /* skip trailing spaces */
       if (*s2 == '\0') {  /* no invalid trailing characters? */
@@ -339,11 +339,13 @@ static int luaB_load (lua_State *L) {
 
 static int luaB_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
+  char full_path[64] = {0};
+  sprintf(full_path, "%s/%s", LUA_INIT_FILE_DIR, fname);
   int n = lua_gettop(L);
 #ifdef LUA_CROSS_COMPILER
-  if (luaL_loadfile(L, fname) != 0) lua_error(L);
+  if (luaL_loadfile(L, full_path) != 0) lua_error(L);
 #else
-  if (luaL_loadfsfile(L, fname) != 0) lua_error(L);
+  if (luaL_loadfsfile(L, full_path) != 0) lua_error(L);
 #endif
   lua_call(L, 0, LUA_MULTRET);
   return lua_gettop(L) - n;
@@ -489,6 +491,7 @@ static int luaB_newproxy (lua_State *L) {
   {LSTRKEY("xpcall"), LFUNCVAL(luaB_xpcall)}
   
 #if LUA_OPTIMIZE_MEMORY == 2
+#undef MIN_OPT_LEVEL
 #define MIN_OPT_LEVEL 2
 #include "lrodefs.h"
 const LUA_REG_TYPE base_funcs_list[] = {
@@ -505,11 +508,11 @@ static int luaB_index(lua_State *L) {
     return fres;
 #endif  
   const char *keyname = luaL_checkstring(L, 2);
-  if (!c_strcmp(keyname, "_VERSION")) {
+  if (!strcmp(keyname, "_VERSION")) {
     lua_pushliteral(L, LUA_VERSION);
     return 1;
   }
-  void *res = luaR_findglobal(keyname, c_strlen(keyname));
+  void *res = luaR_findglobal(keyname, strlen(keyname));
   if (!res)
     return 0;
   else {

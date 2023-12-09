@@ -17,8 +17,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lrotable.h"
-#include "user_modules.h"
-
+#include "sdkconfig.h"
 
 
 static int db_getregistry (lua_State *L) {
@@ -26,7 +25,7 @@ static int db_getregistry (lua_State *L) {
   return 1;
 }
 
-#ifndef LUA_USE_BUILTIN_DEBUG_MINIMAL
+#ifndef CONFIG_LUA_BUILTIN_DEBUG_MINIMAL
 
 static int db_getmetatable (lua_State *L) {
   luaL_checkany(L, 1);
@@ -86,7 +85,7 @@ static lua_State *getthread (lua_State *L, int *arg) {
     return L;
   }
 }
-#ifndef LUA_USE_BUILTIN_DEBUG_MINIMAL
+#ifndef CONFIG_LUA_BUILTIN_DEBUG_MINIMAL
 
 static void treatstackoption (lua_State *L, lua_State *L1, const char *fname) {
   if (L == L1) {
@@ -121,24 +120,24 @@ static int db_getinfo (lua_State *L) {
   if (!lua_getinfo(L1, options, &ar))
     return luaL_argerror(L, arg+2, "invalid option");
   lua_createtable(L, 0, 2);
-  if (c_strchr(options, 'S')) {
+  if (strchr(options, 'S')) {
     settabss(L, "source", ar.source);
     settabss(L, "short_src", ar.short_src);
     settabsi(L, "linedefined", ar.linedefined);
     settabsi(L, "lastlinedefined", ar.lastlinedefined);
     settabss(L, "what", ar.what);
   }
-  if (c_strchr(options, 'l'))
+  if (strchr(options, 'l'))
     settabsi(L, "currentline", ar.currentline);
-  if (c_strchr(options, 'u'))
+  if (strchr(options, 'u'))
     settabsi(L, "nups", ar.nups);
-  if (c_strchr(options, 'n')) {
+  if (strchr(options, 'n')) {
     settabss(L, "name", ar.name);
     settabss(L, "namewhat", ar.namewhat);
   }
-  if (c_strchr(options, 'L'))
+  if (strchr(options, 'L'))
     treatstackoption(L, L1, "activelines");
-  if (c_strchr(options, 'f'))
+  if (strchr(options, 'f'))
     treatstackoption(L, L1, "func");
   return 1;  /* return table */
 }
@@ -227,9 +226,9 @@ static void hookf (lua_State *L, lua_Debug *ar) {
 
 static int makemask (const char *smask, int count) {
   int mask = 0;
-  if (c_strchr(smask, 'c')) mask |= LUA_MASKCALL;
-  if (c_strchr(smask, 'r')) mask |= LUA_MASKRET;
-  if (c_strchr(smask, 'l')) mask |= LUA_MASKLINE;
+  if (strchr(smask, 'c')) mask |= LUA_MASKCALL;
+  if (strchr(smask, 'r')) mask |= LUA_MASKRET;
+  if (strchr(smask, 'l')) mask |= LUA_MASKLINE;
   if (count > 0) mask |= LUA_MASKCOUNT;
   return mask;
 }
@@ -306,19 +305,19 @@ static int db_debug (lua_State *L) {
   for (;;) {
     char buffer[LUA_MAXINPUT];
 #if defined(LUA_USE_STDIO)
-    c_fputs("lua_debug> ", c_stderr);
-    if (c_fgets(buffer, sizeof(buffer), c_stdin) == 0 ||
+    fputs("lua_debug> ", stderr);
+    if (fgets(buffer, sizeof(buffer), stdin) == 0 ||
 #else
 //    luai_writestringerror("%s", "lua_debug>");
     if (lua_readline(L, buffer, "lua_debug>") == 0 ||
 #endif
-        c_strcmp(buffer, "cont\n") == 0)
+        strcmp(buffer, "cont\n") == 0)
       return 0;
-    if (luaL_loadbuffer(L, buffer, c_strlen(buffer), "=(debug command)") ||
+    if (luaL_loadbuffer(L, buffer, strlen(buffer), "=(debug command)") ||
         lua_pcall(L, 0, 0, 0)) {
 #if defined(LUA_USE_STDIO)
-      c_fputs(lua_tostring(L, -1), c_stderr);
-      c_fputs("\n", c_stderr);
+      fputs(lua_tostring(L, -1), stderr);
+      fputs("\n", stderr);
 #else
       luai_writestringerror("%s\n", lua_tostring(L, -1));
 #endif
@@ -387,7 +386,7 @@ static int db_errorfb (lua_State *L) {
 #define MIN_OPT_LEVEL 1
 #include "lrodefs.h"
 const LUA_REG_TYPE dblib[] = {
-#ifndef LUA_USE_BUILTIN_DEBUG_MINIMAL
+#ifndef CONFIG_LUA_BUILTIN_DEBUG_MINIMAL
   {LSTRKEY("debug"), LFUNCVAL(db_debug)},
   {LSTRKEY("getfenv"), LFUNCVAL(db_getfenv)},
   {LSTRKEY("gethook"), LFUNCVAL(db_gethook)},
@@ -395,7 +394,7 @@ const LUA_REG_TYPE dblib[] = {
   {LSTRKEY("getlocal"), LFUNCVAL(db_getlocal)},
 #endif
   {LSTRKEY("getregistry"), LFUNCVAL(db_getregistry)},
-#ifndef LUA_USE_BUILTIN_DEBUG_MINIMAL
+#ifndef CONFIG_LUA_BUILTIN_DEBUG_MINIMAL
   {LSTRKEY("getmetatable"), LFUNCVAL(db_getmetatable)},
   {LSTRKEY("getupvalue"), LFUNCVAL(db_getupvalue)},
   {LSTRKEY("setfenv"), LFUNCVAL(db_setfenv)},

@@ -58,7 +58,7 @@ int c_stderr = 1001;
 
 #else
 
-#define FLOATINGPT 1
+//#define FLOATINGPT 1
 #define NEWFP 1
 #define ENDIAN_LITTLE 1234
 #define ENDIAN_BIG  4321
@@ -225,9 +225,10 @@ str_fmt(char *p, int size, int fmt)
 //#include <ctype.h>
 #include "c_string.h"
 #include "c_ctype.h"
+#include "ctype.h"
 
 void
-strtoupper(char *p)
+strtoupper(unsigned char *p)
 {
     if(!p)
         return;
@@ -272,11 +273,11 @@ strtoupper(char *p)
 //#include <string.h>
 //#include <pmon.h>
 #include "c_string.h"
-typedef int int32_t;
-typedef unsigned int u_int32_t;
+//typedef int int32_t;
+//typedef unsigned int u_int32_t;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-typedef int32_t register_t;
+//typedef int32_t register_t;
 typedef long long quad_t;
 typedef unsigned long long u_quad_t;
 typedef double rtype;
@@ -406,7 +407,7 @@ llatob(u_quad_t *vp, char *p, int base)
 char *
 btoa(char *dst, u_int value, int base)
 {
-    char buf[34], digit;
+    char buf[34], digit = 0;
     int i, j, rem, neg;
 
     if (value == 0) {
@@ -452,7 +453,7 @@ btoa(char *dst, u_int value, int base)
 char *
 llbtoa(char *dst, u_quad_t value, int base)
 {
-    char buf[66], digit;
+    char buf[66], digit = 0;
     int i, j, rem, neg;
 
     if (value == 0) {
@@ -572,7 +573,7 @@ vsprintf (char *d, const char *s, va_list ap)
     const char *t;
     char *p, *dst, tmp[40];
     unsigned int n;
-    int fmt, trunc, haddot, width, base, longlong;
+    int fmt, trunc, haddot, width, base = 0, longlong;
 #ifdef FLOATINGPT
     double dbl;
 
@@ -602,7 +603,7 @@ vsprintf (char *d, const char *s, va_list ap)
                     else
                         width = va_arg(ap, int);
                 } else if (*s >= '1' && *s <= '9') {
-                    for (t = s; isdigit(*s); s++);
+                    for (t = s; isdigit((unsigned char)(*s)); s++);
                     strncpy(tmp, t, s - t);
                     tmp[s - t] = '\0';
                     atob(&n, tmp, 10);
@@ -681,7 +682,7 @@ vsprintf (char *d, const char *s, va_list ap)
                         btoa(d, va_arg (ap, int), base);
 
                     if (*s == 'X')
-                        strtoupper(d);
+                        strtoupper((unsigned char *)d);
                 }
 #ifdef FLOATINGPT
                 else if (strchr ("eEfgG", *s)) {

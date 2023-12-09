@@ -1,6 +1,6 @@
 // Module for interfacing with system
-
-#include "module.h"
+#include <stdio.h>
+//#include "modules.h"
 #include "lauxlib.h"
 
 #include "ldebug.h"
@@ -9,59 +9,49 @@
 #include "lmem.h"
 #include "lobject.h"
 #include "lstate.h"
+#include "lualib.h"
 
 #include "lopcodes.h"
 #include "lstring.h"
 #include "lundump.h"
 
 #include "platform.h"
+#include "lrotable.h"
 #include "lrodefs.h"
 
 #include "c_types.h"
 //#include "romfs.h"
 #include "c_string.h"
-#include "uart.h"
-#include "user_interface.h"
-#include "flash_api.h"
-#include "flash_fs.h"
-#include "user_version.h"
+#include "rom/uart.h"
+//#include "user_interface.h"
+//#include "flash_api.h"
+//#include "flash_fs.h"
+#include "esp_system.h"
+#include "esp_vfs.h"
+#include "esp_log.h"
 
 #define CPU80MHZ 80
 #define CPU160MHZ 160
 
+#define TAG	"node"
+
+#define FS_NAME_MAX_LENGTH 255
+
 // Lua: restart()
 static int node_restart( lua_State* L )
 {
-  system_restart();
+  lua_node_restart();
   return 0;
 }
 
 // Lua: dsleep( us, option )
-static int node_deepsleep( lua_State* L )
+static int node_dsleep( lua_State* L )
 {
-  s32 us, option;
-  //us = luaL_checkinteger( L, 1 );
-  // Set deleep option, skip if nil
-  if ( lua_isnumber(L, 2) )
-  {
-    option = lua_tointeger(L, 2);
-    if ( option < 0 || option > 4)
-      return luaL_error( L, "wrong arg range" );
-    else
-      deep_sleep_set_option( option );
-  }
-  // Set deleep time, skip if nil
-  if ( lua_isnumber(L, 1) )
-  {
-    us = lua_tointeger(L, 1);
-    // if ( us <= 0 )
-    if ( us < 0 )
-      return luaL_error( L, "wrong arg range" );
-    else
-      system_deep_sleep( us );
-  }
+  uint64_t us = luaL_optinteger (L, 1, 0);
+  lua_node_sleep(us);
   return 0;
 }
+
 
 // Lua: dsleep_set_options
 // Combined to dsleep( us, option )
@@ -77,29 +67,52 @@ static int node_deepsleep( lua_State* L )
 // }
 // Lua: info()
 
+
 static int node_info( lua_State* L )
 {
-  lua_pushinteger(L, NODE_VERSION_MAJOR);
-  lua_pushinteger(L, NODE_VERSION_MINOR);
-  lua_pushinteger(L, NODE_VERSION_REVISION);
-  lua_pushinteger(L, system_get_chip_id());   // chip id
-  lua_pushinteger(L, spi_flash_get_id());     // flash id
-#if defined(FLASH_SAFE_API)
-  lua_pushinteger(L, flash_safe_get_size_byte() / 1024);  // flash size in KB
-#else
-  lua_pushinteger(L, flash_rom_get_size_byte() / 1024);  // flash size in KB
-#endif // defined(FLASH_SAFE_API)
-  lua_pushinteger(L, flash_rom_get_mode());
-  lua_pushinteger(L, flash_rom_get_speed());
-  return 8;
+	//uint32_t fs = system_get_flash_size();
+	uint32_t fs = 2;
+	uint8 id = 0;
+	//bool succeed = system_get_chip_id(&id);
+	uint32_t hs = lua_node_get_heap_size();
+	lua_getglobal(L, "print");
+	switch(fs) {
+	case 0:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "1MB", id, hs);
+		break;
+	case 1:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "2MB", id, hs);
+		break;
+	case 2:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "4MB", id, hs);
+		break;
+	case 3:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "8MB", id, hs);
+		break;
+	case 4:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "16MB", id, hs);
+		break;
+	default:
+		lua_pushfstring(L, "flash_size=%s, chip_id=%d, heap_size=%d", "32MB", id, hs);
+		break;
+	}
+	int err = lua_pcall(L, 1, 1, 0);
+	if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
+	lua_pop(L, 1) ;
+	return 0;
 }
 
 // Lua: chipid()
 static int node_chipid( lua_State* L )
 {
-  uint32_t id = system_get_chip_id();
+  uint8 id = 0;
+  //bool succeed = system_get_chip_id(&id);
+  lua_getglobal(L, "print");
   lua_pushinteger(L, id);
-  return 1;
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 // deprecated, moved to adc module
@@ -114,33 +127,70 @@ static int node_chipid( lua_State* L )
 // Lua: flashid()
 static int node_flashid( lua_State* L )
 {
-  uint32_t id = spi_flash_get_id();
-  lua_pushinteger( L, id );
-  return 1;
+  //uint32_t id = spi_flash_get_id();
+  //lua_pushinteger( L, id );
+  lua_getglobal(L, "print");
+  lua_pushinteger(L, 0);
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 // Lua: flashsize()
 static int node_flashsize( lua_State* L )
 {
-  if (lua_type(L, 1) == LUA_TNUMBER)
-  {
-    flash_rom_set_size_byte(luaL_checkinteger(L, 1));
+  //uint32_t sz = system_get_flash_size();
+  uint32_t sz = 2;
+  lua_getglobal(L, "print");
+  switch(sz) {
+	case 0:
+		lua_pushstring(L, "1MB");
+		break;
+	case 1:
+		lua_pushstring(L, "2MB");
+		break;
+	case 2:
+		lua_pushstring(L, "4MB");
+		break;
+	case 3:
+		lua_pushstring(L, "8MB");
+		break;
+	case 4:
+		lua_pushstring(L, "16MB");
+		break;
+	default:
+		lua_pushstring(L, "32MB");
+		break;
   }
-#if defined(FLASH_SAFE_API)
-  uint32_t sz = flash_safe_get_size_byte();
-#else
-  uint32_t sz = flash_rom_get_size_byte();
-#endif // defined(FLASH_SAFE_API)
-  lua_pushinteger( L, sz );
-  return 1;
+  //lua_pushinteger(L, sz);
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 // Lua: heap()
 static int node_heap( lua_State* L )
 {
-  uint32_t sz = system_get_free_heap_size();
+  uint32_t sz = lua_node_get_heap_size();
+  lua_getglobal(L, "print");
   lua_pushinteger(L, sz);
-  return 1;
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
+}
+
+static int node_memusage( lua_State* L )
+{
+  uint32_t usage = lua_gc(L, LUA_GCCOUNT, 0);
+  lua_getglobal(L, "print");
+  lua_pushinteger(L, usage);
+  int err = lua_pcall(L, 1, 1, 0);
+  if (err != 0) { ESP_LOGE(TAG, "lua_pcall failed:%s", lua_tostring(L, -1)); }
+  lua_pop(L, 1) ;
+  return 0;
 }
 
 static lua_State *gL = NULL;
@@ -156,7 +206,7 @@ static os_timer_t keyled_timer;
 static int long_key_ref = LUA_NOREF;
 static int short_key_ref = LUA_NOREF;
 
-static void default_long_press(void *arg) {
+static void default_long_press(void *arg) { 
   if (led_high_count == 12 && led_low_count == 12) {
     led_low_count = led_high_count = 6;
   } else {
@@ -172,7 +222,7 @@ static void default_short_press(void *arg) {
 }
 
 static void key_long_press(void *arg) {
-  NODE_DBG("key_long_press is called.\n");
+  ESP_LOGI(TAG, "key_long_press is called.");
   if (long_key_ref == LUA_NOREF) {
     default_long_press(arg);
     return;
@@ -184,7 +234,7 @@ static void key_long_press(void *arg) {
 }
 
 static void key_short_press(void *arg) {
-  NODE_DBG("key_short_press is called.\n");
+  ESP_LOGI(TAG, "key_short_press is called.");
   if (short_key_ref == LUA_NOREF) {
     default_short_press(arg);
     return;
@@ -316,9 +366,9 @@ static int node_input( lua_State* L )
       load->line[l + 1] = '\0';
       load->line_position = c_strlen(load->line) + 1;
       load->done = 1;
-      NODE_DBG("Get command:\n");
-      NODE_DBG(load->line); // buggy here
-      NODE_DBG("\nResult(if any):\n");
+      ESP_LOGI(TAG, "Get command:\n");
+      ESP_LOGI(TAG, "%s", load->line); // buggy here
+      ESP_LOGI(TAG, "\nResult(if any):\n");
       //system_os_post (LUA_TASK_PRIO, LUA_PROCESS_LINE_SIG, 0);
     }
   }
@@ -334,12 +384,12 @@ void output_redirect(const char *str) {
   // }
 
   if (output_redir_ref == LUA_NOREF || !gL) {
-    NODE_ERR(str);
+    printf(str);
     return;
   }
 
   if (serial_debug != 0) {
-    NODE_ERR(str);
+    printf(str);
   }
 
   lua_rawgeti(gL, LUA_REGISTRYINDEX, output_redir_ref);
@@ -379,17 +429,17 @@ static int node_output( lua_State* L )
 
 static int writer(lua_State* L, const void* p, size_t size, void* u)
 {
-#if 0
   UNUSED(L);
-  int file_fd = *( (int *)u );
-  if ((FS_OPEN_OK - 1) == file_fd)
+  FILE* file_fd = (FILE *)u;
+  if (NULL == file_fd) {
     return 1;
-  NODE_DBG("get fd:%d,size:%d\n", file_fd, size);
+  }
+  ESP_LOGI(TAG, "get fd:%p,size:%d\n", file_fd, size);
 
-  if (size != 0 && (size != fs_write(file_fd, (const char *)p, size)) )
+  if (size != 0 && (size != fwrite((const char *)p, 1, size, file_fd)) ) {
     return 1;
-  NODE_DBG("write fd:%d,size:%d\n", file_fd, size);
-#endif
+  }
+  ESP_LOGI(TAG, "write fd:%p,size:%d\n", file_fd, size);
   return 0;
 }
 
@@ -398,22 +448,24 @@ static int writer(lua_State* L, const void* p, size_t size, void* u)
 static int node_compile( lua_State* L )
 {
   Proto* f;
-  int file_fd = FS_OPEN_OK - 1;
+  FILE* file_fd = NULL;
   size_t len;
   const char *fname = luaL_checklstring( L, 1, &len );
-  if ( len > FS_NAME_MAX_LENGTH )
+  if ( len > FS_NAME_MAX_LENGTH ) {
     return luaL_error(L, "filename too long");
+  }
 
   char output[FS_NAME_MAX_LENGTH];
   c_strcpy(output, fname);
   // check here that filename end with ".lua".
-  if (len < 4 || (c_strcmp( output + len - 4, ".lua") != 0) )
+  if (len < 4 || (c_strcmp( output + len - 4, ".lua") != 0) ) {
     return luaL_error(L, "not a .lua file");
+  }
 
   output[c_strlen(output) - 2] = 'c';
   output[c_strlen(output) - 1] = '\0';
-  NODE_DBG(output);
-  NODE_DBG("\n");
+  ESP_LOGI(TAG, "%s", output);
+  ESP_LOGI(TAG, "\n");
   if (luaL_loadfsfile(L, fname) != 0) {
     return luaL_error(L, lua_tostring(L, -1));
   }
@@ -422,22 +474,21 @@ static int node_compile( lua_State* L )
 
   int stripping = 1;      /* strip debug information? */
 
-  file_fd = fs_open(output, fs_mode2flag("w+"));
-  if (file_fd < FS_OPEN_OK)
-  {
+  file_fd = fopen(output, "w+");
+  if (file_fd == NULL) {
     return luaL_error(L, "cannot open/write to file");
   }
 
   lua_lock(L);
-  int result = luaU_dump(L, f, writer, &file_fd, stripping);
+  int result = luaU_dump(L, f, writer, file_fd, stripping);
   lua_unlock(L);
 
-  if (fs_flush(file_fd) < 0) {   // result codes aren't propagated by flash_fs.h
+  if (fflush(file_fd) < 0) {   // result codes aren't propagated by flash_fs.h
     // overwrite Lua error, like writer() does in case of a file io error
     result = 1;
   }
-  fs_close(file_fd);
-  file_fd = FS_OPEN_OK - 1;
+  fclose(file_fd);
+  file_fd = NULL;
 
   if (result == LUA_ERR_CC_INTOVERFLOW) {
     return luaL_error(L, "value too big or small for target integer type");
@@ -452,6 +503,7 @@ static int node_compile( lua_State* L )
   return 0;
 }
 
+#if 0
 // Lua: setcpufreq(mhz)
 // mhz is either CPU80MHZ od CPU160MHZ
 static int node_setcpufreq(lua_State* L)
@@ -476,18 +528,19 @@ static int node_bootreason (lua_State *L)
   lua_pushnumber (L, rtc_get_reset_reason ());
   return 1;
 }
+#endif
 
 // Lua: restore()
 static int node_restore (lua_State *L)
 {
-  flash_init_data_default();
-  flash_init_data_blank();
-  system_restore();
+  //flash_init_data_default();
+  //flash_init_data_blank();
+  lua_node_system_restore();
   return 0;
 }
 
 #ifdef LUA_OPTIMIZE_DEBUG
-/* node.stripdebug([level[, function]]). 
+/* node.stripdebug([level[, function]]). 
  * level:    1 don't discard debug
  *           2 discard Local and Upvalue debug info
  *           3 discard Local, Upvalue and lineno debug info.
@@ -529,7 +582,7 @@ static int node_stripdebug (lua_State *L) {
 
   if (!lua_isfunction(L, 2)) {
     int scope = luaL_checkint(L, 2);
-    if (scope > 0) {
+    if (scope > 0) { 
       /* if the function parameter is a +ve integer then climb to find function */
       lua_Debug ar;
       lua_pop(L, 1); /* pop level as getinfo will replace it by the function */
@@ -550,15 +603,16 @@ static int node_stripdebug (lua_State *L) {
 #endif
 
 // Module function map
-static const LUA_REG_TYPE node_map[] =
+const LUA_REG_TYPE node_map[] =
 {
   { LSTRKEY( "restart" ), LFUNCVAL( node_restart ) },
-  { LSTRKEY( "dsleep" ), LFUNCVAL( node_deepsleep ) },
+  { LSTRKEY( "dsleep" ), LFUNCVAL( node_dsleep ) },
   { LSTRKEY( "info" ), LFUNCVAL( node_info ) },
   { LSTRKEY( "chipid" ), LFUNCVAL( node_chipid ) },
   { LSTRKEY( "flashid" ), LFUNCVAL( node_flashid ) },
   { LSTRKEY( "flashsize" ), LFUNCVAL( node_flashsize) },
   { LSTRKEY( "heap" ), LFUNCVAL( node_heap ) },
+  { LSTRKEY( "memusage" ), LFUNCVAL( node_memusage ) },
 #ifdef DEVKIT_VERSION_0_9
   { LSTRKEY( "key" ), LFUNCVAL( node_key ) },
   { LSTRKEY( "led" ), LFUNCVAL( node_led ) },
@@ -568,10 +622,10 @@ static const LUA_REG_TYPE node_map[] =
 // Moved to adc module, use adc.readvdd33()
 // { LSTRKEY( "readvdd33" ), LFUNCVAL( node_readvdd33) },
   { LSTRKEY( "compile" ), LFUNCVAL( node_compile) },
-  { LSTRKEY( "CPU80MHZ" ), LNUMVAL( CPU80MHZ ) },
-  { LSTRKEY( "CPU160MHZ" ), LNUMVAL( CPU160MHZ ) },
-  { LSTRKEY( "setcpufreq" ), LFUNCVAL( node_setcpufreq) },
-  { LSTRKEY( "bootreason" ), LFUNCVAL( node_bootreason) },
+  //{ LSTRKEY( "CPU80MHZ" ), LNUMVAL( CPU80MHZ ) },
+  //{ LSTRKEY( "CPU160MHZ" ), LNUMVAL( CPU160MHZ ) },
+  //{ LSTRKEY( "setcpufreq" ), LFUNCVAL( node_setcpufreq) },
+  //{ LSTRKEY( "bootreason" ), LFUNCVAL( node_bootreason) },
   { LSTRKEY( "restore" ), LFUNCVAL( node_restore) },
 #ifdef LUA_OPTIMIZE_DEBUG
   { LSTRKEY( "stripdebug" ), LFUNCVAL( node_stripdebug ) },
@@ -582,4 +636,8 @@ static const LUA_REG_TYPE node_map[] =
   { LNILKEY, LNILVAL }
 };
 
-LUANODE_MODULE(NODE, "node", node_map, NULL);
+LUALIB_API int luaopen_node(lua_State *L)
+{
+	luaL_register( L, LUA_NODELIBNAME, node_map );
+	return 1;
+}
