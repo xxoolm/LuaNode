@@ -75,6 +75,8 @@ file.remove("myfile.lua");
 node.restart();
 ```
 
+There are some lua sample code within the folder named `lua_samples`. You can learn how to code with Lua and run the same code on any hardware supported by LuaNode.
+
 You can add your own Lua modules to LuaNode at will, visit the LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki") for more details.
 
 ### Lua Editor

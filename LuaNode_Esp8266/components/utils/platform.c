@@ -86,7 +86,7 @@ uint32_t lua_node_get_heap_size(void)
 #if (CURRENT_PLATFORM == NODE_PLATFORM_ESP32)
 	heap_size = esp_get_minimum_free_heap_size();
 #elif (CURRENT_PLATFORM == NODE_PLATFORM_ESP8266)
-	heap_size = esp_get_minimum_free_heap_size();
+	heap_size = esp_get_free_heap_size();
 #else
 	ESP_LOGE(TAG, "Not define CURRENT_PLATFORM!");
 #endif
@@ -101,37 +101,33 @@ void lua_node_system_restore(void)
 }
 
 //////////////////////////////////////////////////
-#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_NUM_15))
+#define GPIO_OUTPUT_PIN_SEL(x)  ((1ULL<<x))
 
+extern void gpio_isr_handler(void *arg);
 int platform_gpio_mode(int pin, int mode, int type)
 {
+	//ESP_LOGI(TAG, "pin:%d, mode:%d, type:%d", pin, mode, type);
 	gpio_config_t io_conf = {};
     //disable interrupt 
-    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.intr_type = type;
     //default set as output mode
-	io_conf.mode = GPIO_MODE_OUTPUT;
+	io_conf.mode = mode;
     //bit mask of the pins that you want to set,e.g.GPIO18/19
-    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL; 
+    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL(pin); 
     //disable pull-down mode
     io_conf.pull_down_en = 0;
     //disable pull-up mode
     io_conf.pull_up_en = 0;
     //configure GPIO with the given settings
 	
-	switch(mode) {
-		case OUTPUT: {
-			io_conf.mode = GPIO_MODE_OUTPUT;
-		}
-		break;
-		case INPUT: {
-			io_conf.mode = GPIO_MODE_INPUT;
-		}
-		break;
-		default:
-		ESP_LOGE(TAG, "Unknown gpio mode");
-		break;
-	}
 	gpio_config(&io_conf);
+	
+	if (mode == GPIO_MODE_INPUT && type > GPIO_INTR_DISABLE) {
+		//ESP_LOGI(TAG, "Add intr to pin: %d", pin);
+		gpio_install_isr_service(0);
+		gpio_isr_handler_remove(pin);
+		gpio_isr_handler_add(pin, gpio_isr_handler, (void *) pin);
+	}
 	
 	return ESP_OK;
 }
@@ -141,15 +137,25 @@ void platform_gpio_isr_uninstall(void)
 	
 }
 
-uint8_t platform_gpio_read(int pin)
+/**
+ * return   -1 error.
+ */
+int platform_gpio_read(int pin)
 {
-	
-	return 0;
+	if (!GPIO_IS_VALID_GPIO(pin)) {
+		ESP_LOGE(TAG, "Not a valid pin");
+		return -1;
+	}
+	int level = gpio_get_level(pin);
+	//ESP_LOGI(TAG, "read pin:%d, level:%d", pin, level);
+	return level;
 }
 
 void platform_gpio_write(int pin, int level)
 {
 #if (CURRENT_PLATFORM == NODE_PLATFORM_ESP32)
+	gpio_set_level(pin, level);
+#elif (CURRENT_PLATFORM == NODE_PLATFORM_ESP8266)
 	gpio_set_level(pin, level);
 #else
 	ESP_LOGE(TAG, "Not support platform");

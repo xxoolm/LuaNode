@@ -1,15 +1,15 @@
 -- Register call back for a timer
 -- Timer trigger each period, change parameter to tmr.ALARM_SINGLE to trigger once
 
-callback = function()
+callback = function(id)
   print("times up!");
 end
 
 -- set timer id and callback period
 tmrId = 1;
-period = 2000;	-- call callback each 2000ms
+period = 1000000;	-- call callback each 1s, unit is microsecond
 
-tmr.register(tmrId, period, tmr.ALARM_AUTO, callback);
+tmr.register(tmrId, period, tmr.ALARM_SINGLE, callback); -- to setup a loop timer, used tmr.ALARM_PERIODIC as 3th parameter
 tmr.start(tmrId);	-- start timer
 
 -- to stop the timer, run the following command

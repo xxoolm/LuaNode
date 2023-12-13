@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "uart_handler.h"
 #include "luaconf.h"
+#include "platform.h"
 
 
 //#define WRITE_TEST_LUA_FILE
@@ -93,18 +94,26 @@ void app_main(void)
     esp_chip_info_t chip_info;
     uint32_t flash_size;
     esp_chip_info(&chip_info);
+#if (CURRENT_PLATFORM == NODE_PLATFORM_ESP8266)
     ESP_LOGI(TAG, "This is %s chip with %d CPU core(s), WiFi%s%s, ",
            CONFIG_IDF_TARGET,
            chip_info.cores,
            (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
            (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+#elif (CURRENT_PLATFORM == NODE_PLATFORM_ESP32)
+	ESP_LOGI(TAG, "This is %s chip with %d CPU core(s), WiFi%s%s%s, ",
+           CONFIG_IDF_TARGET,
+           chip_info.cores,
+           (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
+           (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "",
+           (chip_info.features & CHIP_FEATURE_IEEE802154) ? ", 802.15.4 (Zigbee/Thread)" : "");
+	ESP_LOGI(TAG, "%" PRIu32 "MB %s flash\n", flash_size / (uint32_t)(1024 * 1024),
+           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
+#endif
 
     unsigned major_rev = chip_info.revision / 100;
     unsigned minor_rev = chip_info.revision % 100;
     ESP_LOGI(TAG, "silicon revision v%d.%d, ", major_rev, minor_rev);
-
-    //ESP_LOGI(TAG, "Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
-	ESP_LOGI(TAG, "ready to init uart0");
 	
 	spiff_init();
 

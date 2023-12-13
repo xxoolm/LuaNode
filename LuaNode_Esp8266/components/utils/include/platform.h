@@ -49,7 +49,7 @@ void lua_node_system_restore(void);
 
 int platform_gpio_mode(int pin, int mode, int type);
 void platform_gpio_isr_uninstall(void);
-uint8_t platform_gpio_read(int pin); 
+int platform_gpio_read(int pin); 
 void platform_gpio_write(int pin, int level);
 
 

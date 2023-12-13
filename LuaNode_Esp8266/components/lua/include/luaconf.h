@@ -157,7 +157,7 @@
 ** CHANGE that if ptrdiff_t is not adequate on your machine. (On most
 ** machines, ptrdiff_t gives a good choice between int or long.)
 */
-
+#define LUA_NUMBER_INTEGRAL
 /* Changed to long for use with integral Lua numbers. */
 #if !defined LUA_NUMBER_INTEGRAL
 #define LUA_INTEGER ptrdiff_t

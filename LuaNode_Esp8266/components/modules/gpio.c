@@ -10,6 +10,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 
 #include "c_types.h"
 #include "c_string.h"
@@ -40,10 +41,14 @@ void lua_gpio_unref(unsigned pin){
 void gpio_intr_callback( unsigned pin, unsigned level )
 {
   ESP_LOGI(TAG, "pin:%d, level:%d \n", pin, level);
-  if(gpio_cb_ref[pin] == LUA_NOREF)
+  if(gpio_cb_ref[pin] == LUA_NOREF) {
+	ESP_LOGE(TAG, "No intr callback found");
     return;
-  if(!gL)
+  }
+  if(!gL) {
+	ESP_LOGE(TAG, "No L state found");
     return;
+  }
   lua_rawgeti(gL, LUA_REGISTRYINDEX, gpio_cb_ref[pin]);
   lua_pushinteger(gL, level);
   lua_call(gL, 1, 0);
@@ -54,13 +59,18 @@ static int lgpio_remove_isr( lua_State* L )
 {
 	unsigned pin;
 	pin = luaL_checkinteger( L, 1 );
+	if (!GPIO_IS_VALID_GPIO(pin)) {
+		ESP_LOGE(TAG, "Invalid pin number");
+		return -1;
+	}
 	esp_err_t err = gpio_isr_handler_remove( pin );
 	if (err != ESP_OK) {
 		lua_pushinteger( L, pin );
-		return 1;
+		return -1;
 	}
+	gpio_uninstall_isr_service();
 	lua_pushinteger( L, ESP_OK );
-	return 1;
+	return 0;
 }
 
 // Lua: uninstall()
@@ -74,6 +84,12 @@ static int lgpio_uninstall( lua_State* L )
 #endif
 
 // Lua: mode( pin, mode, type, function )
+// Example: gpio.mode(4, gpio.OUTPUT, gpio.INTR_DISABLE, 0)
+//          gpio.write(4, 1)
+// 
+//          gpio.mode(4, gpio.INPUT, gpio.POSEDGE, function(level) print(level) end)
+//          lv = gpio.read(4) 
+//          print(lv)
 static int lgpio_mode( lua_State* L )
 {
   unsigned mode;
@@ -84,33 +100,17 @@ static int lgpio_mode( lua_State* L )
   pin = luaL_checkinteger( L, 1 );
   mode = luaL_checkinteger( L, 2 );
 #if (CURRENT_PLATFORM == NODE_PLATFORM_ESP32)
-  if ( mode!=OUTPUT && mode!=INPUT && mode!=PLATFORM_INTERRUPT && mode!= INOUT)
+  if ( mode!=OUTPUT && mode!=INPUT && mode!= INOUT)
 #else 
-  if ( mode!=OUTPUT && mode!=INPUT && mode!=PLATFORM_INTERRUPT)
+  if ( mode!=OUTPUT && mode!=INPUT)
 #endif
     return luaL_error( L, "wrong arg type" );
   if(pin==0 && mode==PLATFORM_INTERRUPT)
     return luaL_error( L, "no interrupt for D0" );
   if(lua_gettop(L) > 2) {
-	const char *str = luaL_checklstring( L, 3, &sl );
-	if (str == NULL) {
-	  return luaL_error( L, "wrong arg type" );
-	}
-	if(sl == 2 && strcmp(str, "up") == 0){
-		type = GPIO_INTR_POSEDGE; 
-	}else if(sl == 4 && strcmp(str, "down") == 0){
-		type = GPIO_INTR_NEGEDGE; 
-	}else if(sl == 4 && strcmp(str, "both") == 0){
-		type = GPIO_INTR_ANYEDGE;
-	}else if(sl == 3 && strcmp(str, "low") == 0){
-		type = GPIO_INTR_LOW_LEVEL;
-	}else if(sl == 4 && strcmp(str, "high") == 0){
-		type = GPIO_INTR_HIGH_LEVEL;
-	}else{
-		type = GPIO_INTR_DISABLE; printf("==> 6\n");
-	}
+	type = luaL_checkinteger( L, 3 );
   }
-  
+
   if (lua_gettop(L) > 3) {
 	if (lua_type(L, 4) == LUA_TFUNCTION || lua_type(L, 4) == LUA_TLIGHTFUNCTION){
 		lua_pushvalue(L, 4);  // copy argument (func) to the top of stack
@@ -119,19 +119,13 @@ static int lgpio_mode( lua_State* L )
 		gpio_cb_ref[pin] = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
   }
-#ifdef GPIO_INTERRUPT_ENABLE
+  
   gL = L;   // save to local gL, for callback function
-  if (mode!=PLATFORM_INTERRUPT){     // disable interrupt
-    if(gpio_cb_ref[pin] != LUA_NOREF){
-      luaL_unref(L, LUA_REGISTRYINDEX, gpio_cb_ref[pin]);
-    }
-    gpio_cb_ref[pin] = LUA_NOREF;
-  }
-#endif
-  int r = platform_gpio_mode( pin, mode, type ); 
-  if( r<0 )
-    return luaL_error( L, "wrong pin num." );
 
+  int r = platform_gpio_mode( pin, mode, type ); 
+  if( r<0 ) {
+    return luaL_error( L, "wrong pin num." );
+  }
   return 0;  
 }
 
@@ -139,11 +133,9 @@ static int lgpio_mode( lua_State* L )
 static int lgpio_read( lua_State* L )
 {
   unsigned pin;
-  
   pin = luaL_checkinteger( L, 1 );
-  //MOD_CHECK_ID( gpio, pin );
 
-  unsigned level = platform_gpio_read( pin );
+  int level = platform_gpio_read( pin );
   lua_pushinteger( L, level );
   return 1; 
 }
@@ -155,7 +147,6 @@ static int lgpio_write( lua_State* L )
   unsigned pin;
   
   pin = luaL_checkinteger( L, 1 );
-  //MOD_CHECK_ID( gpio, pin );
   level = luaL_checkinteger( L, 2 );
   if ( level!=HIGH && level!=LOW )
     return luaL_error( L, "wrong arg type" );
@@ -164,8 +155,6 @@ static int lgpio_write( lua_State* L )
 }
 
 #define DELAY_TABLE_MAX_LEN 256
-#define noInterrupts ets_intr_lock
-#define interrupts ets_intr_unlock
 
 // Lua: serout( pin, firstLevel, delay_table, [repeatNum] )
 // -- serout( pin, firstLevel, delay_table, [repeatNum] )
@@ -239,6 +228,46 @@ static int lgpio_serout( lua_State* L )
 #undef DELAY_TABLE_MAX_LEN
 
 
+xQueueHandle gpio_evt_queue = NULL;
+
+void gpio_isr_handler(void *arg)
+{
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+
+static void gpio_task_example(void *arg)
+{
+    uint32_t io_num;
+
+    for (;;) {
+        if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            //ESP_LOGI(TAG, "GPIO[%d] intr,  val: %d\n", io_num, gpio_get_level(io_num));
+			gpio_intr_callback(io_num, gpio_get_level(io_num));
+        }
+
+    }
+}
+static void setup_const(lua_State *L)
+{
+	lua_pushinteger(L, GPIO_MODE_INPUT);
+	lua_setfield(L, -2, "INPUT");
+	lua_pushinteger(L, GPIO_MODE_OUTPUT);
+	lua_setfield(L, -2, "OUTPUT");
+	
+	lua_pushinteger(L, GPIO_INTR_DISABLE);
+	lua_setfield(L, -2, "INTR_DISABLE");
+	lua_pushinteger(L, GPIO_INTR_POSEDGE);
+	lua_setfield(L, -2, "POSEDGE");
+	lua_pushinteger(L, GPIO_INTR_NEGEDGE);
+	lua_setfield(L, -2, "NEGEDGE");
+	lua_pushinteger(L, GPIO_INTR_LOW_LEVEL);
+	lua_setfield(L, -2, "LOW_LEVEL");
+	lua_pushinteger(L, GPIO_INTR_HIGH_LEVEL);
+	lua_setfield(L, -2, "HIGH_LEVEL");
+}
+
+
 // Module function map 
 const LUA_REG_TYPE gpio_map[] = {
   { LSTRKEY( "mode" ),   LFUNCVAL( lgpio_mode ) },
@@ -248,7 +277,6 @@ const LUA_REG_TYPE gpio_map[] = {
 #ifdef GPIO_INTERRUPT_ENABLE
   { LSTRKEY( "remove" ),   LFUNCVAL( lgpio_remove_isr ) },
   { LSTRKEY( "uninstall" ),   LFUNCVAL( lgpio_uninstall ) },
-  //{ LSTRKEY( "INT" ),    LNUMVAL( PLATFORM_INTERRUPT ) },
 #endif
 /*  { LSTRKEY( "OUTPUT" ), LNUMVAL( OUTPUT ) },
   { LSTRKEY( "INPUT" ),  LNUMVAL( INPUT ) },
@@ -263,5 +291,10 @@ const LUA_REG_TYPE gpio_map[] = {
 LUALIB_API int luaopen_gpio(lua_State *L)
 {
 	luaL_register( L, LUA_GPIOLIBNAME, gpio_map );
+	setup_const(L);
+#ifdef GPIO_INTERRUPT_ENABLE
+	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+	xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
+#endif
 	return 1;
 }
