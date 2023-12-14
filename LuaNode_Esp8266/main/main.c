@@ -119,7 +119,6 @@ void app_main(void)
 
     char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
     lua_main(2, lua_argv);
-	vTaskDelay(50 / portTICK_PERIOD_MS);
 	
 	while(1) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);

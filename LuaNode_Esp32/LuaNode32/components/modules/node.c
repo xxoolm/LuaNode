@@ -26,8 +26,6 @@
 //#include "user_interface.h"
 //#include "flash_api.h"
 //#include "flash_fs.h"
-//#include "user_version.h"
-//#include "esp_misc.h"
 #include "esp_system.h"
 #include "esp_vfs.h"
 #include "esp_log.h"
@@ -584,7 +582,7 @@ static int node_stripdebug (lua_State *L) {
 
   if (!lua_isfunction(L, 2)) {
     int scope = luaL_checkint(L, 2);
-    if (scope > 0) {
+    if (scope > 0) { 
       /* if the function parameter is a +ve integer then climb to find function */
       lua_Debug ar;
       lua_pop(L, 1); /* pop level as getinfo will replace it by the function */
@@ -640,10 +638,6 @@ const LUA_REG_TYPE node_map[] =
 
 LUALIB_API int luaopen_node(lua_State *L)
 {
-#if LUA_OPTIMIZE_MEMORY > 0
-    return 0;
-#else  
 	luaL_register( L, LUA_NODELIBNAME, node_map );
 	return 1;
-#endif
 }

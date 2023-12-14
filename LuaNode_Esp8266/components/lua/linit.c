@@ -61,10 +61,10 @@ const luaL_Reg lua_libs[] = {
 #ifdef USE_TMR_MODULE
 	{LUA_TMRLIBNAME, luaopen_tmr},
 #endif
-/*#ifdef USE_WIFI_MODULE
+#ifdef USE_WIFI_MODULE
 	{LUA_WIFILIBNAME, luaopen_wifi},
 #endif
-#ifdef USE_I2C_MODULE
+/*#ifdef USE_I2C_MODULE
 	{LUA_I2CLIBNAME, luaopen_i2c},
 #endif
 #ifdef USE_UART_MODULE

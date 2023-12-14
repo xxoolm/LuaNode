@@ -19,7 +19,7 @@
 #include "uart_handler.h"
 #include "luaconf.h"
 
-//#define WRITE_TEST_LUA_FILE
+#define WRITE_TEST_LUA_FILE
 
 const static char *TAG = "main";
 
@@ -38,6 +38,7 @@ char *get_partition_label(void)
 #ifdef WRITE_TEST_LUA_FILE
 static void create_lua_init_file(void)
 {
+	ESP_LOGI(TAG, "Create init.lua");
 	FILE* f = fopen("/spiffs/init.lua", "w");
 	if (f == NULL) {
 		ESP_LOGE(TAG, "Failed to open file for writing");
@@ -84,6 +85,10 @@ static void spiff_init(void)
 
 void app_main(void)
 {
+	my_uart_init();
+	vTaskDelay(50 / portTICK_PERIOD_MS);
+	printf("\n\n");
+	ESP_LOGI(TAG, "App main init");
 	print_info();
     /* Print chip information */
     esp_chip_info_t chip_info;
@@ -114,8 +119,6 @@ void app_main(void)
 
     char *lua_argv[] = {(char *)"lua", (char *)"-i", NULL};
     lua_main(2, lua_argv);
-	vTaskDelay(50 / portTICK_PERIOD_MS);
-	my_uart_init();
 	
 	while(1) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);

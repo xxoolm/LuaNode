@@ -9,7 +9,6 @@
 #include "luaconf.h"
 #include "lrodefs.h"
 //#include "modules.h"
-//#include "esp_misc.h"
 #include "lrotable.h"
 #include "user_modules.h"
 
@@ -35,20 +34,19 @@ extern const LUA_REG_TYPE strlib[];
 extern const LUA_REG_TYPE tab_funcs[];
 extern const LUA_REG_TYPE co_funcs[];
 extern const LUA_REG_TYPE math_map[];
+ 
 
-
-extern int luaopen_node(lua_State *L);
 
 const luaL_Reg lua_libs[] = {
 	{"base", luaopen_base},
 	{"package", luaopen_package},
 	{"table", luaopen_table},
 	{"string", luaopen_string},
-/*
+
 #ifdef USE_GPIO_MODULE
 	{LUA_GPIOLIBNAME, luaopen_gpio},
 #endif
-#ifdef USE_PWM_MODULE
+/*#ifdef USE_PWM_MODULE
 	{LUA_PWMLIBNAME, luaopen_pwm},
 #endif*/
 #ifdef USE_NODE_MODULE
@@ -57,20 +55,20 @@ const luaL_Reg lua_libs[] = {
 #ifdef USE_FILE_MODULE
 	{LUA_FILELIBNAME, luaopen_file},
 #endif
-/*#ifdef USE_WIFI_MODULE
-	{LUA_WIFILIBNAME, luaopen_wifi},
+#ifdef USE_UTILS_MODULE
+	{LUA_UTILSLIBNAME, luaopen_utils},
 #endif
 #ifdef USE_TMR_MODULE
 	{LUA_TMRLIBNAME, luaopen_tmr},
+#endif
+/*#ifdef USE_WIFI_MODULE
+	{LUA_WIFILIBNAME, luaopen_wifi},
 #endif
 #ifdef USE_I2C_MODULE
 	{LUA_I2CLIBNAME, luaopen_i2c},
 #endif
 #ifdef USE_UART_MODULE
 	{LUA_UARTLIBNAME, luaopen_uart},
-#endif
-#ifdef USE_UTILS_MODULE
-	{LUA_UTILSLIBNAME, luaopen_utils},
 #endif
 #ifdef USE_LPEG_MODULE
 	{LUA_LPEGLIBNAME, luaopen_lpeg},

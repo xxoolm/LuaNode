@@ -1,5 +1,11 @@
 // Module for interfacing with WIFI
 
+#include "esp_log.h"
+#include "esp_netif.h"
+#include "esp_event.h"
+#include "esp_wifi.h"
+#include "nvs_flash.h"
+
 #include "lauxlib.h"
 #include "platform.h"
 #include "lualib.h"
@@ -13,6 +19,10 @@
 #include "c_types.h"
 #include "esp_timer.h"
 #include "c_stdio.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
 
 struct ip_addr {
     uint32 addr;
@@ -53,6 +63,17 @@ typedef enum _phy_mode {
 #define DEFAULT_AP_CHANNEL 11
 #define DEFAULT_AP_MAXCONNS 4
 #define DEFAULT_AP_BEACON 100
+
+#define MAC_STR_SZ		20
+
+#define TAG 			"wifi"
+#define EXAMPLE_ESP_MAXIMUM_RETRY	10
+
+#define DEFAULT_SCAN_LIST_SIZE 16
+
+#define EXAMPLE_ESP_WIFI_SSID      "TestAP"
+#define EXAMPLE_ESP_WIFI_PASS      "123456"
+#define EXAMPLE_MAX_STA_CONN       3
 
 static int wifi_smart_succeed = LUA_NOREF;
 static uint8 getap_output_format=0;
@@ -99,7 +120,7 @@ static const event_desc_t events[] =
 #define ARRAY_LEN(a) (sizeof(a) / sizeof(a[0]))
 static int event_cb[ARRAY_LEN(events)];
 
-nodemcu_esp_event_reg_t esp_event_cb_table[] = {
+/*nodemcu_esp_event_reg_t esp_event_cb_table[] = {
   {SYSTEM_EVENT_STA_START,           on_event},
   {SYSTEM_EVENT_STA_STOP,            on_event},
   {SYSTEM_EVENT_STA_CONNECTED,       on_event},
@@ -112,8 +133,17 @@ nodemcu_esp_event_reg_t esp_event_cb_table[] = {
   {SYSTEM_EVENT_AP_STACONNECTED,     on_event},
   {SYSTEM_EVENT_AP_STADISCONNECTED,  on_event},
   {SYSTEM_EVENT_AP_PROBEREQRECVED,   on_event},
-};
+};*/
 
+static void ip4str(char *buff, ip4_addr_t *addr)
+{
+	ip4addr_ntoa_r(addr, buff, IP4ADDR_STRLEN_MAX);
+}
+
+static void macstr(char *buff, uint8_t *mac)
+{
+	sprintf(buff, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
 
 #define SET_SAVE_MODE(save) \
   do { esp_err_t storage_err = \
@@ -211,7 +241,7 @@ static void sta_authmode (lua_State *L, const system_event_t *evt)
 
 static void sta_got_ip (lua_State *L, const system_event_t *evt)
 {
-  char ipstr[IP_STR_SZ] = { 0 };
+  char ipstr[24] = { 0 };
   ip4str (ipstr, &evt->event_info.got_ip.ip_info.ip);
   lua_pushstring (L, ipstr);
   lua_setfield (L, -2, "ip");
@@ -328,7 +358,7 @@ static int wifi_stop (lua_State *L)
     0 : luaL_error (L, "failed to stop wifi, code %d", err);
 }
 
-
+//Lua: wifi.sta_config({ssid='wifi_ssid', pwd='wifi_password', bssid, auto=1}, true) //the 2th parameter is to save config to flash/RAM
 static int wifi_sta_config (lua_State *L)
 {
   luaL_checkanytable (L, 1);
@@ -336,68 +366,69 @@ static int wifi_sta_config (lua_State *L)
   lua_settop (L, 1);
 
   wifi_config_t cfg;
-  memset (&cfg, 0, sizeof (cfg));
+  memset(&cfg, 0, sizeof (cfg));
 
   lua_getfield (L, 1, "ssid");
-  size_t len;
+  size_t len; 
   const char *str = luaL_checklstring (L, -1, &len);
-  if (len > sizeof (cfg.sta.ssid))
+  if (len > sizeof (cfg.sta.ssid)) {
     len = sizeof (cfg.sta.ssid);
-  strncpy (cfg.sta.ssid, str, len);
+  }
+  strncpy ((char *)cfg.sta.ssid, str, len);
 
   lua_getfield (L, 1, "pwd");
   str = luaL_optlstring (L, -1, "", &len);
-  if (len > sizeof (cfg.sta.password))
+  if (len > sizeof (cfg.sta.password)) {
     len = sizeof (cfg.sta.password);
-  strncpy (cfg.sta.password, str, len);
+  }
+  strncpy ((char *)cfg.sta.password, str, len);
 
   lua_getfield (L, 1, "bssid");
   cfg.sta.bssid_set = false;
   if (lua_isstring (L, -1))
   {
     const char *bssid = luaL_checklstring (L, -1, &len);
-    const char *fmts[] = {
+    const char *fmts[] = { 
       "%hhx%hhx%hhx%hhx%hhx%hhx",
       "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
       "%hhx-%hhx-%hhx-%hhx-%hhx-%hhx",
       "%hhx %hhx %hhx %hhx %hhx %hhx",
       NULL
     };
-    for (unsigned i = 0; fmts[i]; ++i)
-    {
+    for (unsigned i = 0; fmts[i]; ++i) {
       if (sscanf (bssid, fmts[i],
         &cfg.sta.bssid[0], &cfg.sta.bssid[1], &cfg.sta.bssid[2],
-        &cfg.sta.bssid[3], &cfg.sta.bssid[4], &cfg.sta.bssid[5]) == 6)
-      {
+        &cfg.sta.bssid[3], &cfg.sta.bssid[4], &cfg.sta.bssid[5]) == 6) {
         cfg.sta.bssid_set = true;
         break;
       }
     }
-    if (!cfg.sta.bssid_set)
+    if (!cfg.sta.bssid_set) {
       return luaL_error (L, "invalid BSSID: %s", bssid);
+	}
   }
 
   lua_getfield (L, 1, "auto");
   bool auto_conn = luaL_optbool (L, -1, true);
 
   SET_SAVE_MODE(save);
-  esp_err_t err = esp_wifi_set_config (WIFI_IF_STA, &cfg);
-  if (err != ESP_OK)
-    return luaL_error (L, "failed to set wifi config, code %d", err);
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+  //ESP_LOGI(TAG, "ssid=%s, pwd=%s", cfg.sta.ssid, cfg.sta.password);
+  ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
 
-  if (auto_conn)
-    err = esp_wifi_connect ();
-  if (err != ESP_OK)
-    return luaL_error (L, "failed to begin connect, code %d", err);
+  esp_err_t err = ESP_OK;
+  if (auto_conn) {
+    //err = esp_wifi_connect();
+	ESP_ERROR_CHECK(esp_wifi_start());
+  }
 
   err = esp_wifi_set_auto_connect (auto_conn);
-  return (err == ESP_OK) ?
-    0 : luaL_error (L, "failed to set wifi auto-connect, code %d", err);
+  return (err == ESP_OK) ? 0 : luaL_error (L, "failed to set wifi auto-connect, code %d", err);
 }
 
 static int wifi_sta_connect (lua_State *L)
 {
-  esp_err_t err = esp_wifi_connect ();
+  esp_err_t err = esp_wifi_connect();
   return (err == ESP_OK) ? 0 : luaL_error (L, "connect failed, code %d", err);
 }
 
@@ -408,6 +439,8 @@ static int wifi_sta_disconnect (lua_State *L)
   return (err == ESP_OK) ? 0 : luaL_error(L, "disconnect failed, code %d", err);
 }
 
+//Lua: cfg=wifi.getconfig()
+//     print(cfg.ssid, cfg.pwd)
 static int wifi_sta_getconfig (lua_State *L)
 {
   wifi_config_t cfg;
@@ -416,16 +449,15 @@ static int wifi_sta_getconfig (lua_State *L)
     return luaL_error (L, "failed to get config, code %d", err);
 
   lua_createtable (L, 0, 3);
-  size_t ssid_len = strnlen (cfg.sta.ssid, sizeof (cfg.sta.ssid));
-  lua_pushlstring (L, cfg.sta.ssid, ssid_len);
+  size_t ssid_len = strnlen ((char *)cfg.sta.ssid, sizeof (cfg.sta.ssid));
+  lua_pushlstring (L, (char *)cfg.sta.ssid, ssid_len);
   lua_setfield (L, -2, "ssid");
 
-  size_t pwd_len = strnlen (cfg.sta.password, sizeof (cfg.sta.password));
-  lua_pushlstring (L, cfg.sta.password, pwd_len);
+  size_t pwd_len = strnlen ((char *)cfg.sta.password, sizeof (cfg.sta.password));
+  lua_pushlstring (L, (char *)cfg.sta.password, pwd_len);
   lua_setfield (L, -2, "pwd");
 
-  if (cfg.sta.bssid_set)
-  {
+  if (cfg.sta.bssid_set) {
     char bssid_str[MAC_STR_SZ];
     macstr (bssid_str, cfg.sta.bssid);
     lua_pushstring (L, bssid_str);
@@ -434,21 +466,22 @@ static int wifi_sta_getconfig (lua_State *L)
 
   bool auto_conn;
   err = esp_wifi_get_auto_connect (&auto_conn);
-  if (err != ESP_OK)
+  if (err != ESP_OK) {
     return luaL_error (L, "failed to get auto-connect, code %d", err);
-
+  }
   lua_pushboolean (L, auto_conn);
   lua_setfield (L, -2, "auto");
 
   return 1;
 }
 
+//Lua: res=wifi.scan({size=10,ssid='scan_ssid',channel=3,show_hidden=1}, function() end) //'size' is to setup scan list size
 static int wifi_sta_scan (lua_State *L)
 {
-  if (scan_cb_ref != LUA_NOREF)
+  if (scan_cb_ref != LUA_NOREF) {
     return luaL_error (L, "scan already in progress");
-
-  luaL_checkanytable (L, 1);
+  }
+  luaL_checkanytable(L, 1);
 
   wifi_scan_config_t scan_cfg;
   memset (&scan_cfg, 0, sizeof (scan_cfg));
@@ -458,45 +491,90 @@ static int wifi_sta_scan (lua_State *L)
   luaL_checkanyfunction (L, 2);
   lua_settop (L, 2);
   scan_cb_ref = luaL_ref (L, LUA_REGISTRYINDEX);
+  
+  lua_settop (L, 1);
+  lua_getfield (L, 1, "size");
+  int scan_res_size = luaL_optint (L, -1, 10);
+  uint16_t number = (scan_res_size > 0 ? scan_res_size : DEFAULT_SCAN_LIST_SIZE);
+  lua_getfield (L, 1, "ssid");
+  size_t len; 
+  const char *ssid = luaL_optlstring(L, -1, "", &len);
+  scan_cfg.ssid = ssid;
+  lua_getfield (L, 1, "show_hidden");
+  bool show_hidden = luaL_optbool (L, -1, true);
+  scan_cfg.show_hidden = show_hidden;
+  lua_getfield (L, 1, "channel");
+  int channel = luaL_optint (L, -1, 1);
+  scan_cfg.channel = channel;
+  ESP_LOGI(TAG, "Scan result size: %d, ssid: %s, show_hidden: %d, channel: %d", number, scan_cfg.ssid, scan_cfg.show_hidden, scan_cfg.channel);
 
-  esp_err_t err = esp_wifi_scan_start (&scan_cfg, false);
-  if (err != ESP_OK)
-  {
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+  ESP_ERROR_CHECK(esp_wifi_start());
+  esp_err_t err = ESP_OK;
+  if (strlen(ssid) > 0) {
+	esp_wifi_scan_start(&scan_cfg, true);
+  } else {
+	esp_wifi_scan_start(NULL, true); // scan all
+  }
+  
+  if (err != ESP_OK) {
     luaL_unref (L, LUA_REGISTRYINDEX, scan_cb_ref);
     scan_cb_ref = LUA_NOREF;
     return luaL_error (L, "failed to start scan, code %d", err);
   }
-  else
-    return 0;
+   
+  uint16_t ap_count = 0;
+  wifi_ap_record_t ap_records[number];
+  esp_wifi_scan_get_ap_records(&number, ap_records);
+  esp_wifi_scan_get_ap_num(&ap_count);
+  
+  for (int i = 0; (i < number) && (i < ap_count); i++) {
+    ESP_LOGI(TAG, "SSID \t\t%s", ap_records[i].ssid);
+    ESP_LOGI(TAG, "RSSI \t\t%d", ap_records[i].rssi);
+    ESP_LOGI(TAG, "Channel \t\t%d\n", ap_records[i].primary);
+  }
+
+  return 0;
 }
 
+//Lua: wifi.ap_config({ssid, pwd, auth, channel, hidden, max}, true) //The 2th parameter is to save config to flash/RAM
 static int wifi_ap_config (lua_State *L)
 {
   luaL_checkanytable (L, 1);
   bool save = luaL_optbool (L, 2, false);
 
-  wifi_config_t cfg;
-  memset (&cfg, 0, sizeof (cfg));
+  wifi_config_t cfg = {
+        .ap = {
+            .ssid = EXAMPLE_ESP_WIFI_SSID,
+            .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+            .password = EXAMPLE_ESP_WIFI_PASS,
+            .max_connection = EXAMPLE_MAX_STA_CONN,
+            .authmode = WIFI_AUTH_WPA_WPA2_PSK
+        },
+  };
 
   lua_getfield (L, 1, "ssid");
   size_t len;
   const char *str = luaL_checklstring (L, -1, &len);
-  if (len > sizeof (cfg.ap.ssid))
+  if (len > sizeof (cfg.ap.ssid)) {
     len = sizeof (cfg.ap.ssid);
-  strncpy (cfg.ap.ssid, str, len);
+  }
+  strncpy ((char *)cfg.ap.ssid, str, len);
   cfg.ap.ssid_len = len;
 
   lua_getfield (L, 1, "pwd");
   str = luaL_optlstring (L, -1, "", &len);
-  if (len > sizeof (cfg.ap.password))
+  if (len > sizeof (cfg.ap.password)) {
     len = sizeof (cfg.ap.password);
-  strncpy (cfg.ap.password, str, len);
+  }
+  strncpy ((char *)cfg.ap.password, str, len); 
 
   lua_getfield (L, 1, "auth");
   int authmode = luaL_optint (L, -1, WIFI_AUTH_WPA2_PSK);
-  if (authmode < 0 || authmode >= WIFI_AUTH_MAX)
+  if (authmode < 0 || authmode >= WIFI_AUTH_MAX) {
     return luaL_error (L, "unknown auth mode %d", authmode);
-  cfg.ap.authmode = authmode;
+  }
+  cfg.ap.authmode = authmode; 
 
   lua_getfield (L, 1, "channel");
   cfg.ap.channel = luaL_optint (L, -1, DEFAULT_AP_CHANNEL);
@@ -511,44 +589,64 @@ static int wifi_ap_config (lua_State *L)
   cfg.ap.beacon_interval = luaL_optint (L, -1, DEFAULT_AP_BEACON);
   
   SET_SAVE_MODE(save);
-  esp_err_t err = esp_wifi_set_config (WIFI_IF_AP, &cfg);
-  return (err == ESP_OK) ?
-    0 : luaL_error (L, "failed to set wifi config, code %d", err);
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+  //ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &cfg));
+  esp_err_t err = esp_wifi_set_config(ESP_IF_WIFI_AP, &cfg);
+  if (err != ESP_OK) {
+	ESP_LOGE(TAG, "wifi set config failed: 0x%x", err);
+	return 0;
+  }
+  ESP_ERROR_CHECK(esp_wifi_start());
+  
+  return 0;
+}
+
+static int s_retry_num = 0;
+static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
+{
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        esp_wifi_connect();
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
+            esp_wifi_connect();
+            s_retry_num++;
+            ESP_LOGI(TAG, "retry to connect to the AP");
+        } else {
+            //xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+			ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler));
+			ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler));
+        }
+        ESP_LOGI(TAG,"connect to the AP fail");
+    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
+        s_retry_num = 0;
+        //xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+    } else if (event_id == WIFI_EVENT_AP_STACONNECTED) {
+        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" join, AID=%d", MAC2STR(event->mac), event->aid);
+    } else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d", MAC2STR(event->mac), event->aid);
+    }
 }
 
 static int wifi_init (lua_State *L)
 {
-  for (unsigned i = 0; i < ARRAY_LEN(event_cb); ++i)
+  for (unsigned i = 0; i < ARRAY_LEN(event_cb); ++i) {
     event_cb[i] = LUA_NOREF;
+  }
 
+  ESP_ERROR_CHECK(nvs_flash_init());
+  tcpip_adapter_init();
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  esp_err_t err = esp_wifi_init (&cfg);
-  return (err == ESP_OK) ?
-    0 : luaL_error (L, "failed to init wifi, code %d", err);
+  ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+  ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
+  ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
+  
+  return 0;
 }
-
-
-const LUA_REG_TYPE wifi_sta_map[] = {
-  { LSTRKEY( "config" ),      LFUNCVAL( wifi_sta_config )     },
-  { LSTRKEY( "connect" ),     LFUNCVAL( wifi_sta_connect )    },
-  { LSTRKEY( "disconnect" ),  LFUNCVAL( wifi_sta_disconnect ) },
-  { LSTRKEY( "getconfig" ),   LFUNCVAL( wifi_sta_getconfig )  },
-  { LSTRKEY( "scan" ),        LFUNCVAL( wifi_sta_scan )       },
-
-  { LNILKEY, LNILVAL }
-};
-
-const LUA_REG_TYPE wifi_ap_map[] = {
-  { LSTRKEY( "config" ),              LFUNCVAL( wifi_ap_config )        },
-
-  { LSTRKEY( "AUTH_OPEN" ),           LNUMVAL( WIFI_AUTH_OPEN )         },
-  { LSTRKEY( "AUTH_WEP" ),            LNUMVAL( WIFI_AUTH_WEP )          },
-  { LSTRKEY( "AUTH_WPA_PSK" ),        LNUMVAL( WIFI_AUTH_WPA_PSK )      },
-  { LSTRKEY( "AUTH_WPA2_PSK" ),       LNUMVAL( WIFI_AUTH_WPA2_PSK )     },
-  { LSTRKEY( "AUTH_WPA_WPA2_PSK" ),   LNUMVAL( WIFI_AUTH_WPA_WPA2_PSK ) },
-
-  { LNILKEY, LNILVAL }
-};
 
 
 const LUA_REG_TYPE wifi_map[] =  {
@@ -558,21 +656,39 @@ const LUA_REG_TYPE wifi_map[] =  {
 	{ LSTRKEY( "start" ),       LFUNCVAL( wifi_start )          },
 	{ LSTRKEY( "stop" ),        LFUNCVAL( wifi_stop )           },
 
-	{ LSTRKEY( "sta" ),         LROVAL( wifi_sta_map )          },
-	{ LSTRKEY( "ap" ),          LROVAL( wifi_ap_map )           },
-
-
-	{ LSTRKEY( "NULLMODE" ),    LNUMVAL( WIFI_MODE_NULL )       },
-	{ LSTRKEY( "STATION" ),     LNUMVAL( WIFI_MODE_STA )        },
-	{ LSTRKEY( "SOFTAP" ),      LNUMVAL( WIFI_MODE_AP )         },
-	{ LSTRKEY( "STATIONAP" ),   LNUMVAL( WIFI_MODE_APSTA )      },
-
+	/* station mode */
+	{ LSTRKEY( "sta_config" ),  LFUNCVAL( wifi_sta_config )     },
+	{ LSTRKEY( "connect" ),     LFUNCVAL( wifi_sta_connect )    },
+	{ LSTRKEY( "disconnect" ),  LFUNCVAL( wifi_sta_disconnect ) },
+	{ LSTRKEY( "getconfig" ),   LFUNCVAL( wifi_sta_getconfig )  },
+	{ LSTRKEY( "scan" ),        LFUNCVAL( wifi_sta_scan )       },
+  
+	{ LSTRKEY( "ap_config" ),   LFUNCVAL( wifi_ap_config )      },
+ 
 	{ LNILKEY, LNILVAL }
 };
 
 static void setup_const(lua_State *L)
 {
+	lua_pushinteger(L, WIFI_MODE_STA);
+	lua_setfield(L, -2, "STA"); 
+	lua_pushinteger(L, WIFI_MODE_AP);
+	lua_setfield(L, -2, "AP");
+	lua_pushinteger(L, WIFI_MODE_APSTA);
+	lua_setfield(L, -2, "STAAP");
+	lua_pushinteger(L, WIFI_MODE_NULL);
+	lua_setfield(L, -2, "NULLMODE");
 	
+	lua_pushinteger(L, WIFI_AUTH_OPEN);
+	lua_setfield(L, -2, "AUTH_OPEN");
+	lua_pushinteger(L, WIFI_AUTH_WEP);
+	lua_setfield(L, -2, "AUTH_WEP");
+	lua_pushinteger(L, WIFI_AUTH_WPA_PSK);
+	lua_setfield(L, -2, "AUTH_WPA_PSK");
+	lua_pushinteger(L, WIFI_AUTH_WPA2_PSK);
+	lua_setfield(L, -2, "AUTH_WPA2_PSK");
+	lua_pushinteger(L, WIFI_AUTH_WPA_WPA2_PSK);
+	lua_setfield(L, -2, "AUTH_WPA_WPA2_PSK");
 }
 
 LUALIB_API int luaopen_wifi(lua_State *L)
@@ -580,5 +696,6 @@ LUALIB_API int luaopen_wifi(lua_State *L)
 	//printf("wifi init\n");
 	wifi_init(L);
 	luaL_register( L, LUA_WIFILIBNAME, wifi_map );
+	setup_const(L);
 	return 1;
 }

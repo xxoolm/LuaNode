@@ -3,8 +3,7 @@
 //#include "modules.h"
 #include "lauxlib.h"
 #include "lualib.h"
-#include "lrotable.h"
-#include "lrodefs.h"
+//#include "lrotable.h"
 #include "platform.h"
 #include "driver/gpio.h"
 #include "rom/ets_sys.h"
@@ -16,26 +15,10 @@
 #include "c_string.h"
 
 
-#if (CURRENT_PLATFORM == NODE_PLATFORM_ESP32)
-#define OUTPUT 				GPIO_MODE_OUTPUT
-#define INPUT 				GPIO_MODE_INPUT
-#define PULLUP 				GPIO_PULLUP_ONLY
-#define FLOAT 				GPIO_FLOATING
-#define INOUT 				GPIO_MODE_INPUT_OUTPUT
-#define PLATFORM_INTERRUPT 	GPIO_INTR_POSEDGE
-#define HIGH 				1
-#define LOW 				0
-#define GPIO_PIN_NUM 		GPIO_NUM_MAX
-#else
-#define PULLUP PLATFORM_GPIO_PULLUP
-#define FLOAT PLATFORM_GPIO_FLOAT
-#define OUTPUT PLATFORM_GPIO_OUTPUT
-#define INPUT PLATFORM_GPIO_INPUT
-#define INOUT PLATFORM_GPIO_INOUT
-#define PLATFORM_INTERRUPT PLATFORM_GPIO_INT
-#define HIGH PLATFORM_GPIO_HIGH
-#define LOW PLATFORM_GPIO_LOW
-#endif
+/*#undef MIN_OPT_LEVEL
+#define MIN_OPT_LEVEL 1
+#define LUA_OPTIMIZE_MEMORY 2*/
+#include "lrodefs.h"
 
 
 #define GPIO_INTERRUPT_ENABLE
@@ -99,7 +82,6 @@ static int lgpio_mode( lua_State* L )
   int type = GPIO_INTR_DISABLE;
 
   pin = luaL_checkinteger( L, 1 );
-  //MOD_CHECK_ID( gpio, pin );
   mode = luaL_checkinteger( L, 2 );
   if ( mode!=OUTPUT && mode!=INPUT && mode!=PLATFORM_INTERRUPT && mode!= INOUT)
     return luaL_error( L, "wrong arg type" );
@@ -142,7 +124,7 @@ static int lgpio_mode( lua_State* L )
     gpio_cb_ref[pin] = LUA_NOREF;
   }
 #endif
-  int r = platform_gpio_mode( pin, mode, type );
+  int r = platform_gpio_mode( pin, mode, type ); 
   if( r<0 )
     return luaL_error( L, "wrong pin num." );
 
@@ -252,7 +234,8 @@ static int lgpio_serout( lua_State* L )
 }
 #undef DELAY_TABLE_MAX_LEN
 
-// Module function map
+
+// Module function map 
 const LUA_REG_TYPE gpio_map[] = {
   { LSTRKEY( "mode" ),   LFUNCVAL( lgpio_mode ) },
   { LSTRKEY( "read" ),   LFUNCVAL( lgpio_read ) },
@@ -275,10 +258,6 @@ const LUA_REG_TYPE gpio_map[] = {
 
 LUALIB_API int luaopen_gpio(lua_State *L)
 {
-#if LUA_OPTIMIZE_MEMORY > 0
-    return 0;
-#else  
 	luaL_register( L, LUA_GPIOLIBNAME, gpio_map );
 	return 1;
-#endif
 }
