@@ -13,7 +13,7 @@ PLATFORM SUPPORTED (NEW):
 --------------------------------------
 
 LuaNode can be running on the following chip/module
-* ESP32
+* ESP32-WROOM (ESP32C6 coming soon)
 * ESP8266
 * W800
 * STM32L4 (Coming soon)
