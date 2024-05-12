@@ -35,6 +35,8 @@ New version of ESP32 dev-board is coming! The new board will be ready for retail
 
 Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtufgwg0ex/esp32_Schematic%20Prints.pdf?dl=0 "schematic")
 
+LuaNode for ESP32C6 is now available! Check this [document](https://github.com/Nicholas3388/LuaNode/blob/master/LuaNode_Esp32/README.md "LuaNode for ESP32C6")
+
 ### How To Build LuaNode32
 * Download prebuild toolchain [Here](https://github.com/jmattsson/nodemcu-prebuilt-toolchains "toolchains"), you 
   can also build the tools from source, follow the steps [Here](http://esp-idf.readthedocs.io/en/latest/linux-setup.html "How to build toolchain")
