@@ -17,14 +17,14 @@ LuaNode can be running on the following chip/module
 * ESP8266
 * STM32L4 (Coming soon)
 
-NEW UPDATE FOR ESP32:
+NEW UPDATE FOR ESP32(ESP32C6):
 --------------------------------------
 
 New version of LuaNode32 is developed based on esp-idf and compatible with `Esplorer`. User can program with Lua, send and save Lua code to hardware via Esplorer.
 
 LuaNode for ESP32C6 is now available! Check this [document](https://github.com/Nicholas3388/LuaNode/blob/master/LuaNode_Esp32/README.md "LuaNode for ESP32C6")
 
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/startup.jpg "Esp32c6 power up log")
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/startup.png "Esp32c6 power up log")
 
 ### How To Build LuaNode32
 
