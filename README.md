@@ -5,7 +5,7 @@ This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Es
 
 This project is developed by `DOIT` WiFi team.
 
-DOIT is a high-tech company, focus on IoT. Visit homepage: www.doit.am
+DOIT is a high-tech company, focus on IoT. Visit homepage: [doit.am](https://doit.am/#/ "DOIT")
 
 ![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/logo.jpg "Esp32 & Esp8266")
 
@@ -13,9 +13,8 @@ PLATFORM SUPPORTED (NEW):
 --------------------------------------
 
 LuaNode can be running on the following chip/module
-* ESP32-WROOM (ESP32C6 coming soon)
+* ESP32-WROOM (ESP32C6 including)
 * ESP8266
-* W800
 * STM32L4 (Coming soon)
 
 NEW UPDATE FOR ESP32:
@@ -23,28 +22,13 @@ NEW UPDATE FOR ESP32:
 
 New version of LuaNode32 is developed based on esp-idf and compatible with `Esplorer`. User can program with Lua, send and save Lua code to hardware via Esplorer.
 
-The following figures show the DOIT ESP32 dev-board. To buy the ESP32 dev-board click [Here](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-7420449993.9.yduA0V&id=542459608596)
-
- 
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp32_fig.png "ESP32 dev-board")
-
-New version of ESP32 dev-board is coming! The new board will be ready for retail in few days. The new board is smaller than the old one, and has more pins.
-
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/ESP32_dimension.png "dimension")
-
-Download the DOIT dev-board schematic [here](https://www.dropbox.com/s/jefwxxtufgwg0ex/esp32_Schematic%20Prints.pdf?dl=0 "schematic")
-
 LuaNode for ESP32C6 is now available! Check this [document](https://github.com/Nicholas3388/LuaNode/blob/master/LuaNode_Esp32/README.md "LuaNode for ESP32C6")
 
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/startup.jpg "Esp32c6 power up log")
+
 ### How To Build LuaNode32
-* Download prebuild toolchain [Here](https://github.com/jmattsson/nodemcu-prebuilt-toolchains "toolchains"), you 
-  can also build the tools from source, follow the steps [Here](http://esp-idf.readthedocs.io/en/latest/linux-setup.html "How to build toolchain")
-* Export build tools' directory by executing the following command on terminal,
-  `export PATH=/your_path/toolchains/esp32/bin:$PATH`, where the `your_path` is the
-  path the toolchains stored.
-* Export `esp-idf` path by the following command: `export IDF_PATH=the_esp-idf_path`
-* Change current directory to `LuaNode32`, then input `make` to build firmware.
+
+To build LuaNode firmware for ESP32 series chip, see this [Doc](https://github.com/Nicholas3388/LuaNode/blob/master/LuaNode_Esp32/README.md "Build firmware")
 
 For more details, view LuaNode [wiki page](https://github.com/Nicholas3388/LuaNode/wiki "LuaNode Wiki")
 
@@ -253,13 +237,22 @@ You can see the scanning results.
 
 ![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/luanode_host.jpg "LuanodeUsbHost")
 
-OTHER NEW PLATFORM:
+ESPRESSIF CHIP FAMILY:
 --------------------------------------
-The latest LuaNode support new platform: w800 serial module. W800 is a WiFi+BLE SoC from WinnerMiro, for more details, refer to the official website: http://www.winnermicro.com/
 
-We developed LuaNode on W800 utilized the dev-board named: 润和Neptune, which shows as following figure:
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_1.png "ESP") 
 
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/w800.png "W800") 
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_2.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_3.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_4.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_5.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_6.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_7.png "ESP") 
 
 FAQ:
 --------------------------------------
@@ -284,7 +277,7 @@ CONTACT ME:
 
 If you have any question, you can contact me via Email/QQ list below, Thanks:) 
 
-  - `Email`: wangwei@doit.am
+  - `Email`: lihonggang@doit.am
   - `QQ`: 535873968
 
 
