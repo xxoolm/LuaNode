@@ -83,10 +83,23 @@ HOW TO FLASH THE FIRMWARE:
 
 See LuaNode wiki page [Here](https://github.com/Nicholas3388/LuaNode/wiki/How-to-flash-the-firmware).
 
-HOW TO DEBUG:
+
+ESPRESSIF CHIP FAMILY:
 --------------------------------------
 
-See wiki page [Here](https://github.com/Nicholas3388/LuaNode/wiki/How-to-debug).
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_1.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_2.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_3.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_4.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_5.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_6.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_7.png "ESP") 
 
 
 APPS:
@@ -237,22 +250,6 @@ You can see the scanning results.
 
 ![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/luanode_host.jpg "LuanodeUsbHost")
 
-ESPRESSIF CHIP FAMILY:
---------------------------------------
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_1.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_2.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_3.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_4.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_5.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_6.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_7.png "ESP") 
 
 FAQ:
 --------------------------------------
