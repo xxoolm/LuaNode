@@ -3,6 +3,25 @@ LuaNode
 
 This project is an improved `Lua` SDK, based on ESP-IDF/ESP8266_RTOS_SDK, for Esp32 (compatible with Esp8266, W800, etc).
 
+ESPRESSIF CHIP FAMILY:
+--------------------------------------
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_1.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_2.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_3.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_4.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_5.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_6.png "ESP") 
+
+![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_7.png "ESP") 
+
+
+
 This project is developed by `DOIT` WiFi team.
 
 DOIT is a high-tech company, focus on IoT. Visit homepage: [doit.am](https://doit.am/#/ "DOIT")
@@ -82,24 +101,6 @@ HOW TO FLASH THE FIRMWARE:
 --------------------------------------
 
 See LuaNode wiki page [Here](https://github.com/Nicholas3388/LuaNode/wiki/How-to-flash-the-firmware).
-
-
-ESPRESSIF CHIP FAMILY:
---------------------------------------
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_1.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_2.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_3.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_4.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_5.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_6.png "ESP") 
-
-![github](https://github.com/Nicholas3388/LuaNode/raw/master/images/esp_7.png "ESP") 
 
 
 APPS:
